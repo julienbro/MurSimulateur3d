@@ -126,6 +126,20 @@
             align-items: center;
             padding-right: 10px; 
         }
+        .main-menu-title { /* New style for the title */
+            margin-right: 10px;
+            color: #333;
+            display: flex;
+            align-items: baseline; /* Align text baselines */
+        }
+        .main-menu-title strong {
+            font-size: 1em; /* Same as menu items */
+        }
+        .main-menu-title span {
+            font-size: 0.8em;
+            margin-left: 5px;
+            color: #555;
+        }
         .main-menu-separator {
             border-left: 1px solid #C0C0C0; 
             height: 20px; 
@@ -702,6 +716,10 @@
                 </div>
             </div>
             <div class="menu-actions-right">
+                <div class="main-menu-title">
+                    <strong>MurSimulateur3D</strong>
+                    <span>par J.BROHEZ</span>
+                </div>
                 <button id="export-print-button" title="Exporter/Imprimer PDF"><i class="fas fa-print"></i> Exporter/Imprimer</button>
                 <span class="main-menu-separator"></span>
                 <button id="undo-tool" title="Annuler (Ctrl+Z)" disabled><i class="fas fa-undo"></i></button>
@@ -804,6 +822,14 @@
                 <input type="number" id="vide-depth" value="1" min="1" max="5" step="0.1">
             </div>
             <span class="toolbar-separator"></span> 
+             <div id="joint-settings-toolbar" style="display: flex; align-items: center; padding: 0 5px;">
+                <label for="joint-distance" style="margin-right:2px; font-size:0.9em; color: #424242;">Joint Briques (cm):</label>
+                <input type="number" id="joint-distance" value="1" min="0" step="0.1" style="width: 50px; padding: 4px; margin-right: 8px;">
+                
+                <label for="block-joint-distance" style="margin-right:2px; font-size:0.9em; color: #424242;">Joint Blocs (cm):</label>
+                <input type="number" id="block-joint-distance" value="1" min="0" step="0.1" style="width: 50px; padding: 4px;">
+            </div>
+            <span class="toolbar-separator"></span> 
             <span style="margin-left: 5px;">Vues:</span>
             <button id="view-3d" title="Vue 3D Perspective">3D</button>
             <button id="view-top" title="Vue de Dessus">Dessus</button>
@@ -852,13 +878,6 @@
                         <span>Suppr.</span>
                     </button>
                 </div>
-
-                <h3>Réglage des Joints</h3>
-                <label for="joint-distance">Joint Briques (cm):</label>
-                <input type="number" id="joint-distance" value="1" min="0" step="0.1">
-                
-                <label for="block-joint-distance">Joint Blocs (cm):</label>
-                <input type="number" id="block-joint-distance" value="1" min="0" step="0.1">
 
                 <h3>Palette de Couleurs</h3>
                 <div id="color-palette-container">
@@ -976,7 +995,7 @@
             // --- TEXTURES & MATERIALS ---
             const textureLoader = new THREE.TextureLoader();
             const textures = {
-                none: { name: "Aucune", path: null, previewColor: 0xeeeeee },
+                none: { name: "Aucune", path: null, previewColor: 0xeeeeee }, // For the "Aucune" option in category selector
                 briques: [
                     { id: "briques/rouge_1", name: "Brique Rouge", path: 'https://julienbro.github.io/MurSimulateur3d/textures/brique_rouge_1.png', previewColor: 0xCD5C5C },
                     { id: "briques/claire_1", name: "Brique Claire", path: 'https://julienbro.github.io/MurSimulateur3d/textures/brique_claire_1.png', previewColor: 0xF5DEB3 },
@@ -2215,7 +2234,7 @@
                 let finalColorToApply = useWhiteElements ? 0xffffff : baseColorHex;
                 
                 let textureMap = null;
-                let actualTexturePath = propsFromGhost.texturePath; 
+                let actualTexturePath = propsFromGhost.textureId; // Use textureId from props
 
                 if (actualTexturePath && actualTexturePath !== 'none') {
                     finalColorToApply = 0xffffff; 
