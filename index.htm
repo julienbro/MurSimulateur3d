@@ -76,6 +76,14 @@
             cursor: pointer;
             transition: background-color 0.2s ease;
             border-right: 1px solid #D1D1D1;
+            display: flex; /* For icon alignment */
+            align-items: center; /* For icon alignment */
+        }
+        .menu-item > i { /* Icon in main menu item */
+            margin-right: 6px;
+            font-size: 0.9em;
+            width: 16px; /* Ensure consistent width for alignment */
+            text-align: center;
         }
         .menu-item:hover {
             background-color: #D5D5D5; 
@@ -84,7 +92,7 @@
             display: none;
             position: absolute;
             background-color: #F5F5F5; 
-            min-width: 200px;
+            min-width: 220px; /* Increased width for icons */
             box-shadow: 0px 4px 8px 0px rgba(0,0,0,0.15);
             z-index: 1;
             left: 0;
@@ -96,8 +104,15 @@
             color: #333333; 
             padding: 10px 15px;
             text-decoration: none;
-            display: block;
+            display: flex; /* For icon alignment */
+            align-items: center; /* For icon alignment */
             transition: background-color 0.2s ease;
+        }
+        .dropdown-content a i { /* Icon in dropdown item */
+            margin-right: 8px;
+            width: 16px; /* Ensure consistent width */
+            text-align: center;
+            color: #555; /* Slightly dimmer icon color */
         }
         .dropdown-content a:hover {
             background-color: #E0E0E0; 
@@ -482,6 +497,40 @@
             text-overflow: ellipsis;
             white-space: nowrap;
         }
+        .texture-palette { 
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(60px, 1fr)); 
+            gap: 5px;
+            width: 100%;
+            margin-top: 5px;
+            margin-bottom: 8px;
+        }
+        .texture-swatch {
+            width: 100%;
+            padding: 5px;
+            border: 1px solid #B0B0B0;
+            border-radius: 3px;
+            cursor: pointer;
+            text-align: center;
+            font-size: 0.75em;
+            line-height: 1.2;
+            min-height: 40px; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f0f0f0; 
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: normal; 
+        }
+        .texture-swatch:hover {
+            border-color: #777;
+            background-color: #e0e0e0;
+        }
+        .texture-swatch.active-texture-swatch {
+            border: 2px solid #3498db;
+            background-color: #c5e1a5;
+        }
 
 
         /* --- VIEWPORT & CANVAS --- */
@@ -621,35 +670,35 @@
     <header>
         <nav id="main-menu">
             <div class="menu-item">
-                Fichier
+                <i class="fas fa-folder"></i>Fichier
                 <div class="dropdown-content">
-                    <a href="#" id="new-file">Nouveau</a>
-                    <a href="#" id="open-file">Ouvrir</a>
-                    <a href="#" id="save-file">Enregistrer</a>
-                    <a href="#" id="export-pdf">Exporter en PDF</a>
+                    <a href="#" id="new-file"><i class="fas fa-file"></i>Nouveau</a>
+                    <a href="#" id="open-file"><i class="fas fa-folder-open"></i>Ouvrir</a>
+                    <a href="#" id="save-file"><i class="fas fa-save"></i>Enregistrer</a>
+                    <a href="#" id="export-pdf"><i class="fas fa-file-pdf"></i>Exporter en PDF</a>
                 </div>
             </div>
             <div class="menu-item">
-                Edition
+                <i class="fas fa-edit"></i>Edition
                 <div class="dropdown-content">
-                    <a href="#" id="undo-action">Annuler (Ctrl+Z)</a>
-                    <a href="#" id="redo-action">Rétablir (Ctrl+Y)</a>
-                    <a href="#" id="edit-selection">Modifier Sélection</a>
+                    <a href="#" id="undo-action"><i class="fas fa-undo-alt"></i>Annuler (Ctrl+Z)</a>
+                    <a href="#" id="redo-action"><i class="fas fa-redo-alt"></i>Rétablir (Ctrl+Y)</a>
+                    <a href="#" id="edit-selection"><i class="fas fa-pencil-alt"></i>Modifier Sélection</a>
                 </div>
             </div>
             <div class="menu-item">
-                Style
+                <i class="fas fa-palette"></i>Style
                 <div class="dropdown-content">
-                    <a href="#" id="style-white">Éléments en Blanc</a>
-                    <a href="#" id="style-color">Éléments en Couleur</a>
-                    <a href="#" id="toggle-shadows">Activer/Désactiver Ombres</a>
+                    <a href="#" id="style-white"><i class="fas fa-fill-drip"></i>Éléments en Blanc</a>
+                    <a href="#" id="style-color"><i class="fas fa-paint-brush"></i>Éléments en Couleur</a>
+                    <a href="#" id="toggle-shadows"><i class="fas fa-cloud-sun"></i>Activer/Désactiver Ombres</a>
                 </div>
             </div>
             <div class="menu-item">
-                Aide
+                <i class="fas fa-question-circle"></i>Aide
                 <div class="dropdown-content">
-                    <a href="#" id="about-app">À Propos</a>
-                    <a href="#" id="help-guide">Aide</a>
+                    <a href="#" id="about-app"><i class="fas fa-info-circle"></i>À Propos</a>
+                    <a href="#" id="help-guide"><i class="fas fa-book-open"></i>Aide</a>
                 </div>
             </div>
             <div class="menu-actions-right">
@@ -822,16 +871,14 @@
                 </div>
                  <div id="texture-material-section" style="width: calc(100% - 10px); padding: 0 5px; box-sizing: border-box;">
                     <h3>Textures et Matériaux</h3>
-                    <label for="texture-selector">Texture:</label>
-                    <select id="texture-selector">
+                    <label for="texture-category-selector">Catégorie Texture:</label>
+                    <select id="texture-category-selector">
                         <option value="none">Aucune</option>
-                        <option value="brick_red">Brique Rouge</option>
-                        <option value="concrete_block">Bloc Béton</option>
-                        <option value="wood_light">Bois Clair</option>
-                        <option value="custom_loaded_texture" style="display:none;">Texture Personnalisée</option> 
-                    </select>
+                        </select>
+                    <div id="texture-palette-grid" class="texture-palette">
+                        </div>
                     <div id="custom-texture-uploader-container">
-                        <label for="custom-texture-uploader" style="font-size:0.9em; margin-bottom:0;">Charger Texture:</label>
+                        <label for="custom-texture-uploader" style="font-size:0.9em; margin-bottom:0;">Charger Texture Perso:</label>
                         <input type="file" id="custom-texture-uploader" accept="image/jpeg, image/png" style="width:100%; font-size:0.8em; padding: 3px;">
                         <span id="custom-texture-filename"></span>
                     </div>
@@ -929,13 +976,27 @@
             // --- TEXTURES & MATERIALS ---
             const textureLoader = new THREE.TextureLoader();
             const textures = {
-                none: null,
-                brick_red: 'https://placehold.co/256x256/CD5C5C/FFFFFF?text=BriqueRouge', 
-                concrete_block: 'https://placehold.co/256x256/87CEEB/333333?text=BlocBeton',
-                wood_light: 'https://placehold.co/256x256/DEB887/FFFFFF?text=BoisClair'
+                none: { name: "Aucune", path: null, previewColor: 0xeeeeee },
+                briques: [
+                    { id: "briques/rouge_1", name: "Brique Rouge", path: 'https://julienbro.github.io/MurSimulateur3d/textures/brique_rouge_1.png', previewColor: 0xCD5C5C },
+                    { id: "briques/claire_1", name: "Brique Claire", path: 'https://julienbro.github.io/MurSimulateur3d/textures/brique_claire_1.png', previewColor: 0xF5DEB3 },
+                    { id: "briques/grise_1", name: "Brique Grise 1", path: 'https://julienbro.github.io/MurSimulateur3d/textures/brique_grise_1.png', previewColor: 0xA9A9A9 },
+                    { id: "briques/grise_2", name: "Brique Grise 2", path: 'https://julienbro.github.io/MurSimulateur3d/textures/brique_grise_2.png', previewColor: 0xBEBEBE },
+                    { id: "briques/brune_1", name: "Brique Brune", path: 'https://julienbro.github.io/MurSimulateur3d/textures/brique_brune_1.png', previewColor: 0x8B4513 }
+                ],
+                beton: [ 
+                    { id: "beton/concrete_grey_block", name: "Bloc Béton Gris", path: 'https://julienbro.github.io/MurSimulateur3d/textures/beton_1.png', previewColor: 0x87CEEB },
+                    { id: "beton/concrete_smooth_light", name: "Béton Lisse Clair", path: 'https://placehold.co/64x64/D3D3D3/000000?text=BetonClair', previewColor: 0xD3D3D3 }
+                ],
+                bois: [
+                    { id: "bois/wood_light_planks", name: "Bois Clair Planches", path: 'https://julienbro.github.io/MurSimulateur3d/textures/bois_pin_1.png', previewColor: 0xDEB887 },
+                    { id: "bois/wood_dark_grain", name: "Bois Foncé Veiné", path: 'https://placehold.co/64x64/8B4513/FFFFFF?text=BoisFonce', previewColor: 0x8B4513 }
+                ],
+                custom: [] 
             };
-            let customLoadedTextureObject = null; // Will hold the THREE.Texture object for custom loaded texture
-            let currentTexturePath = 'none'; 
+            let activeTextureSwatchElement = null;
+            let currentTextureId = 'none'; 
+            let customLoadedTextureObject = null; 
             let defaultRoughness = 0.7;
             let defaultMetalness = 0.2;
 
@@ -987,7 +1048,8 @@
             const blockJointDistanceInput = document.getElementById('block-joint-distance'); 
             const heightTooltip = document.getElementById('height-tooltip'); 
 
-            const textureSelector = document.getElementById('texture-selector');
+            const textureCategorySelector = document.getElementById('texture-category-selector');
+            const texturePaletteGrid = document.getElementById('texture-palette-grid');
             const customTextureUploader = document.getElementById('custom-texture-uploader');
             const customTextureFilenameLabel = document.getElementById('custom-texture-filename');
             const roughnessSlider = document.getElementById('roughness-slider');
@@ -1254,7 +1316,7 @@
                     case 'y': if (isCtrlOrMeta) { event.preventDefault(); redoLastAction(); } else { dpadAction = false; } break;
                     case 's': if (isCtrlOrMeta) { event.preventDefault(); handleSaveFile(); } else if (!event.shiftKey) { setCurrentTool('select'); } else { dpadAction = false; } break;
                     case 'a': if (!isCtrlOrMeta && !event.altKey) setCurrentTool('add'); else dpadAction = false; break;
-                    case 't': setCurrentTool('measure'); dpadAction = false; break; // Shortcut for Measure tool
+                    case 't': setCurrentTool('measure'); dpadAction = false; break; 
                     case 'm': setCurrentTool('move'); break;
                     case 'd': if (event.shiftKey && !isCtrlOrMeta) { setCurrentTool('duplicate'); } else { dpadAction = false; } break; 
                     case 'r': if (!isCtrlOrMeta) setCurrentTool('rotate'); else dpadAction = false; break; 
@@ -1362,11 +1424,17 @@
 
                 setupUIEventListeners();
                 createColorPalette(); 
+                populateTextureCategories(); 
+                populateTextureSwatches(textureCategorySelector.value); 
+
                 updateActiveToolButton(); 
                 updateCursorStyle();
                 updateHelpBar(); 
                 updateUndoRedoButtons();
                 updateSeatingSelector();
+                
+                elementTypeSelector.value = "brique_m50";
+                elementTypeSelector.dispatchEvent(new Event('change'));
                 
                 setCurrentTool('add'); 
                 animate();
@@ -1606,22 +1674,34 @@
                         }
                         customColorPicker.classList.add('active-color-picker');
                         if (currentTool !== 'select') setCurrentTool('select');
+                        
+                        if (activeTextureSwatchElement) {
+                            activeTextureSwatchElement.classList.remove('active-texture-swatch');
+                            activeTextureSwatchElement = null;
+                        }
+                        currentTextureId = 'none';
+                        textureCategorySelector.value = 'none';
+                        populateTextureSwatches('none');
+                        applyTextureAndMaterialToObject(selectedObject || ghostElement);
+
                         updateCursorStyle(); 
                         updateHelpBar();
                     });
                 }
 
                 // Texture and Material UI Listeners
-                textureSelector.addEventListener('change', (event) => {
-                    currentTexturePath = event.target.value;
-                    if (currentTexturePath === "custom_loaded_texture" && !customLoadedTextureObject) {
-                        // If "Custom Texture" is selected but none is loaded, prompt to load one or revert.
-                        customTextureUploader.click(); // Open file dialog
-                        return; // Don't apply if no custom texture is ready
-                    }
-                    applyTextureAndMaterialToObject(selectedObject || ghostElement);
-                    if (currentTool === 'add' && ghostElement) {
-                        applyTextureAndMaterialToObject(ghostElement);
+                textureCategorySelector.addEventListener('change', (event) => {
+                    populateTextureSwatches(event.target.value);
+                    if (event.target.value === 'none') {
+                        currentTextureId = 'none';
+                        if (activeTextureSwatchElement) {
+                            activeTextureSwatchElement.classList.remove('active-texture-swatch');
+                            activeTextureSwatchElement = null;
+                        }
+                        applyTextureAndMaterialToObject(selectedObject || ghostElement);
+                        if (currentTool === 'add' && ghostElement) {
+                            applyTextureAndMaterialToObject(ghostElement);
+                        }
                     }
                 });
                 
@@ -1633,28 +1713,49 @@
                             const dataURL = e.target.result;
                             const newTexture = textureLoader.load(dataURL, () => {
                                 newTexture.needsUpdate = true;
-                                if (ghostElement) applyTextureAndMaterialToObject(ghostElement);
-                                if (selectedObject) applyTextureAndMaterialToObject(selectedObject);
+                                let targetForMaterialUpdate = selectedObject;
+                                if (currentTool === 'add' && ghostElement) {
+                                    targetForMaterialUpdate = ghostElement;
+                                }
+                                if(targetForMaterialUpdate) applyTextureAndMaterialToObject(targetForMaterialUpdate);
                             });
-                            customLoadedTextureObject = newTexture; // Store the THREE.Texture object
+                            customLoadedTextureObject = newTexture; 
                             
-                            let customOption = textureSelector.querySelector('option[value="custom_loaded_texture"]');
-                            if (!customOption) {
-                                customOption = document.createElement('option');
-                                customOption.value = "custom_loaded_texture";
-                                textureSelector.appendChild(customOption);
+                            const customTextureEntry = {
+                                id: 'custom/' + file.name,
+                                name: file.name,
+                                path: dataURL, 
+                                previewColor: 0xcccccc, 
+                                isCustom: true,
+                                dataURL: dataURL
+                            };
+                            
+                            const existingCustomTextureIndex = textures.custom.findIndex(t => t.dataURL === dataURL);
+                            if (existingCustomTextureIndex === -1) {
+                                textures.custom.push(customTextureEntry);
+                            } else {
+                                textures.custom[existingCustomTextureIndex] = customTextureEntry;
                             }
-                            customOption.textContent = `Perso: ${file.name.substring(0,15)}${file.name.length > 15 ? '...' : ''}`;
-                            customOption.style.display = 'block';
-                            textureSelector.value = "custom_loaded_texture";
-                            currentTexturePath = "custom_loaded_texture"; // Set current path for getElementProperties
+                            
+                            populateTextureCategories(); 
+                            textureCategorySelector.value = "custom";
+                            populateTextureSwatches("custom");
+
+                            const newSwatch = Array.from(texturePaletteGrid.children).find(sw => sw.dataset.textureId === customTextureEntry.id);
+                            if (newSwatch) {
+                                if (activeTextureSwatchElement) activeTextureSwatchElement.classList.remove('active-texture-swatch');
+                                newSwatch.classList.add('active-texture-swatch');
+                                activeTextureSwatchElement = newSwatch;
+                                currentTextureId = customTextureEntry.id;
+                            }
                             
                             customTextureFilenameLabel.textContent = file.name;
-
-                            applyTextureAndMaterialToObject(selectedObject || ghostElement);
-                             if (currentTool === 'add' && ghostElement) {
-                                applyTextureAndMaterialToObject(ghostElement);
+                            
+                            let targetForMaterialUpdate = selectedObject;
+                            if (currentTool === 'add' && ghostElement) {
+                                targetForMaterialUpdate = ghostElement;
                             }
+                            applyTextureAndMaterialToObject(targetForMaterialUpdate);
                         };
                         reader.readAsDataURL(file);
                     }
@@ -1664,19 +1765,21 @@
                 roughnessSlider.addEventListener('input', (event) => {
                     const value = parseFloat(event.target.value);
                     roughnessValueLabel.textContent = value.toFixed(2);
-                    applyTextureAndMaterialToObject(selectedObject || ghostElement);
-                     if (currentTool === 'add' && ghostElement) {
-                        applyTextureAndMaterialToObject(ghostElement);
+                    let targetForMaterialUpdate = selectedObject;
+                    if (currentTool === 'add' && ghostElement) {
+                        targetForMaterialUpdate = ghostElement;
                     }
+                    if (targetForMaterialUpdate) applyTextureAndMaterialToObject(targetForMaterialUpdate);
                 });
 
                 metalnessSlider.addEventListener('input', (event) => {
                     const value = parseFloat(event.target.value);
                     metalnessValueLabel.textContent = value.toFixed(2);
-                    applyTextureAndMaterialToObject(selectedObject || ghostElement);
+                    let targetForMaterialUpdate = selectedObject;
                     if (currentTool === 'add' && ghostElement) {
-                        applyTextureAndMaterialToObject(ghostElement);
+                        targetForMaterialUpdate = ghostElement;
                     }
+                   if (targetForMaterialUpdate) applyTextureAndMaterialToObject(targetForMaterialUpdate);
                 });
             }
             
@@ -1828,11 +1931,96 @@
                             activeSwatchElement.classList.add('active-color-swatch');
                             if (currentTool !== 'select') setCurrentTool('select');
                         }
+                        // When a color is selected, deselect any active texture
+                        if (activeTextureSwatchElement) {
+                            activeTextureSwatchElement.classList.remove('active-texture-swatch');
+                            activeTextureSwatchElement = null;
+                        }
+                        currentTextureId = 'none'; // Reset current texture
+                        textureCategorySelector.value = 'none'; // Reset category selector
+                        populateTextureSwatches('none'); // Clear texture swatches or show "Aucune"
+                        applyTextureAndMaterialToObject(selectedObject || ghostElement); // Apply color change
+                        
                         updateCursorStyle(); updateHelpBar();
                     });
                     paletteDiv.appendChild(swatch);
                 });
             }
+            
+            function populateTextureCategories() {
+                textureCategorySelector.innerHTML = '<option value="none">Aucune</option>'; // Start with "Aucune"
+                for (const categoryKey in textures) {
+                    if (textures.hasOwnProperty(categoryKey) && categoryKey !== 'none') {
+                        const option = document.createElement('option');
+                        option.value = categoryKey;
+                        // Capitalize first letter for display
+                        option.textContent = categoryKey.charAt(0).toUpperCase() + categoryKey.slice(1);
+                        if (categoryKey === 'custom' && textures.custom.length === 0) {
+                             option.style.display = 'none'; // Hide custom if empty initially
+                        }
+                        textureCategorySelector.appendChild(option);
+                    }
+                }
+            }
+
+            function populateTextureSwatches(category) {
+                texturePaletteGrid.innerHTML = ''; // Clear existing swatches
+                if (activeTextureSwatchElement) {
+                    activeTextureSwatchElement.classList.remove('active-texture-swatch');
+                    activeTextureSwatchElement = null;
+                }
+
+                let texturesToShow = [];
+                if (category === 'none') {
+                    currentTextureId = 'none';
+                    applyTextureAndMaterialToObject(selectedObject || ghostElement);
+                    return;
+                } else if (textures[category]) {
+                    texturesToShow = textures[category];
+                }
+
+                texturesToShow.forEach(tex => {
+                    const swatch = document.createElement('div');
+                    swatch.className = 'texture-swatch';
+                    swatch.textContent = tex.name;
+                    swatch.style.backgroundColor = '#' + (tex.previewColor || 0xeeeeee).toString(16).padStart(6, '0');
+                    swatch.dataset.textureId = tex.id;
+                    swatch.dataset.texturePath = tex.path; // Store full path or dataURL
+
+                    if (tex.id === currentTextureId) {
+                        swatch.classList.add('active-texture-swatch');
+                        activeTextureSwatchElement = swatch;
+                    }
+
+                    swatch.addEventListener('click', (event) => {
+                        event.stopPropagation();
+                        if (activeTextureSwatchElement) {
+                            activeTextureSwatchElement.classList.remove('active-texture-swatch');
+                        }
+                        if (customColorPicker) customColorPicker.classList.remove('active-color-picker');
+                        if (activeSwatchElement) activeSwatchElement.classList.remove('active-color-swatch');
+                        
+                        currentActiveColor = null; // Deselect color when texture is chosen
+
+                        swatch.classList.add('active-texture-swatch');
+                        activeTextureSwatchElement = swatch;
+                        currentTextureId = tex.id;
+                        
+                        if (tex.isCustom) {
+                            customLoadedTextureObject = textureLoader.load(tex.dataURL); // Re-create if needed
+                        } else {
+                            customLoadedTextureObject = null; // Not a custom loaded one
+                        }
+
+                        applyTextureAndMaterialToObject(selectedObject || ghostElement);
+                        if (currentTool === 'add' && ghostElement) {
+                            applyTextureAndMaterialToObject(ghostElement);
+                        }
+                    });
+                    texturePaletteGrid.appendChild(swatch);
+                });
+            }
+
 
             function getElementProperties() {
                 const selectedOption = elementTypeSelector.options[elementTypeSelector.selectedIndex];
@@ -1924,7 +2112,8 @@
                     cutLength: (baseType === 'brique' || baseType === 'bloc') ? cutLength : undefined, 
                     widthMultiplier: (baseType === 'brique' || typeKey.startsWith('bloc_cell_')) && cutLength !== 'custom_cut' ? widthMultiplier : 1.0,
                     customCutWidthValue: (baseType === 'brique' || baseType === 'bloc') && cutLength === 'custom_cut' ? customCutWidthValue : undefined,
-                    texturePath: currentTexturePath, 
+                    textureId: currentTextureId, 
+                    customTextureData: (currentTextureId && currentTextureId.startsWith('custom/')) ? customLoadedTextureObject.image.src : null,
                     roughness: parseFloat(roughnessSlider.value),
                     metalness: parseFloat(metalnessSlider.value)
                 };
@@ -1948,19 +2137,29 @@
                     metalness: props.metalness 
                 });
                 
-                if (props.texturePath && props.texturePath !== 'none' && textures[props.texturePath]) {
+                if (props.textureId && props.textureId !== 'none') {
                     material.color.set(0xffffff); 
-                    textureLoader.load(textures[props.texturePath], (texture) => {
-                        texture.wrapS = THREE.RepeatWrapping;
-                        texture.wrapT = THREE.RepeatWrapping;
-                        texture.repeat.set(props.width / 1, props.height / 0.2); 
-                        material.map = texture;
-                        material.needsUpdate = true;
-                    });
-                } else if (props.texturePath === "custom_loaded_texture" && customLoadedTextureObject) {
-                     material.color.set(0xffffff);
-                     material.map = customLoadedTextureObject;
-                     material.needsUpdate = true;
+                    let textureToLoadPath = null;
+                    if (props.textureId === "custom_loaded_texture" && customLoadedTextureObject) {
+                        textureToLoadPath = customLoadedTextureObject.image.src; // Use data URL for custom
+                    } else if (props.textureId.startsWith('custom/')) { // For custom textures loaded via save file
+                         textureToLoadPath = props.customTextureData;
+                    } else {
+                        const category = props.textureId.split('/')[0];
+                        const texName = props.textureId.split('/')[1];
+                        const texData = textures[category]?.find(t => t.id === props.textureId);
+                        if (texData) textureToLoadPath = texData.path;
+                    }
+
+                    if (textureToLoadPath) {
+                        textureLoader.load(textureToLoadPath, (texture) => {
+                            texture.wrapS = THREE.RepeatWrapping;
+                            texture.wrapT = THREE.RepeatWrapping;
+                            texture.repeat.set(props.width / 1, props.height / 0.2); 
+                            material.map = texture;
+                            material.needsUpdate = true;
+                        });
+                    }
                 }
 
 
@@ -2016,13 +2215,13 @@
                 let finalColorToApply = useWhiteElements ? 0xffffff : baseColorHex;
                 
                 let textureMap = null;
-                let actualTexturePath = propsFromGhost.texturePath; // Path or "custom_loaded_texture" or data URL
+                let actualTexturePath = propsFromGhost.texturePath; 
 
                 if (actualTexturePath && actualTexturePath !== 'none') {
                     finalColorToApply = 0xffffff; 
                     if (actualTexturePath === "custom_loaded_texture" && customLoadedTextureObject) {
                         textureMap = customLoadedTextureObject;
-                    } else if (actualTexturePath.startsWith("data:image") && propsFromGhost.customTextureData) { // For loading from save file
+                    } else if (actualTexturePath.startsWith("data:image") && propsFromGhost.customTextureData) { 
                         textureMap = textureLoader.load(propsFromGhost.customTextureData, (texture) => {
                             texture.wrapS = THREE.RepeatWrapping; texture.wrapT = THREE.RepeatWrapping;
                             const repeatX = Math.max(1, Math.round(propsFromGhost.width / 0.5)); 
@@ -2030,15 +2229,20 @@
                             texture.repeat.set(repeatX, repeatY);
                             element.material.needsUpdate = true;
                         });
-                         actualTexturePath = propsFromGhost.customTextureData; // Store the data URL in userData
-                    } else if (textures[actualTexturePath]) {
-                        textureMap = textureLoader.load(textures[actualTexturePath], (texture) => {
-                            texture.wrapS = THREE.RepeatWrapping; texture.wrapT = THREE.RepeatWrapping;
-                            const repeatX = Math.max(1, Math.round(propsFromGhost.width / 0.5)); 
-                            const repeatY = Math.max(1, Math.round(propsFromGhost.height / 0.25));
-                            texture.repeat.set(repeatX, repeatY);
-                            element.material.needsUpdate = true;
-                        });
+                         actualTexturePath = propsFromGhost.customTextureData; 
+                    } else {
+                        const category = actualTexturePath.split('/')[0];
+                        const texName = actualTexturePath.split('/')[1];
+                        const texData = textures[category]?.find(t => t.id === actualTexturePath);
+                        if (texData && texData.path) {
+                            textureMap = textureLoader.load(texData.path, (texture) => {
+                                texture.wrapS = THREE.RepeatWrapping; texture.wrapT = THREE.RepeatWrapping;
+                                const repeatX = Math.max(1, Math.round(propsFromGhost.width / 0.5)); 
+                                const repeatY = Math.max(1, Math.round(propsFromGhost.height / 0.25));
+                                texture.repeat.set(repeatX, repeatY);
+                                element.material.needsUpdate = true;
+                            });
+                        }
                     }
                 }
 
@@ -2064,8 +2268,8 @@
                     isGhost: false,
                     id: elementId || THREE.MathUtils.generateUUID(),
                     originalColor: baseColorHex, 
-                    texturePath: actualTexturePath, // Store the actual path or data URL
-                    customTextureData: (actualTexturePath && actualTexturePath.startsWith("data:image")) ? actualTexturePath : null, // Store data URL if custom
+                    texturePath: actualTexturePath, 
+                    customTextureData: (actualTexturePath && actualTexturePath.startsWith("data:image")) ? actualTexturePath : null, 
                     roughness: propsFromGhost.roughness,
                     metalness: propsFromGhost.metalness,
                     seatingIndex: propsFromGhost.seatingIndex !== undefined ? propsFromGhost.seatingIndex : currentSeatingIndex,
@@ -2089,53 +2293,74 @@
             function applyTextureAndMaterialToObject(targetObject) {
                 if (!targetObject || !targetObject.material) return;
 
-                const newTexturePath = textureSelector.value;
+                const newTextureId = currentTextureId; 
                 const newRoughness = parseFloat(roughnessSlider.value);
                 const newMetalness = parseFloat(metalnessSlider.value);
 
-                // Store for undo/redo if it's a real object
                 if (targetObject === selectedObject && targetObject.userData && !targetObject.userData.isGhost) {
                     const oldProps = {
-                        texturePath: targetObject.userData.texturePath || 'none',
+                        texturePath: targetObject.userData.texturePath || 'none', 
                         customTextureData: targetObject.userData.customTextureData,
                         roughness: targetObject.userData.roughness,
                         metalness: targetObject.userData.metalness,
                         color: targetObject.material.color.getHex() 
                     };
+                    let newCustomData = null;
+                    if (newTextureId.startsWith('custom/') && customLoadedTextureObject && customLoadedTextureObject.image) {
+                        newCustomData = customLoadedTextureObject.image.src;
+                    }
+
                     const newProps = {
-                        texturePath: newTexturePath,
-                        customTextureData: (newTexturePath === "custom_loaded_texture" && customLoadedTextureObject) ? customLoadedTextureObject.image.src : null,
+                        texturePath: newTextureId,
+                        customTextureData: newCustomData,
                         roughness: newRoughness,
                         metalness: newMetalness,
-                        color: (newTexturePath !== 'none') ? 0xffffff : targetObject.userData.originalColor 
+                        color: (newTextureId !== 'none') ? 0xffffff : 
+                               (useWhiteElements ? 0xffffff : (targetObject.userData.originalColor || elementColors.default))
                     };
                     if (oldProps.texturePath !== newProps.texturePath || 
                         oldProps.roughness !== newProps.roughness || 
                         oldProps.metalness !== newProps.metalness ||
-                        (oldProps.texturePath === 'none' && newProps.texturePath !== 'none') || // color might change due to texture
-                        (oldProps.texturePath !== 'none' && newProps.texturePath === 'none')    // color might change due to no texture
+                        (oldProps.texturePath === 'none' && newProps.texturePath !== 'none') || 
+                        (oldProps.texturePath !== 'none' && newProps.texturePath === 'none')    
                         ) {
                          pushActionToUndoStack({ type: 'material_update', objectId: targetObject.userData.id, oldProps: oldProps, newProps: newProps });
                     }
                 }
 
 
-                targetObject.userData.texturePath = newTexturePath;
+                targetObject.userData.texturePath = newTextureId;
                 targetObject.userData.roughness = newRoughness;
                 targetObject.userData.metalness = newMetalness;
-                targetObject.userData.customTextureData = (newTexturePath === "custom_loaded_texture" && customLoadedTextureObject) ? customLoadedTextureObject.image.src : null;
+                if (newTextureId.startsWith('custom/') && customLoadedTextureObject && customLoadedTextureObject.image) {
+                    targetObject.userData.customTextureData = customLoadedTextureObject.image.src;
+                } else {
+                    targetObject.userData.customTextureData = null;
+                }
 
 
                 targetObject.material.roughness = newRoughness;
                 targetObject.material.metalness = newMetalness;
 
-                if (newTexturePath && newTexturePath !== 'none') {
+                if (newTextureId && newTextureId !== 'none') {
                     targetObject.material.color.set(0xffffff); 
                     let textureToApply = null;
-                    if (newTexturePath === "custom_loaded_texture" && customLoadedTextureObject) {
-                        textureToApply = customLoadedTextureObject;
-                    } else if (textures[newTexturePath]) {
-                        textureToApply = textureLoader.load(textures[newTexturePath], (tex) => {
+                    let pathToLoad = null;
+
+                    if (newTextureId.startsWith('custom/')) {
+                        if (customLoadedTextureObject && customLoadedTextureObject.image.src) {
+                            pathToLoad = customLoadedTextureObject.image.src;
+                        } else if (targetObject.userData.customTextureData) { 
+                            pathToLoad = targetObject.userData.customTextureData;
+                        }
+                    } else {
+                        const category = newTextureId.split('/')[0];
+                        const texData = textures[category]?.find(t => t.id === newTextureId);
+                        if (texData) pathToLoad = texData.path;
+                    }
+                    
+                    if (pathToLoad) {
+                        textureToApply = textureLoader.load(pathToLoad, (tex) => {
                             tex.wrapS = THREE.RepeatWrapping;
                             tex.wrapT = THREE.RepeatWrapping;
                             const repeatX = Math.max(1, Math.round(targetObject.userData.width / 0.5)); 
@@ -2144,8 +2369,10 @@
                             targetObject.material.map = tex;
                             targetObject.material.needsUpdate = true;
                         });
+                         targetObject.material.map = textureToApply; 
+                    } else {
+                         targetObject.material.map = null;
                     }
-                    targetObject.material.map = textureToApply;
                 } else {
                     targetObject.material.map = null;
                     const colorToSet = useWhiteElements ? 0xffffff : (targetObject.userData.originalColor || elementColors.default);
@@ -2372,7 +2599,35 @@
                     } else { controls.enabled = true; }
 
                     // Update Texture/Material UI when selecting an object
-                    textureSelector.value = selectedObject.userData.texturePath || 'none';
+                    const textureIdToSelect = selectedObject.userData.texturePath || 'none';
+                    if (textureIdToSelect.startsWith('custom/') || (selectedObject.userData.customTextureData && textureIdToSelect.startsWith("data:image"))) {
+                        textureCategorySelector.value = 'custom';
+                        populateTextureSwatches('custom'); // Ensure custom swatches are populated
+                        const customSwatch = Array.from(texturePaletteGrid.children).find(sw => sw.dataset.textureId === textureIdToSelect || (selectedObject.userData.customTextureData && sw.dataset.texturePath === selectedObject.userData.customTextureData));
+                        if (customSwatch) {
+                            if (activeTextureSwatchElement) activeTextureSwatchElement.classList.remove('active-texture-swatch');
+                            customSwatch.classList.add('active-texture-swatch');
+                            activeTextureSwatchElement = customSwatch;
+                            currentTextureId = textureIdToSelect;
+                        }
+                    } else {
+                        const category = textureIdToSelect.split('/')[0] || 'none';
+                        textureCategorySelector.value = category;
+                        populateTextureSwatches(category);
+                        const swatchToSelect = Array.from(texturePaletteGrid.children).find(sw => sw.dataset.textureId === textureIdToSelect);
+                        if (swatchToSelect) {
+                            if (activeTextureSwatchElement) activeTextureSwatchElement.classList.remove('active-texture-swatch');
+                            swatchToSelect.classList.add('active-texture-swatch');
+                            activeTextureSwatchElement = swatchToSelect;
+                            currentTextureId = textureIdToSelect;
+                        } else if (textureIdToSelect === 'none') {
+                             if (activeTextureSwatchElement) activeTextureSwatchElement.classList.remove('active-texture-swatch');
+                             activeTextureSwatchElement = null;
+                             currentTextureId = 'none';
+                        }
+                    }
+
+
                     roughnessSlider.value = selectedObject.userData.roughness !== undefined ? selectedObject.userData.roughness : defaultRoughness;
                     metalnessSlider.value = selectedObject.userData.metalness !== undefined ? selectedObject.userData.metalness : defaultMetalness;
                     roughnessValueLabel.textContent = parseFloat(roughnessSlider.value).toFixed(2);
@@ -2489,7 +2744,7 @@
                             
                             if (action.oldProps.texturePath && action.oldProps.texturePath !== 'none') {
                                 object.material.color.set(0xffffff);
-                                let textureToLoad = action.oldProps.texturePath === "custom_loaded_texture" ? action.oldProps.customTextureData : textures[action.oldProps.texturePath];
+                                let textureToLoad = action.oldProps.texturePath === "custom_loaded_texture" ? action.oldProps.customTextureData : textures[action.oldProps.texturePath.split('/')[0]]?.find(t=>t.id === action.oldProps.texturePath)?.path;
                                 if (textureToLoad) {
                                     textureLoader.load(textureToLoad, (texture) => {
                                         texture.wrapS = THREE.RepeatWrapping;
@@ -2543,7 +2798,7 @@
 
                             if (action.newProps.texturePath && action.newProps.texturePath !== 'none') {
                                 object.material.color.set(0xffffff);
-                                let textureToLoad = action.newProps.texturePath === "custom_loaded_texture" ? action.newProps.customTextureData : textures[action.newProps.texturePath];
+                                let textureToLoad = action.newProps.texturePath === "custom_loaded_texture" ? action.newProps.customTextureData : textures[action.newProps.texturePath.split('/')[0]]?.find(t=>t.id === action.newProps.texturePath)?.path;
                                  if (textureToLoad) {
                                     textureLoader.load(textureToLoad, (texture) => {
                                         texture.wrapS = THREE.RepeatWrapping;
@@ -2629,7 +2884,7 @@
                             seatingIndex: objData.seatingIndex, cutLength: objData.cutLength, 
                             widthMultiplier: objData.widthMultiplier, customCutWidthValue: objData.customCutWidthValue,
                             texturePath: objData.texturePath || 'none', 
-                            customTextureData: objData.customTextureData, // Load custom texture data
+                            customTextureData: objData.customTextureData, 
                             roughness: objData.roughness !== undefined ? objData.roughness : defaultRoughness,
                             metalness: objData.metalness !== undefined ? objData.metalness : defaultMetalness
                         }; 
@@ -2783,6 +3038,7 @@
                     scene.background.copy(originalSceneBackground);
                 }
 
+                let vc = 0; 
 
                 for (let i=0; i<views.length; i++) { 
                     if (i > 0) pdf.addPage(); 
@@ -2819,8 +3075,8 @@
                             if (obj.isMesh && obj.material && initialObjectStates.has(obj.uuid)) {
                                 const initialState = initialObjectStates.get(obj.uuid);
                                 if (initialState.type === 'mesh') {
-                                    obj.material.color.copy(initialState.color); // Use current color (which might be white if texture is applied)
-                                    obj.material.map = initialState.map; // Use current map
+                                    obj.material.color.copy(initialState.color); 
+                                    obj.material.map = initialState.map; 
                                     obj.material.roughness = initialState.roughness;
                                     obj.material.metalness = initialState.metalness;
                                     obj.material.visible = initialState.visible; 
@@ -2857,8 +3113,8 @@
                         objects.forEach(obj => {
                             if (obj.isMesh && obj.material && !obj.userData.isGhost && (obj.userData.baseType === 'brique' || obj.userData.baseType === 'bloc' || obj.userData.baseType === 'linteau')) {
                                 obj.material.color.setHex(0xffffff); 
-                                obj.material.map = null; // No texture for ortho
-                                obj.material.roughness = 1.0; // Make it non-shiny
+                                obj.material.map = null; 
+                                obj.material.roughness = 1.0; 
                                 obj.material.metalness = 0.0;
                                 obj.material.opacity = 1.0;
                                 obj.material.transparent = false;
@@ -2956,7 +3212,7 @@
                     summaryPageY +=5;
                 }
                 pdf.text(`Date: ${date}`, m, summaryPageY);
-                pdf.text(`Page ${Math.floor(vc/2)+1}`, pw - m -15, m + 5);
+                pdf.text(`Page ${vc+1}`, pw - m -15, m + 5); // Page number for summary page
                 summaryPageY += 10;
 
 
@@ -2994,7 +3250,7 @@
                            pdf.text(`Dessinateur: ${designer}`, m, summaryPageY); summaryPageY +=5;
                         }
                         pdf.text(`Date: ${date}`, m, summaryPageY); 
-                        pdf.text(`Page ${Math.floor(vc/2)+1 + (summaryPageY > ph -40 ? 1:0) }`, pw - m -15, m + 5); 
+                        pdf.text(`Page ${vc+1 + (summaryPageY > ph -40 ? 1:0) }`, pw - m -15, m + 5); 
                         summaryPageY += 15;
 
                         pdf.setFontSize(14); pdf.setFont(undefined, 'bold');
@@ -3022,7 +3278,7 @@
                            pdf.text(`Dessinateur: ${designer}`, m, summaryPageY); summaryPageY +=5;
                         }
                         pdf.text(`Date: ${date}`, m, summaryPageY); 
-                        pdf.text(`Page ${Math.floor(vc/2)+1 + (summaryPageY > ph -30 ? 1:0) }`, pw - m -15, m + 5); 
+                        pdf.text(`Page ${vc+1 + (summaryPageY > ph -30 ? 1:0) }`, pw - m -15, m + 5); 
                         summaryPageY += 15;
                     }
                     pdf.setFontSize(14);
@@ -3052,7 +3308,7 @@
                            pdf.text(`Dessinateur: ${designer}`, m, summaryPageY); summaryPageY +=5;
                         }
                         pdf.text(`Date: ${date}`, m, summaryPageY); 
-                        pdf.text(`Page ${Math.floor(vc/2)+1 + (summaryPageY > ph -30 ? 1:0) }`, pw - m -15, m + 5); 
+                        pdf.text(`Page ${vc+1 + (summaryPageY > ph -30 ? 1:0) }`, pw - m -15, m + 5); 
                         summaryPageY += 15;
                     }
                     pdf.setFontSize(14);
@@ -3120,7 +3376,7 @@
                 else if (selectedObject.userData.type === 'vide') { videDepthInput.value = selectedObject.userData.depth * 100; }
                 
                  // Set texture and material sliders
-                textureSelector.value = selectedObject.userData.texturePath || 'none';
+                textureCategorySelector.value = selectedObject.userData.texturePath || 'none';
                 roughnessSlider.value = selectedObject.userData.roughness !== undefined ? selectedObject.userData.roughness : defaultRoughness;
                 metalnessSlider.value = selectedObject.userData.metalness !== undefined ? selectedObject.userData.metalness : defaultMetalness;
                 roughnessValueLabel.textContent = parseFloat(roughnessSlider.value).toFixed(2);
