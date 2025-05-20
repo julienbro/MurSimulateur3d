@@ -1,0 +1,3305 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MurSimulateur3D</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        /* --- GENERAL STYLES --- */
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden; 
+            font-size: 13px; 
+            background-color: #E5E5E5; 
+        }
+
+        button, select, input[type="text"], input[type="number"], input[type="color"], input[type="range"] {
+            font-size: inherit;
+            border-radius: 3px; 
+            border: 1px solid #B0B0B0; 
+            padding: 5px 8px;
+            background-color: #F5F5F5; 
+            color: #333333; 
+            margin: 2px;
+            box-sizing: border-box;
+        }
+        input[type="color"] {
+            padding: 2px; /* Specific padding for color input */
+            height: 30px;
+        }
+        input[type="range"] {
+            padding: 0; /* Remove padding for range for better appearance */
+        }
+        button:hover {
+            background-color: #E0E0E0; 
+            border-color: #909090;
+        }
+        button:disabled {
+            color: #A0A0A0;
+            background-color: #F5F5F5;
+            border-color: #D0D0D0;
+            cursor: not-allowed;
+        }
+        select {
+            padding: 4px 6px;
+        }
+
+        /* --- HEADER & MENUS --- */
+        header {
+            background-color: #F5F5F5; 
+            color: #333333; 
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            z-index: 1000; 
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border-bottom: 1px solid #D1D1D1;
+        }
+
+        #main-menu {
+            display: flex;
+            align-items: center; 
+            background-color: #EAEAEA; 
+        }
+
+        .menu-item {
+            position: relative;
+            padding: 8px 15px; 
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            border-right: 1px solid #D1D1D1;
+        }
+        .menu-item:hover {
+            background-color: #D5D5D5; 
+        }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #F5F5F5; 
+            min-width: 200px;
+            box-shadow: 0px 4px 8px 0px rgba(0,0,0,0.15);
+            z-index: 1;
+            left: 0;
+            top: 100%;
+            border: 1px solid #C0C0C0;
+            border-top: none;
+        }
+        .dropdown-content a {
+            color: #333333; 
+            padding: 10px 15px;
+            text-decoration: none;
+            display: block;
+            transition: background-color 0.2s ease;
+        }
+        .dropdown-content a:hover {
+            background-color: #E0E0E0; 
+        }
+        .menu-item:hover .dropdown-content {
+            display: block;
+        }
+        .menu-actions-right {
+            margin-left: auto; 
+            display: flex;
+            align-items: center;
+            padding-right: 10px; 
+        }
+        .main-menu-separator {
+            border-left: 1px solid #C0C0C0; 
+            height: 20px; 
+            margin: 0 8px; 
+        }
+        #main-menu #undo-tool,
+        #main-menu #redo-tool,
+        #main-menu #export-print-button { 
+            background-color: transparent;
+            border: none;
+            padding: 8px; 
+            color: #333333;
+            cursor: pointer;
+            margin: 0 2px; 
+        }
+        #main-menu #export-print-button {
+            padding: 8px 10px; 
+        }
+        #main-menu #undo-tool:hover:not(:disabled),
+        #main-menu #redo-tool:hover:not(:disabled),
+        #main-menu #export-print-button:hover:not(:disabled) {
+            background-color: #D5D5D5; 
+        }
+        #main-menu #undo-tool:disabled,
+        #main-menu #redo-tool:disabled {
+            color: #A0A0A0;
+            cursor: not-allowed;
+        }
+        #main-menu #undo-tool i,
+        #main-menu #redo-tool i,
+        #main-menu #export-print-button i {
+            font-size: 1em; 
+            margin-right: 5px; 
+        }
+         #main-menu #export-print-button i {
+            font-size: 0.9em; 
+        }
+
+
+        /* --- TOOLBAR --- */
+        #toolbar {
+            display: flex;
+            align-items: center;
+            padding: 5px 10px; 
+            flex-wrap: wrap;
+            background-color: #F0F0F0; 
+        }
+        #toolbar button, #toolbar select {
+            margin-right: 5px;
+            margin-bottom: 3px; 
+            padding: 6px 10px; 
+            background-color: #EFEFEF;
+            border: 1px solid #BDBDBD;
+            color: #424242;
+        }
+        #toolbar button i { 
+            margin: 0; 
+        }
+        #toolbar button:hover:not(:disabled) {
+            background-color: #DADADA;
+            border-color: #A0A0A0;
+        }
+        #toolbar input[type="number"], #toolbar input[type="text"] {
+            margin-right: 5px;
+            margin-bottom: 3px;
+            padding: 6px;
+            border: 1px solid #BDBDBD;
+            background-color: #fff;
+        }
+        #toolbar input[type="number"] {
+            width: 65px;
+        }
+        #custom-dims-container input, 
+        #vide-depth-container input, 
+        #brick-custom-cut-length-container input,
+        #block-custom-cut-length-container input,
+        #block-cell-custom-cut-length-container input { 
+            margin-left: 5px;
+        }
+        #vide-depth-container label, 
+        #brick-custom-cut-length-container label,
+        #block-custom-cut-length-container label,
+        #block-cell-custom-cut-length-container label { 
+            margin-left: 8px;
+            color: #424242; 
+        }
+        #brick-cut-container label, 
+        #block-cut-container label,
+        #block-cell-cut-container label { 
+            margin-left: 5px;
+            color: #424242;
+        }
+        .toolbar-separator {
+            border-left: 1px solid #BDBDBD; 
+            height: 20px; 
+            margin-left: 5px; 
+            margin-right: 10px;
+        }
+
+
+        .tool-active {
+            background-color: #C5E1A5 !important; 
+            color: #333333 !important;
+            border-color: #A5D6A7 !important; 
+        }
+         #view-controls button {
+            padding: 4px 8px;
+            font-size: 0.9em;
+        }
+
+        /* --- HELP BAR --- */
+        #help-bar {
+            background-color: #FFFFFF; 
+            color: #555555; 
+            padding: 6px 12px;
+            font-size: 0.8em;
+            text-align: left; 
+            border-bottom: 1px solid #D0D0D0;
+            height: 20px; 
+            line-height: 20px; 
+        }
+
+
+        /* --- MAIN LAYOUT & SIDEBARS --- */
+        main {
+            display: flex;
+            flex-grow: 1; 
+            overflow: hidden; 
+        }
+
+        #left-sidebar {
+            width: 190px;
+            background-color: #F0F0F0;
+            padding: 5px;
+            flex-shrink: 0;
+            overflow-y: auto;
+            z-index: 900;
+            border-right: 1px solid #D1D1D1;
+        }
+
+        #right-sidebar {
+            width: 260px; 
+            background-color: #E8E8E8; 
+            padding: 10px; 
+            flex-shrink: 0;
+            overflow-y: auto;
+            z-index: 900;
+            border-left: 1px solid #C0C0C0;
+        }
+        
+        .sidebar-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .tool-button {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 6px 10px;
+            background-color: #EFEFEF;
+            border: 1px solid #BDBDBD;
+            color: #424242;
+            font-size: 13px;
+            cursor: pointer;
+            border-radius: 3px;
+            margin-bottom: 5px;
+            width: calc(100% - 10px); 
+            box-sizing: border-box;
+            justify-content: center; 
+        }
+        .tool-button:hover:not(:disabled) {
+            background-color: #DADADA;
+            border-color: #A0A0A0;
+        }
+        .tool-button i { 
+            width: 16px;
+            height: 16px;
+            font-size: 16px; 
+            margin-right: 5px;
+        }
+         .tool-button span {
+            text-align: center;
+        }
+
+
+        .tool-buttons-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 5px;
+            width: 100%; 
+            padding: 0 5px; 
+            box-sizing: border-box;
+        }
+        .tool-buttons-grid .tool-button {
+            width: auto; 
+            height: 45px; 
+            flex-direction: column; 
+            justify-content: center;
+            align-items: center;
+            padding: 5px;
+            font-size: 0.8em;
+        }
+         .tool-buttons-grid .tool-button i {
+            margin-right: 0; 
+            margin-bottom: 3px; 
+            font-size: 1.2em; 
+        }
+
+
+        .sidebar-content h3 {
+            margin-top: 15px; 
+            font-size: 1.0em; 
+            color: #424242; 
+            border-bottom: 1px solid #BDBDBD; 
+            padding-bottom: 6px;
+            margin-bottom: 10px;
+            font-weight: 600;
+            width: calc(100% - 20px); 
+            text-align: center;
+        }
+        .sidebar-content label {
+            display: block;
+            margin-top: 8px; 
+            margin-bottom: 2px;
+            font-size: 0.9em;
+            font-weight: normal; 
+            color: #555555; 
+            width: calc(100% - 20px); 
+        }
+        .sidebar-content input[type="text"],
+        .sidebar-content textarea,
+        .sidebar-content select,
+        .sidebar-content input[type="number"] { 
+            width: calc(100% - 20px); 
+            padding: 6px;
+            margin-bottom: 8px; 
+            border: 1px solid #BDBDBD; 
+            border-radius: 3px;
+            box-sizing: border-box;
+        }
+        .sidebar-content button { 
+            padding: 8px 12px;
+            background-color: #E0E0E0; 
+            color: #424242;
+            border: 1px solid #B0B0B0;
+            margin-top: 8px;
+            width: calc(100% - 20px); 
+        }
+        .sidebar-content button:hover {
+            background-color: #D0D0D0; 
+            border-color: #9E9E9E;
+        }
+        #remove-current-seating {
+            background-color: #EF9A9A; 
+        }
+        #remove-current-seating:hover {
+            background-color: #E57373; 
+        }
+
+        /* --- COLOR PALETTE --- */
+        #color-palette-container {
+            margin-top: 15px;
+            width: calc(100% - 10px); 
+            padding: 0 5px;
+            box-sizing: border-box;
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+        }
+        .color-palette {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(40px, 1fr)); 
+            gap: 5px; 
+            width: 100%; 
+            margin-bottom: 8px; 
+        }
+        .color-swatch {
+            width: 100%; 
+            padding-bottom: 100%; 
+            position: relative;
+            border: 1px solid #B0B0B0;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: transform 0.1s ease, border-color 0.1s ease;
+            margin: 0; 
+        }
+         .color-swatch-inner { 
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: inherit;
+        }
+        .color-swatch:hover {
+            transform: scale(1.1);
+            border-color: #777;
+        }
+        .color-swatch.active-color-swatch {
+            border: 2px solid #3498db; 
+            transform: scale(1.05);
+        }
+        #custom-color-picker-container {
+            display: flex;
+            align-items: center;
+            margin-top: 5px;
+            width: 100%;
+            justify-content: center;
+        }
+        #custom-color-picker-container label {
+             margin-right: 5px;
+             font-size: 0.9em;
+             color: #555;
+        }
+        #custom-color-picker {
+            width: 50px; 
+            height: 30px; 
+            border: 1px solid #B0B0B0;
+            border-radius: 3px;
+            cursor: pointer;
+            padding: 2px;
+        }
+        #custom-color-picker.active-color-picker {
+             border: 2px solid #3498db;
+        }
+        #texture-material-section label {
+            margin-top: 8px;
+            margin-bottom: 2px;
+        }
+        #texture-material-section select,
+        #texture-material-section input[type="range"] {
+            width: calc(100% - 20px);
+            margin-bottom: 8px;
+        }
+        .slider-container {
+            display: flex;
+            align-items: center;
+            width: calc(100% - 20px);
+            margin-bottom: 8px;
+        }
+        .slider-container label {
+            min-width: 70px; /* Adjust as needed */
+            margin-right: 5px;
+        }
+        .slider-container input[type="range"] {
+            flex-grow: 1;
+        }
+        .slider-container span {
+            min-width: 35px; /* Adjust as needed */
+            text-align: right;
+            margin-left: 5px;
+        }
+        #custom-texture-uploader-container {
+            margin-top: 8px;
+            width: calc(100% - 20px);
+        }
+        #custom-texture-uploader {
+            width: 100%;
+        }
+        #custom-texture-filename {
+            font-size: 0.8em;
+            color: #666;
+            margin-top: 2px;
+            display: block;
+            text-align: center;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+
+        /* --- VIEWPORT & CANVAS --- */
+        #viewport-container {
+            flex-grow: 1;
+            position: relative; 
+            display: flex; 
+            overflow: hidden; 
+        }
+        #threejs-canvas { 
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+        #watermark {
+            position: absolute;
+            bottom: 10px; 
+            left: 10px;  
+            color: rgba(0, 0, 0, 0.6); 
+            font-size: 0.75em; 
+            pointer-events: none; 
+            text-shadow: 0px 0px 1px rgba(255,255,255,0.5);
+            line-height: 1.3;
+        }
+
+        /* --- DPAD CONTROLS --- */
+        #dpad-controls {
+            position: absolute;
+            bottom: 15px;
+            right: 15px;
+            background-color: rgba(220, 220, 220, 0.75); 
+            padding: 8px;
+            border-radius: 6px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr); 
+            gap: 4px;
+            z-index: 100; 
+            touch-action: none; 
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+        #dpad-controls button {
+            background-color: #F0F0F0; 
+            color: #555555;
+            border: 1px solid #B0B0B0; 
+            font-size: 1.5em; 
+            width: 45px; 
+            height: 45px;
+            border-radius: 4px;
+        }
+        #dpad-controls button:hover {
+            background-color: #E0E0E0;
+            border-color: #9E9E9E;
+        }
+        #dpad-controls button:active {
+            background-color: #D0D0D0; 
+            transform: scale(0.95);
+        }
+
+        #dpad-confirm    { background-color: #A5D6A7; } 
+        #dpad-confirm:hover { background-color: #81C784; } 
+
+        #dpad-level-up   { grid-column: 1; grid-row: 1; }
+        #dpad-up         { grid-column: 2; grid-row: 1; }
+        #dpad-rot-left   { grid-column: 3; grid-row: 1; }
+        #dpad-left       { grid-column: 1; grid-row: 2; }
+        #dpad-confirm    { grid-column: 2; grid-row: 2; } 
+        #dpad-right      { grid-column: 3; grid-row: 2; }
+        #dpad-level-down { grid-column: 1; grid-row: 3; }
+        #dpad-down       { grid-column: 2; grid-row: 3; }
+        #dpad-rot-right  { grid-column: 3; grid-row: 3; }
+
+        /* --- ELEMENT COUNTER TABLE --- */
+        #element-counter {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 0.9em;
+        }
+        #element-counter th, #element-counter td {
+            border: 1px solid #D0D0D0; 
+            padding: 6px 8px;
+            text-align: left;
+        }
+        #element-counter th {
+            background-color: #E8E8E8; 
+            color: #424242; 
+            font-weight: 600;
+        }
+        #element-counter tr:nth-child(even) {
+            background-color: #F5F5F5; 
+        }
+
+        /* --- MISC --- */
+        .highlighted { 
+            outline: 3px solid #f1c40f; 
+            outline-offset: -1px;
+        }
+        .crosshair-cursor { cursor: crosshair; }
+        .default-cursor { cursor: default; }
+        .move-cursor { cursor: move; }
+
+        /* --- HEIGHT TOOLTIP --- */
+        #height-tooltip {
+            display: none; 
+            position: absolute; 
+            background-color: rgba(0,0,0,0.75); 
+            color: white; 
+            padding: 5px 10px; 
+            border-radius: 4px; 
+            z-index: 1001; 
+            font-size: 0.9em; 
+            pointer-events: none; 
+            transform: translate(-50%, -120%); 
+            white-space: nowrap; 
+        }
+        
+        /* --- DIMENSION LABELS --- */
+        .dimension-label-3d {
+            position: absolute;
+            color: #000000;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-size: 10px;
+            font-family: Arial, sans-serif;
+            pointer-events: none; 
+            transform: translate(-50%, -100%); 
+            white-space: nowrap;
+            border: 1px solid #555;
+        }
+
+
+    </style>
+</head>
+<body>
+    <header>
+        <nav id="main-menu">
+            <div class="menu-item">
+                Fichier
+                <div class="dropdown-content">
+                    <a href="#" id="new-file">Nouveau</a>
+                    <a href="#" id="open-file">Ouvrir</a>
+                    <a href="#" id="save-file">Enregistrer</a>
+                    <a href="#" id="export-pdf">Exporter en PDF</a>
+                </div>
+            </div>
+            <div class="menu-item">
+                Edition
+                <div class="dropdown-content">
+                    <a href="#" id="undo-action">Annuler (Ctrl+Z)</a>
+                    <a href="#" id="redo-action">Rétablir (Ctrl+Y)</a>
+                    <a href="#" id="edit-selection">Modifier Sélection</a>
+                </div>
+            </div>
+            <div class="menu-item">
+                Style
+                <div class="dropdown-content">
+                    <a href="#" id="style-white">Éléments en Blanc</a>
+                    <a href="#" id="style-color">Éléments en Couleur</a>
+                    <a href="#" id="toggle-shadows">Activer/Désactiver Ombres</a>
+                </div>
+            </div>
+            <div class="menu-item">
+                Aide
+                <div class="dropdown-content">
+                    <a href="#" id="about-app">À Propos</a>
+                    <a href="#" id="help-guide">Aide</a>
+                </div>
+            </div>
+            <div class="menu-actions-right">
+                <button id="export-print-button" title="Exporter/Imprimer PDF"><i class="fas fa-print"></i> Exporter/Imprimer</button>
+                <span class="main-menu-separator"></span>
+                <button id="undo-tool" title="Annuler (Ctrl+Z)" disabled><i class="fas fa-undo"></i></button>
+                <button id="redo-tool" title="Rétablir (Ctrl+Y)" disabled><i class="fas fa-redo"></i></button>
+            </div>
+        </nav>
+        <div id="toolbar">
+            <select id="element-type-selector" style="margin-right: 15px;">
+                <optgroup label="Briques">
+                    <option value="brique_m50" data-dims="0.19,0.05,0.09">Brique M50 (19x5x9)</option>
+                    <option value="brique_m57" data-dims="0.19,0.057,0.09">Brique M57 (19x5.7x9)</option>
+                    <option value="brique_m65" data-dims="0.19,0.065,0.09">Brique M65 (19x6.5x9)</option>
+                    <option value="brique_m90" data-dims="0.19,0.09,0.09">Brique M90 (19x9x9)</option>
+                    <option value="brique_wf" data-dims="0.21,0.05,0.10">Brique WF (21x5x10)</option>
+                    <option value="brique_wfd" data-dims="0.21,0.065,0.10">Brique WFD (21x6.5x10)</option>
+                </optgroup>
+                <optgroup label="Blocs">
+                    <option value="bloc_b9" data-dims="0.39,0.19,0.09">Bloc B9 (39x19x9)</option>
+                    <option value="bloc_b14" data-dims="0.39,0.19,0.14">Bloc B14 (39x19x14)</option>
+                    <option value="bloc_b19" data-dims="0.39,0.19,0.19">Bloc B19 (39x19x19)</option>
+                    <option value="bloc_b29" data-dims="0.39,0.19,0.29">Bloc B29 (39x19x29)</option>
+                    <option value="bloc_cell_15" data-dims="0.625,0.25,0.15">Bloc cell. 62.5x25x15</option>
+                    <option value="bloc_cell_20" data-dims="0.625,0.25,0.20">Bloc cell. 62.5x25x20</option>
+                    <option value="bloc_cell_25" data-dims="0.625,0.25,0.25">Bloc cell. 62.5x25x25</option>
+                    <option value="bloc_cell_30" data-dims="0.625,0.25,0.30">Bloc cell. 62.5x25x30</option>
+                    <option value="bloc_cell_365" data-dims="0.625,0.25,0.365">Bloc cell. 62.5x25x36.5</option>
+                </optgroup>
+                <optgroup label="Linteaux">
+                    <option value="linteau_l120_14" data-dims="1.20,0.19,0.14">Linteau L120 (120x19x14)</option>
+                    <option value="linteau_l140_14" data-dims="1.40,0.19,0.14">Linteau L140 (140x19x14)</option>
+                    <option value="linteau_l160_14" data-dims="1.60,0.19,0.14">Linteau L160 (160x19x14)</option>
+                    <option value="linteau_l180_14" data-dims="1.80,0.19,0.14">Linteau L180 (180x19x14)</option>
+                    <option value="linteau_l200_14" data-dims="2.00,0.19,0.14">Linteau L200 (200x19x14)</option>
+                </optgroup>
+                <optgroup label="Isolants">
+                    <option value="isolant_pur5" data-dims="1.20,0.60,0.05">Isolant PUR5 (120x60x5)</option>
+                    <option value="isolant_pur6" data-dims="1.20,0.60,0.06">Isolant PUR6 (120x60x6)</option>
+                    <option value="isolant_pur7" data-dims="1.20,0.60,0.07">Isolant PUR7 (120x60x7)</option>
+                </optgroup>
+                <optgroup label="Autres">
+                    <option value="vide" data-dims="0.40,0.19,0.01" data-depth-range="0.01,0.05">Vide (40x19x1-5)</option>
+                    <option value="profil" data-dims="2.50,0.065,0.065">Profil (250x6.5x6.5)</option>
+                </optgroup>
+                <optgroup label="Personnalisé">
+                    <option value="custom">Élément Personnalisé</option>
+                </optgroup>
+            </select>
+            <div id="brick-cut-container" style="display: none; align-items: center; margin-left: 10px;">
+                <label for="brick-cut-selector" style="margin-right:5px;">Coupe Brique:</label>
+                <select id="brick-cut-selector">
+                    <option value="1/1" data-multiplier="1.0">1/1 (Entière)</option>
+                    <option value="3/4" data-multiplier="0.75">3/4</option>
+                    <option value="1/2" data-multiplier="0.5">1/2</option>
+                    <option value="1/4" data-multiplier="0.25">1/4</option>
+                    <option value="custom_cut">Personnaliser...</option>
+                </select>
+            </div>
+            <div id="brick-custom-cut-length-container" style="display: none; align-items: center; margin-left: 5px;">
+                <label for="brick-custom-cut-length" style="margin-right:5px;">Long. (cm):</label>
+                <input type="number" id="brick-custom-cut-length" value="10" min="1" step="0.1" style="width: 60px;">
+            </div>
+            <div id="block-cut-container" style="display: none; align-items: center; margin-left: 10px;">
+                <label for="block-cut-selector" style="margin-right:5px;">Coupe Bloc:</label>
+                <select id="block-cut-selector">
+                    <option value="1/1" data-width="0.39">1/1 (Entier - 39cm)</option>
+                    <option value="3/4" data-width="0.29">3/4 (29cm)</option>
+                    <option value="1/2" data-width="0.19">1/2 (19cm)</option>
+                    <option value="1/4" data-width="0.09">1/4 (9cm)</option>
+                    <option value="ailette" data-width="0.04">Ailette (4cm)</option>
+                    <option value="coupe34" data-width="0.34">Coupe 34 (34cm)</option>
+                    <option value="custom_cut">Personnaliser...</option> 
+                </select>
+            </div>
+            <div id="block-custom-cut-length-container" style="display: none; align-items: center; margin-left: 5px;"> 
+                <label for="block-custom-cut-length" style="margin-right:5px;">Long. (cm):</label>
+                <input type="number" id="block-custom-cut-length" value="20" min="1" step="0.1" style="width: 60px;">
+            </div>
+            <div id="block-cell-cut-container" style="display: none; align-items: center; margin-left: 10px;">
+                <label for="block-cell-cut-selector" style="margin-right:5px;">Coupe Bloc Cell.:</label>
+                <select id="block-cell-cut-selector">
+                    <option value="1/1" data-multiplier="1.0">1/1 (Entier)</option>
+                    <option value="3/4" data-multiplier="0.75">3/4</option>
+                    <option value="1/2" data-multiplier="0.5">1/2</option>
+                    <option value="1/4" data-multiplier="0.25">1/4</option>
+                    <option value="custom_cut">Personnaliser...</option> 
+                </select>
+            </div>
+            <div id="block-cell-custom-cut-length-container" style="display: none; align-items: center; margin-left: 5px;"> 
+                <label for="block-cell-custom-cut-length" style="margin-right:5px;">Long. (cm):</label>
+                <input type="number" id="block-cell-custom-cut-length" value="30" min="1" step="0.1" style="width: 60px;">
+            </div>
+            <div id="custom-dims-container" style="display: none; align-items: center;">
+                <input type="text" id="custom-name" placeholder="Nom" style="width:100px;">
+                <input type="number" id="custom-width" placeholder="L (m)" step="0.01" min="0.01">
+                <input type="number" id="custom-height" placeholder="H (m)" step="0.01" min="0.01">
+                <input type="number" id="custom-depth" placeholder="P (m)" step="0.01" min="0.01">
+            </div>
+            <div id="vide-depth-container" style="display: none; align-items: center;">
+                <label for="vide-depth" style="margin-right:5px;">Prof. Vide (cm):</label>
+                <input type="number" id="vide-depth" value="1" min="1" max="5" step="0.1">
+            </div>
+            <span class="toolbar-separator"></span> 
+            <span style="margin-left: 5px;">Vues:</span>
+            <button id="view-3d" title="Vue 3D Perspective">3D</button>
+            <button id="view-top" title="Vue de Dessus">Dessus</button>
+            <button id="view-front" title="Vue de Face">Face</button>
+            <button id="view-back" title="Vue Arrière">Arrière</button>
+            <button id="view-left" title="Vue Gauche">Gauche</button>
+            <button id="view-right" title="Vue Droite">Droite</button>
+
+            </div>
+        <div id="help-bar">
+            Bienvenue ! Utilisez la barre d'outils pour commencer.
+        </div>
+    </header>
+
+    <main>
+        <aside id="left-sidebar">
+            <div class="sidebar-content">
+                <h3>Outils</h3>
+                <div class="tool-buttons-grid">
+                    <button id="select-tool" class="tool-button" title="Sélectionner (S)">
+                        <i class="fas fa-mouse-pointer"></i>
+                        <span>Sél.</span>
+                    </button>
+                    <button id="add-tool" class="tool-button" title="Ajouter (A)">
+                        <i class="fas fa-plus"></i>
+                        <span>Ajout</span>
+                    </button>
+                    <button id="measure-tool" class="tool-button" title="Mesurer (T)">
+                        <i class="fas fa-ruler-combined"></i>
+                        <span>Mesurer</span>
+                    </button>
+                    <button id="move-tool" class="tool-button" title="Déplacer (M)">
+                        <i class="fas fa-arrows-alt"></i>
+                        <span>Dépl.</span>
+                    </button>
+                    <button id="duplicate-tool" class="tool-button" title="Dupliquer (Maj+D)">
+                        <i class="fas fa-clone"></i>
+                        <span>Dupl.</span>
+                    </button>
+                    <button id="rotate-tool" class="tool-button" title="Pivoter (R)">
+                        <i class="fas fa-sync-alt"></i>
+                        <span>Piv.</span>
+                    </button>
+                    <button id="delete-tool" class="tool-button" title="Supprimer (Suppr)">
+                        <i class="fas fa-trash"></i>
+                        <span>Suppr.</span>
+                    </button>
+                </div>
+
+                <h3>Réglage des Joints</h3>
+                <label for="joint-distance">Joint Briques (cm):</label>
+                <input type="number" id="joint-distance" value="1" min="0" step="0.1">
+                
+                <label for="block-joint-distance">Joint Blocs (cm):</label>
+                <input type="number" id="block-joint-distance" value="1" min="0" step="0.1">
+
+                <h3>Palette de Couleurs</h3>
+                <div id="color-palette-container">
+                    <div class="color-palette">
+                        </div>
+                    <div id="custom-color-picker-container">
+                        <label for="custom-color-picker">Perso:</label>
+                        <input type="color" id="custom-color-picker" value="#AABBCC" title="Choisir une couleur personnalisée">
+                    </div>
+                </div>
+                 <div id="texture-material-section" style="width: calc(100% - 10px); padding: 0 5px; box-sizing: border-box;">
+                    <h3>Textures et Matériaux</h3>
+                    <label for="texture-selector">Texture:</label>
+                    <select id="texture-selector">
+                        <option value="none">Aucune</option>
+                        <option value="brick_red">Brique Rouge</option>
+                        <option value="concrete_block">Bloc Béton</option>
+                        <option value="wood_light">Bois Clair</option>
+                        <option value="custom_loaded_texture" style="display:none;">Texture Personnalisée</option> 
+                    </select>
+                    <div id="custom-texture-uploader-container">
+                        <label for="custom-texture-uploader" style="font-size:0.9em; margin-bottom:0;">Charger Texture:</label>
+                        <input type="file" id="custom-texture-uploader" accept="image/jpeg, image/png" style="width:100%; font-size:0.8em; padding: 3px;">
+                        <span id="custom-texture-filename"></span>
+                    </div>
+
+                    <div class="slider-container">
+                        <label for="roughness-slider">Rugosité:</label>
+                        <input type="range" id="roughness-slider" min="0" max="1" step="0.01" value="0.7">
+                        <span id="roughness-value">0.70</span>
+                    </div>
+                    <div class="slider-container">
+                        <label for="metalness-slider">Métallicité:</label>
+                        <input type="range" id="metalness-slider" min="0" max="1" step="0.01" value="0.2">
+                        <span id="metalness-value">0.20</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <div id="viewport-container">
+            <div id="threejs-canvas"></div> 
+            <div id="watermark">MurSimulateur3D by J.BROHEZ - Copyright © 2025 - v1.0.2</div>
+            <div id="dpad-controls">
+                <button id="dpad-level-up" title="Monter Élément/Assise (PageUp)">⇞</button>
+                <button id="dpad-up" title="Avancer (W ou ↑)">▲</button>
+                <button id="dpad-rot-left" title="Rotation Gauche (Q)">↺</button>
+                <button id="dpad-left" title="Gauche (A ou ←)">◀</button>
+                <button id="dpad-confirm" title="Confirmer (Entrée)">OK</button>
+                <button id="dpad-right" title="Droite (D ou →)">▶</button>
+                <button id="dpad-level-down" title="Descendre Élément/Assise (PageDown)">⇟</button>
+                <button id="dpad-down" title="Reculer (S ou ↓)">▼</button>
+                <button id="dpad-rot-right" title="Rotation Droite (E)">↻</button>
+            </div>
+            <div id="height-tooltip">Hauteur: 0.00 m</div>
+        </div>
+
+        <aside id="right-sidebar">
+            <div class="sidebar-content">
+                <h3>Métadonnées</h3>
+                <label for="project-title">Titre de l'ouvrage:</label>
+                <input type="text" id="project-title" name="project-title">
+                <label for="designer-name">Dessinateur:</label>
+                <input type="text" id="designer-name" name="designer-name">
+                <label for="operating-mode">Mode opératoire:</label>
+                <textarea id="operating-mode" name="operating-mode" rows="3"></textarea>
+
+                <h3 id="element-counter-title">Métré des matériaux</h3>
+                <table id="element-counter">
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Quantité</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+                <h3 id="notes-title">Notes</h3>
+                <textarea id="project-notes" name="project-notes" rows="4" style="resize: vertical;"></textarea>
+            </div>
+        </aside>
+    </main>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- THREE.JS SETUP ---
+            let scene, camera, renderer, controls, raycaster, mousePointer; 
+            let plane; 
+            let objects = []; 
+            let ghostElement = null; 
+            let selectedObject = null; 
+            let dimensionElements = []; 
+            const initialCameraPosition = new THREE.Vector3(0.5, 0.4, 0.8);
+            const initialCameraLookAt = new THREE.Vector3(0, 0.3, 0);
+            let initialPerspectiveFOV;
+
+
+            // --- APPLICATION STATE ---
+            let currentTool = 'add'; 
+            const snapGridSize = 0.01; 
+            let isGhostAwaitingDPadOrConfirmation = false;
+
+            const elementColors = { 
+                brique: 0xCD5C5C,  
+                bloc: 0x87CEEB,    
+                bloc_cell: 0xFFFFFF, 
+                linteau: 0x778899, 
+                isolant: 0xFFE4B5, 
+                vide: 0xADD8E6,    
+                profil: 0xBDB76B,  
+                custom: 0x98FB98,  
+                default: 0xBEBEBE  
+            };
+            let useWhiteElements = false;
+            let shadowsEnabled = true; 
+
+            // --- TEXTURES & MATERIALS ---
+            const textureLoader = new THREE.TextureLoader();
+            const textures = {
+                none: null,
+                brick_red: 'https://placehold.co/256x256/CD5C5C/FFFFFF?text=BriqueRouge', 
+                concrete_block: 'https://placehold.co/256x256/87CEEB/333333?text=BlocBeton',
+                wood_light: 'https://placehold.co/256x256/DEB887/FFFFFF?text=BoisClair'
+            };
+            let customLoadedTextureObject = null; // Will hold the THREE.Texture object for custom loaded texture
+            let currentTexturePath = 'none'; 
+            let defaultRoughness = 0.7;
+            let defaultMetalness = 0.2;
+
+
+            // --- COLOR PALETTE ---
+             const colorPalette = [
+                0xCC0000, 0xD2B48C, 0x8B4513, 0x2F4F4F, 0x000000, 
+                0xD3D3D3, 0xA9A9A9, 0x696969, 0xF5F5DC, 0xFFFFE0, 
+                0x90EE90, 0xFFFFFF
+            ];
+            let currentActiveColor = null; 
+            let activeSwatchElement = null; 
+            let customColorPicker; 
+
+            // --- UNDO/REDO ---
+            const undoStack = [];
+            const redoStack = [];
+            let undoBtn, redoBtn; 
+
+
+            // --- DOM ELEMENTS ---
+            const canvasContainer = document.getElementById('threejs-canvas'); 
+            const viewportContainer = document.getElementById('viewport-container'); 
+            const elementTypeSelector = document.getElementById('element-type-selector');
+            const brickCutContainer = document.getElementById('brick-cut-container'); 
+            const brickCutSelector = document.getElementById('brick-cut-selector'); 
+            const brickCustomCutLengthContainer = document.getElementById('brick-custom-cut-length-container'); 
+            const brickCustomCutLengthInput = document.getElementById('brick-custom-cut-length'); 
+            const blockCutContainer = document.getElementById('block-cut-container'); 
+            const blockCutSelector = document.getElementById('block-cut-selector'); 
+            const blockCustomCutLengthContainer = document.getElementById('block-custom-cut-length-container'); 
+            const blockCustomCutLengthInput = document.getElementById('block-custom-cut-length'); 
+            
+            const blockCellCutContainer = document.getElementById('block-cell-cut-container');
+            const blockCellCutSelector = document.getElementById('block-cell-cut-selector');
+            const blockCellCustomCutLengthContainer = document.getElementById('block-cell-custom-cut-length-container');
+            const blockCellCustomCutLengthInput = document.getElementById('block-cell-custom-cut-length');
+
+            const customDimsContainer = document.getElementById('custom-dims-container');
+            const customNameInput = document.getElementById('custom-name');
+            const customWidthInput = document.getElementById('custom-width');
+            const customHeightInput = document.getElementById('custom-height');
+            const customDepthInput = document.getElementById('custom-depth');
+            const videDepthContainer = document.getElementById('vide-depth-container');
+            const videDepthInput = document.getElementById('vide-depth');
+            const helpBar = document.getElementById('help-bar');
+            const colorPaletteContainer = document.getElementById('color-palette-container');
+            const jointDistanceInput = document.getElementById('joint-distance');
+            const blockJointDistanceInput = document.getElementById('block-joint-distance'); 
+            const heightTooltip = document.getElementById('height-tooltip'); 
+
+            const textureSelector = document.getElementById('texture-selector');
+            const customTextureUploader = document.getElementById('custom-texture-uploader');
+            const customTextureFilenameLabel = document.getElementById('custom-texture-filename');
+            const roughnessSlider = document.getElementById('roughness-slider');
+            const metalnessSlider = document.getElementById('metalness-slider');
+            const roughnessValueLabel = document.getElementById('roughness-value');
+            const metalnessValueLabel = document.getElementById('metalness-value');
+
+
+            const toolButtons = {
+                select: document.getElementById('select-tool'),
+                add: document.getElementById('add-tool'),
+                measure: document.getElementById('measure-tool'), 
+                move: document.getElementById('move-tool'),
+                duplicate: document.getElementById('duplicate-tool'),
+                rotate: document.getElementById('rotate-tool'),
+                delete: document.getElementById('delete-tool')
+            };
+
+            const viewButtons = {
+                "3d": document.getElementById('view-3d'),
+                top: document.getElementById('view-top'),
+                front: document.getElementById('view-front'),
+                back: document.getElementById('view-back'),
+                left: document.getElementById('view-left'),
+                right: document.getElementById('view-right'),
+            };
+
+            const dpad = {
+                up: document.getElementById('dpad-up'),
+                down: document.getElementById('dpad-down'),
+                left: document.getElementById('dpad-left'),
+                right: document.getElementById('dpad-right'),
+                confirm: document.getElementById('dpad-confirm'),
+                rotLeft: document.getElementById('dpad-rot-left'),
+                rotRight: document.getElementById('dpad-rot-right'),
+                levelUp: document.getElementById('dpad-level-up'),
+                levelDown: document.getElementById('dpad-level-down')
+            };
+
+            const elementCounterTableBody = document.getElementById('element-counter').getElementsByTagName('tbody')[0];
+            
+            const leftSidebar = document.getElementById('left-sidebar');
+            const rightSidebar = document.getElementById('right-sidebar');
+
+            const newFileBtn = document.getElementById('new-file');
+            const openFileBtn = document.getElementById('open-file');
+            const saveFileBtn = document.getElementById('save-file');
+            const exportPdfBtn = document.getElementById('export-pdf');
+            const editSelectionBtn = document.getElementById('edit-selection'); 
+            const styleWhiteBtn = document.getElementById('style-white');
+            const styleColorBtn = document.getElementById('style-color');
+            const toggleShadowsBtn = document.getElementById('toggle-shadows');
+            const aboutAppBtn = document.getElementById('about-app');
+            const helpGuideBtn = document.getElementById('help-guide');
+            const exportPrintButton = document.getElementById('export-print-button'); 
+
+            let currentSeatingIndex = 0;
+            let seatingLevels = { 0: { y: 0, name: "Assise 0 (Niveau 0.00m)" } };
+
+            // --- HELPER FUNCTION ---
+            function getSanitizedJointValue(inputId) {
+                const inputElement = document.getElementById(inputId);
+                const jointCmStr = (inputElement.value || "0").replace(',', '.');
+                const jointCm = parseFloat(jointCmStr);
+                return isNaN(jointCm) ? 0 : jointCm / 100; // Convert to meters
+            }
+            
+            // --- EVENT HANDLER FUNCTIONS (Defined before initThreeJS) ---
+            function positionGhostElement(currentMousePointer, currentRaycaster, currentCamera, ghostEl, groundPlane, sceneObjects) {
+                if (!ghostEl) return;
+
+                currentRaycaster.setFromCamera(currentMousePointer, currentCamera);
+
+                let snappedToExistingObjectSurface = false;
+                const potentialSnapTargets = sceneObjects.filter(o => o !== ghostEl && o.userData && !o.userData.isGhost && o.geometry && o.material && o.visible);
+                const intersectsObjects = currentRaycaster.intersectObjects(potentialSnapTargets, false);
+
+                if (intersectsObjects.length > 0) {
+                    const intersect = intersectsObjects[0];
+                    const intersectedObject = intersect.object;
+                    const point = intersect.point;
+                    const worldNormal = intersect.face.normal.clone().applyMatrix4(intersectedObject.matrixWorld).sub(intersectedObject.getWorldPosition(new THREE.Vector3())).normalize();
+
+                    if (worldNormal.y > 0.85) { 
+                        let jointHeightMeters = 0;
+                        if (ghostEl.userData.baseType === 'brique') {
+                            jointHeightMeters = getSanitizedJointValue('joint-distance');
+                        } else if (ghostEl.userData.baseType === 'bloc') { 
+                            jointHeightMeters = getSanitizedJointValue('block-joint-distance');
+                        }
+                        
+                        let yPositionForGhostBase = intersectedObject.position.y + intersectedObject.userData.height / 2; 
+
+                        if (ghostEl.userData.baseType === 'brique' || ghostEl.userData.baseType === 'bloc') { 
+                            yPositionForGhostBase += jointHeightMeters; 
+                        }
+                        ghostEl.position.y = snapToGrid(yPositionForGhostBase) + ghostEl.userData.height / 2; 
+                        
+                        ghostEl.position.x = snapToGrid(point.x); 
+                        ghostEl.position.z = snapToGrid(point.z);
+
+                        ghostEl.material.color.setHex(0x4CAF50); 
+                        ghostEl.material.opacity = 0.7;
+                        snappedToExistingObjectSurface = true;
+                        ghostEl.userData.snappedToObjectId = intersectedObject.userData.id;
+                        ghostEl.userData.seatingIndex = intersectedObject.userData.seatingIndex; 
+                    }
+                }
+
+                if (!snappedToExistingObjectSurface) {
+                    delete ghostEl.userData.snappedToObjectId;
+                    const intersectsPlane = currentRaycaster.intersectObject(groundPlane);
+                    if (intersectsPlane.length > 0) {
+                        const intersectPoint = intersectsPlane[0].point;
+                        if (ghostEl.userData.seatingIndex === undefined) { 
+                            ghostEl.userData.seatingIndex = currentSeatingIndex;
+                        }
+                        ghostEl.position.copy(getSnappedPosition(intersectPoint, ghostEl.userData));
+                        ghostEl.material.color.setHex(0x03A9F4); ghostEl.material.opacity = 0.6;
+                    }
+                }
+                if (ghostEl.material.needsUpdate !== undefined) ghostEl.material.needsUpdate = true;
+                if (!ghostEl.visible && !isGhostAwaitingDPadOrConfirmation) ghostEl.visible = true;
+            }
+
+
+            function onViewportPointerMove(event) {
+                if (event.type === 'touchmove') {
+                    event.preventDefault(); 
+                }
+                if (currentTool !== 'add' || !ghostElement || isGhostAwaitingDPadOrConfirmation) { 
+                    return;
+                }
+                const rect = viewportContainer.getBoundingClientRect();
+                let clientX, clientY;
+                 if (event.touches && event.touches.length > 0) { 
+                    clientX = event.touches[0].clientX;
+                    clientY = event.touches[0].clientY;
+                } else { 
+                    clientX = event.clientX;
+                    clientY = event.clientY;
+                }
+                mousePointer.x = ((clientX - rect.left) / rect.width) * 2 - 1;
+                mousePointer.y = -((clientY - rect.top) / rect.height) * 2 + 1;
+                
+                positionGhostElement(mousePointer, raycaster, camera, ghostElement, plane, objects);
+                if (!ghostElement.visible) ghostElement.visible = true;
+                hideHeightTooltip(); 
+            }
+
+            function onViewportPointerDown(event) {
+                if (event.type === 'touchstart') {
+                    event.preventDefault(); 
+                }
+                const dpadContainer = document.getElementById('dpad-controls');
+                if (dpadContainer && dpadContainer.contains(event.target)) {
+                    return;
+                }
+
+                let clientX, clientY;
+                if (event.type === 'touchstart') {
+                    if (event.touches.length > 0) {
+                        clientX = event.touches[0].clientX;
+                        clientY = event.touches[0].clientY;
+                    } else {
+                        return; 
+                    }
+                } else { 
+                    clientX = event.clientX;
+                    clientY = event.clientY;
+                }
+
+                if (event.button === 0 || event.type === 'touchstart') { 
+                    const rect = viewportContainer.getBoundingClientRect();
+                    mousePointer.x = ((clientX - rect.left) / rect.width) * 2 - 1;
+                    mousePointer.y = -((clientY - rect.top) / rect.height) * 2 + 1;
+                    
+                    raycaster.setFromCamera(mousePointer, camera);
+
+                    if (currentTool === 'add') {
+                        if (ghostElement) { 
+                            positionGhostElement(mousePointer, raycaster, camera, ghostElement, plane, objects);
+                            isGhostAwaitingDPadOrConfirmation = true; 
+                            if (ghostElement) ghostElement.visible = true; 
+                            
+                            if ((ghostElement.userData.baseType === 'brique' || ghostElement.userData.baseType === 'bloc')) {
+                                let tooltipText = ""; 
+                                const elementHeight = ghostElement.userData.height; 
+                                const jointInputId = ghostElement.userData.baseType === 'brique' ? 'joint-distance' : 'block-joint-distance';
+                                const currentJointCm = parseFloat((document.getElementById(jointInputId).value || "0").replace(',', '.'));
+                                
+                                if (typeof elementHeight === 'number' && !isNaN(elementHeight)) {
+                                    const topFaceYAbsolute = ghostElement.position.y + elementHeight / 2; 
+                                    const currentSeatingLevelYForTooltip = seatingLevels[ghostElement.userData.seatingIndex !== undefined ? ghostElement.userData.seatingIndex : currentSeatingIndex] ? seatingLevels[ghostElement.userData.seatingIndex !== undefined ? ghostElement.userData.seatingIndex : currentSeatingIndex].y : 0;
+                                    
+                                    if (ghostElement.userData.snappedToObjectId) { 
+                                        tooltipText = `Haut. ${ghostElement.userData.baseType === 'brique' ? 'Brique' : 'Bloc'}: ${(elementHeight * 100).toFixed(1)} cm`;
+                                    } else { 
+                                        const distanceFromSeatingLevel = topFaceYAbsolute - currentSeatingLevelYForTooltip;
+                                        const jointHeightMetersForTooltip = getSanitizedJointValue(jointInputId);
+                                        tooltipText = `Haut. / Assise: ${(distanceFromSeatingLevel * 100).toFixed(1)} cm (Joint: ${(jointHeightMetersForTooltip * 100).toFixed(1)} cm)`;
+                                    }
+                                } else {
+                                    tooltipText = "Erreur calcul hauteur"; 
+                                }
+                                showAndPositionTooltip(ghostElement, tooltipText);
+                            }
+
+
+                            controls.enabled = false; 
+                            controls.enableRotate = false;
+                            updateHelpBar();
+                        }
+                    } else if (currentTool === 'measure') {
+                        clearDimensionLabelsDOM();
+                        const intersects = raycaster.intersectObjects(objects.filter(o => o.visible && !o.userData.isGhost), false);
+                        if (intersects.length > 0) {
+                            const clickedObject = intersects[0].object;
+                            selectedObject = clickedObject; 
+                            displayDimensionsDOM(selectedObject);
+                        } else {
+                            selectedObject = null; 
+                        }
+                    }
+                    else if (currentTool === 'select') {
+                        const intersectsObjects = raycaster.intersectObjects(objects, false);
+                        if (intersectsObjects.length > 0) {
+                            const clickedObject = intersectsObjects[0].object;
+                            if (clickedObject !== plane && clickedObject.name !== "GridHelper") {
+                                if (currentActiveColor !== null) { 
+                                    const oldColor = clickedObject.userData.originalColor || clickedObject.material.color.getHex();
+                                    if (oldColor !== currentActiveColor) pushActionToUndoStack({ type: 'color', objectId: clickedObject.userData.id, oldColor: oldColor, newColor: currentActiveColor });
+                                    clickedObject.userData.originalColor = currentActiveColor;
+                                    if (!useWhiteElements) clickedObject.material.color.setHex(currentActiveColor);
+                                    clickedObject.material.needsUpdate = true;
+                                } else { selectObject(clickedObject); }
+                            } else { deselectObject(); }
+                        } else { deselectObject(); }
+                    } else if (currentTool === 'move' || currentTool === 'duplicate' || currentTool === 'rotate' || currentTool === 'delete') {
+                        const intersectsObjects = raycaster.intersectObjects(objects, false); 
+                        if (intersectsObjects.length > 0) {
+                            const clickedObject = intersectsObjects[0].object;
+                            if (clickedObject !== plane && clickedObject.name !== "GridHelper") {
+                                if (currentTool === 'move' || currentTool === 'rotate') selectObject(clickedObject); 
+                                else if (currentTool === 'duplicate') duplicateObject(clickedObject);
+                                else if (currentTool === 'delete') deleteObject(clickedObject);
+                            } else { deselectObject(); }
+                        } else { deselectObject(); }
+                    }
+                }
+            }
+            
+            function onDocumentKeyDown(event) {
+                if (document.activeElement && ( document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA' || document.activeElement.tagName === 'SELECT')) {
+                    if (event.key === 'Escape') {
+                        hideHeightTooltip(); 
+                        document.activeElement.blur(); 
+                    }
+                    return;
+                }
+                let dpadAction = true; const isCtrlOrMeta = event.ctrlKey || event.metaKey;
+                switch (event.key.toLowerCase()) {
+                    case 'z': if (isCtrlOrMeta) { event.preventDefault(); undoLastAction(); } else { dpadAction = false; } break;
+                    case 'y': if (isCtrlOrMeta) { event.preventDefault(); redoLastAction(); } else { dpadAction = false; } break;
+                    case 's': if (isCtrlOrMeta) { event.preventDefault(); handleSaveFile(); } else if (!event.shiftKey) { setCurrentTool('select'); } else { dpadAction = false; } break;
+                    case 'a': if (!isCtrlOrMeta && !event.altKey) setCurrentTool('add'); else dpadAction = false; break;
+                    case 't': setCurrentTool('measure'); dpadAction = false; break; // Shortcut for Measure tool
+                    case 'm': setCurrentTool('move'); break;
+                    case 'd': if (event.shiftKey && !isCtrlOrMeta) { setCurrentTool('duplicate'); } else { dpadAction = false; } break; 
+                    case 'r': if (!isCtrlOrMeta) setCurrentTool('rotate'); else dpadAction = false; break; 
+                    case 'delete': case 'backspace': if (selectedObject) deleteObject(selectedObject); else setCurrentTool('delete'); break;
+                    case 'enter': 
+                        if ((currentTool === 'add' && ghostElement && isGhostAwaitingDPadOrConfirmation) || ((currentTool === 'move' || currentTool === 'rotate') && selectedObject)) {
+                            confirmPlacement();
+                        }
+                        break;
+                    case 'escape':
+                        hideHeightTooltip(); 
+                        if (currentActiveColor !== null) { if (activeSwatchElement) activeSwatchElement.classList.remove('active-color-swatch'); currentActiveColor = null; activeSwatchElement = null; updateCursorStyle(); updateHelpBar(); } 
+                        else if (currentTool === 'add' && ghostElement) { 
+                            if (isGhostAwaitingDPadOrConfirmation) { 
+                                isGhostAwaitingDPadOrConfirmation = false; 
+                                if (ghostElement) ghostElement.visible = true; 
+                                controls.enabled = true; 
+                                controls.enableRotate = true; 
+                                updateHelpBar(); 
+                                hideHeightTooltip(); 
+                            } else { 
+                                removeGhostElement(); 
+                                setCurrentTool('select'); 
+                            } 
+                        } 
+                        else if (selectedObject) deselectObject();
+                        break;
+                    case 'w': case 'arrowup': moveGhostOrSelected('forward', event); break;
+                    case 'x': case 'arrowdown': moveGhostOrSelected('backward', event); break; 
+                    case 'j': case 'arrowleft': moveGhostOrSelected('left', event); break;
+                    case 'l': case 'arrowright': moveGhostOrSelected('right', event); break;
+                    case 'q': rotateGhostOrSelected('left', event); break;
+                    case 'e': rotateGhostOrSelected('right', event); break;
+                    case 'pageup': moveGhostOrSelected('up', event); break;
+                    case 'pagedown': moveGhostOrSelected('down', event); break;
+                    case 'o': if (isCtrlOrMeta) { event.preventDefault(); handleOpenFile(); } else { dpadAction = false; } break;
+                    default: dpadAction = false; break;
+                }
+                if (dpadAction) event.preventDefault(); 
+            }
+
+
+            // --- INITIALIZATION ---
+            function initThreeJS() {
+                scene = new THREE.Scene();
+                scene.background = new THREE.Color(0xADD8E6); 
+
+                camera = new THREE.PerspectiveCamera(50, viewportContainer.clientWidth / viewportContainer.clientHeight, 0.1, 1000);
+                initialPerspectiveFOV = camera.fov;
+                camera.position.copy(initialCameraPosition);
+                camera.lookAt(initialCameraLookAt);
+
+                renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true }); 
+                renderer.setSize(viewportContainer.clientWidth, viewportContainer.clientHeight);
+                renderer.shadowMap.enabled = shadowsEnabled; 
+                renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+                canvasContainer.appendChild(renderer.domElement); 
+
+                controls = new THREE.OrbitControls(camera, renderer.domElement);
+                controls.mouseButtons = { LEFT: THREE.MOUSE.PAN, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.ROTATE };
+                controls.enableDamping = true;
+                controls.dampingFactor = 0.05;
+                controls.screenSpacePanning = true; 
+                controls.minDistance = 0.1; 
+                controls.maxDistance = 150; 
+                controls.maxPolarAngle = Math.PI - 0.01;
+                controls.target.copy(initialCameraLookAt);
+                controls.update();
+
+                const ambientLight = new THREE.AmbientLight(0xffffff, 0.8); 
+                scene.add(ambientLight);
+
+                const directionalLight = new THREE.DirectionalLight(0xffffff, 1.0); 
+                directionalLight.position.set(10, 30, 10);
+                directionalLight.castShadow = shadowsEnabled; 
+                directionalLight.shadow.mapSize.width = 8192;
+                directionalLight.shadow.mapSize.height = 8192; 
+                directionalLight.shadow.camera = new THREE.OrthographicCamera(-15, 15, 15, -15, 0.1, 50);
+                directionalLight.shadow.bias = -0.00005;
+                scene.add(directionalLight);
+                
+                const planeMaterial = new THREE.MeshStandardMaterial({ color: 0xCCCCCC, side: THREE.DoubleSide, roughness: 0.9, metalness: 0.1 });
+                planeMaterial.shadowSide = THREE.FrontSide;
+                const planeGeometry = new THREE.PlaneGeometry(100, 100);
+                plane = new THREE.Mesh(planeGeometry, planeMaterial);
+                plane.rotation.x = -Math.PI / 2;
+                plane.receiveShadow = true; 
+                plane.name = "GroundPlane";
+                scene.add(plane);
+
+                const gridHelper = new THREE.GridHelper(100, 100, 0xaaaaaa, 0xcccccc); 
+                gridHelper.name = "GridHelper"; 
+                gridHelper.visible = false; 
+                scene.add(gridHelper);
+
+                raycaster = new THREE.Raycaster();
+                mousePointer = new THREE.Vector2();
+
+                window.addEventListener('resize', onWindowResize, false);
+                viewportContainer.addEventListener('pointerdown', onViewportPointerDown, false); 
+                viewportContainer.addEventListener('touchstart', onViewportPointerDown, { passive: false }); 
+                viewportContainer.addEventListener('pointermove', onViewportPointerMove, false);
+                viewportContainer.addEventListener('touchmove', onViewportPointerMove, { passive: false });
+                document.addEventListener('keydown', onDocumentKeyDown, false);
+
+                setupUIEventListeners();
+                createColorPalette(); 
+                updateActiveToolButton(); 
+                updateCursorStyle();
+                updateHelpBar(); 
+                updateUndoRedoButtons();
+                updateSeatingSelector();
+                
+                setCurrentTool('add'); 
+                animate();
+            }
+
+            // --- TOOLTIP FUNCTIONS ---
+            function updateTooltipPosition(element) {
+                if (!element || !heightTooltip || !camera || !renderer || heightTooltip.style.display === 'none') return;
+
+                const position = new THREE.Vector3();
+                element.getWorldPosition(position); 
+                position.y += element.userData.height / 2 + 0.05; 
+
+                const vector = position.project(camera);
+
+                const x = (vector.x * 0.5 + 0.5) * renderer.domElement.clientWidth;
+                const y = (vector.y * -0.5 + 0.5) * renderer.domElement.clientHeight;
+
+                heightTooltip.style.left = `${x}px`;
+                heightTooltip.style.top = `${y}px`;
+            }
+            
+            function showAndPositionTooltip(targetElement, text) {
+                if (heightTooltip) {
+                    heightTooltip.textContent = text;
+                    heightTooltip.style.display = 'block';
+                    updateTooltipPosition(targetElement); 
+                }
+            }
+
+            function hideHeightTooltip() {
+                if (heightTooltip) {
+                    heightTooltip.style.display = 'none';
+                }
+            }
+
+
+            function setupUIEventListeners() {
+                undoBtn = document.getElementById('undo-tool');
+                redoBtn = document.getElementById('redo-tool');
+                customColorPicker = document.getElementById('custom-color-picker');
+
+
+                elementTypeSelector.addEventListener('change', () => {
+                    const selectedOption = elementTypeSelector.options[elementTypeSelector.selectedIndex];
+                    const typeValue = selectedOption.value; 
+                    const baseType = typeValue.split('_')[0]; 
+
+                    customDimsContainer.style.display = 'none';
+                    videDepthContainer.style.display = 'none';
+                    brickCutContainer.style.display = 'none';
+                    brickCustomCutLengthContainer.style.display = 'none';
+                    blockCutContainer.style.display = 'none';
+                    blockCustomCutLengthContainer.style.display = 'none';
+                    blockCellCutContainer.style.display = 'none'; 
+                    blockCellCustomCutLengthContainer.style.display = 'none';
+
+                    if (typeValue === 'custom') {
+                        customDimsContainer.style.display = 'inline-flex';
+                    } else if (typeValue === 'vide') {
+                        videDepthContainer.style.display = 'inline-flex';
+                    } else if (baseType === 'brique') {
+                        brickCutContainer.style.display = 'inline-flex';
+                        updateBrickCutSelectorOptions(parseFloat(selectedOption.dataset.dims.split(',')[0]), typeValue);
+                        brickCustomCutLengthContainer.style.display = (brickCutSelector.value === 'custom_cut') ? 'inline-flex' : 'none';
+                    } else if (baseType === 'bloc') {
+                        if (typeValue.startsWith('bloc_cell_')) { 
+                            blockCellCutContainer.style.display = 'inline-flex';
+                            updateBlockCellCutSelectorOptions(parseFloat(selectedOption.dataset.dims.split(',')[0]));
+                            blockCellCustomCutLengthContainer.style.display = (blockCellCutSelector.value === 'custom_cut') ? 'inline-flex' : 'none';
+                        } else { 
+                            blockCutContainer.style.display = 'inline-flex';
+                            blockCustomCutLengthContainer.style.display = (blockCutSelector.value === 'custom_cut') ? 'inline-flex' : 'none';
+                        }
+                    }
+                    
+                    if (currentTool === 'add') {
+                        removeGhostElement(); 
+                        isGhostAwaitingDPadOrConfirmation = false; 
+                        createGhostElement(); 
+                    }
+                });
+
+                brickCutSelector.addEventListener('change', () => {
+                    brickCustomCutLengthContainer.style.display = brickCutSelector.value === 'custom_cut' ? 'inline-flex' : 'none';
+                    if (currentTool === 'add' && ghostElement && ghostElement.userData.baseType === 'brique') {
+                        removeGhostElement();
+                        isGhostAwaitingDPadOrConfirmation = false; 
+                        createGhostElement();
+                    }
+                });
+                brickCustomCutLengthInput.addEventListener('input', () => {
+                     if (currentTool === 'add' && ghostElement && ghostElement.userData.baseType === 'brique' && brickCutSelector.value === 'custom_cut') {
+                        removeGhostElement();
+                        isGhostAwaitingDPadOrConfirmation = false; 
+                        createGhostElement();
+                    }
+                });
+
+                blockCutSelector.addEventListener('change', () => { 
+                    blockCustomCutLengthContainer.style.display = blockCutSelector.value === 'custom_cut' ? 'inline-flex' : 'none'; 
+                    if (currentTool === 'add' && ghostElement && ghostElement.userData.baseType === 'bloc' && !ghostElement.userData.type.startsWith('bloc_cell_')) {
+                        removeGhostElement();
+                        isGhostAwaitingDPadOrConfirmation = false;
+                        createGhostElement();
+                    }
+                });
+                blockCustomCutLengthInput.addEventListener('input', () => { 
+                     if (currentTool === 'add' && ghostElement && ghostElement.userData.baseType === 'bloc' && !ghostElement.userData.type.startsWith('bloc_cell_') && blockCutSelector.value === 'custom_cut') {
+                        removeGhostElement();
+                        isGhostAwaitingDPadOrConfirmation = false; 
+                        createGhostElement();
+                    }
+                });
+                
+                blockCellCutSelector.addEventListener('change', () => { 
+                    blockCellCustomCutLengthContainer.style.display = blockCellCutSelector.value === 'custom_cut' ? 'inline-flex' : 'none'; 
+                    if (currentTool === 'add' && ghostElement && ghostElement.userData.type.startsWith('bloc_cell_')) {
+                        removeGhostElement();
+                        isGhostAwaitingDPadOrConfirmation = false;
+                        createGhostElement();
+                    }
+                });
+                blockCellCustomCutLengthInput.addEventListener('input', () => { 
+                     if (currentTool === 'add' && ghostElement && ghostElement.userData.type.startsWith('bloc_cell_') && blockCellCutSelector.value === 'custom_cut') {
+                        removeGhostElement();
+                        isGhostAwaitingDPadOrConfirmation = false; 
+                        createGhostElement();
+                    }
+                });
+
+
+                videDepthInput.addEventListener('change', () => {
+                    if (ghostElement && ghostElement.userData.type === 'vide') {
+                        const newDepth = parseFloat(videDepthInput.value) / 100; 
+                        const oldHeight = ghostElement.userData.height;
+                        const oldWidth = ghostElement.userData.width;
+                        ghostElement.geometry.dispose(); 
+                        ghostElement.geometry = new THREE.BoxGeometry(oldWidth, oldHeight, newDepth);
+                        ghostElement.userData.depth = newDepth;
+                    }
+                });
+
+                function updateGhostPositionFromJointInput(props, jointInputId) {
+                    if (currentTool === 'add' && ghostElement && props.baseType === ghostElement.userData.baseType) {
+                        const jointHeightMeters = getSanitizedJointValue(jointInputId);
+                        const seatingIdxForGhost = props.seatingIndex !== undefined ? props.seatingIndex : currentSeatingIndex;
+                        const currentLevelYVal = seatingLevels[seatingIdxForGhost] ? seatingLevels[seatingIdxForGhost].y : 0;
+                        
+                        let targetBottomY = currentLevelYVal;
+                        if (!ghostElement.userData.snappedToObjectId) { 
+                            targetBottomY += jointHeightMeters;
+                        }
+                        ghostElement.position.y = snapToGrid(targetBottomY) + props.height / 2;
+
+                        if (isGhostAwaitingDPadOrConfirmation) {
+                            let tooltipText;
+                            const topFaceYAbsolute = ghostElement.position.y + props.height / 2;
+                            if (ghostElement.userData.snappedToObjectId) {
+                                tooltipText = `Haut. ${props.baseType === 'brique' ? 'Brique' : 'Bloc'}: ${(props.height * 100).toFixed(1)} cm`;
+                            } else {
+                                const distanceFromSeatingLevel = topFaceYAbsolute - currentLevelYVal;
+                                tooltipText = `Haut. / Assise: ${(distanceFromSeatingLevel * 100).toFixed(1)} cm (Joint: ${(jointHeightMeters * 100).toFixed(1)} cm)`;
+                            }
+                            showAndPositionTooltip(ghostElement, tooltipText);
+                        } else {
+                            hideHeightTooltip();
+                        }
+                    }
+                }
+
+                jointDistanceInput.addEventListener('input', () => {
+                    if (ghostElement && ghostElement.userData.baseType === 'brique') {
+                        updateGhostPositionFromJointInput(ghostElement.userData, 'joint-distance');
+                    }
+                });
+                blockJointDistanceInput.addEventListener('input', () => {
+                     if (ghostElement && ghostElement.userData.baseType === 'bloc') {
+                        updateGhostPositionFromJointInput(ghostElement.userData, 'block-joint-distance');
+                    }
+                });
+
+
+                Object.keys(toolButtons).forEach(toolName => {
+                    toolButtons[toolName].addEventListener('click', () => setCurrentTool(toolName));
+                });
+
+                Object.keys(viewButtons).forEach(viewName => {
+                    viewButtons[viewName].addEventListener('click', () => setView(viewName));
+                });
+                
+                undoBtn.addEventListener('click', undoLastAction);
+                redoBtn.addEventListener('click', redoLastAction);
+                document.getElementById('undo-action').addEventListener('click', undoLastAction); 
+                document.getElementById('redo-action').addEventListener('click', redoLastAction); 
+                if (exportPrintButton) exportPrintButton.addEventListener('click', handleExportPDF);
+
+                dpad.up.addEventListener('click', (event) => { event.preventDefault(); event.stopPropagation(); moveGhostOrSelected('forward', event); });
+                dpad.down.addEventListener('click', (event) => { event.preventDefault(); event.stopPropagation(); moveGhostOrSelected('backward', event); });
+                dpad.left.addEventListener('click', (event) => { event.preventDefault(); event.stopPropagation(); moveGhostOrSelected('left', event); });
+                dpad.right.addEventListener('click', (event) => { event.preventDefault(); event.stopPropagation(); moveGhostOrSelected('right', event); });
+                dpad.confirm.addEventListener('click', (event) => { event.preventDefault(); event.stopPropagation(); confirmPlacement(); }); 
+                dpad.rotLeft.addEventListener('click', (event) => { event.preventDefault(); event.stopPropagation(); rotateGhostOrSelected('left', event); });
+                dpad.rotRight.addEventListener('click', (event) => { event.preventDefault(); event.stopPropagation(); rotateGhostOrSelected('right', event); });
+                dpad.levelUp.addEventListener('click', (event) => { event.preventDefault(); event.stopPropagation(); moveGhostOrSelected('up', event); });
+                dpad.levelDown.addEventListener('click', (event) => { event.preventDefault(); event.stopPropagation(); moveGhostOrSelected('down', event); });
+
+                // Add touchstart listeners for D-Pad
+                dpad.up.addEventListener('touchstart', (event) => { event.preventDefault(); event.stopPropagation(); moveGhostOrSelected('forward', event); });
+                dpad.down.addEventListener('touchstart', (event) => { event.preventDefault(); event.stopPropagation(); moveGhostOrSelected('backward', event); });
+                dpad.left.addEventListener('touchstart', (event) => { event.preventDefault(); event.stopPropagation(); moveGhostOrSelected('left', event); });
+                dpad.right.addEventListener('touchstart', (event) => { event.preventDefault(); event.stopPropagation(); moveGhostOrSelected('right', event); });
+                dpad.confirm.addEventListener('touchstart', (event) => { event.preventDefault(); event.stopPropagation(); confirmPlacement(); });
+                dpad.rotLeft.addEventListener('touchstart', (event) => { event.preventDefault(); event.stopPropagation(); rotateGhostOrSelected('left', event); });
+                dpad.rotRight.addEventListener('touchstart', (event) => { event.preventDefault(); event.stopPropagation(); rotateGhostOrSelected('right', event); });
+                dpad.levelUp.addEventListener('touchstart', (event) => { event.preventDefault(); event.stopPropagation(); moveGhostOrSelected('up', event); });
+                dpad.levelDown.addEventListener('touchstart', (event) => { event.preventDefault(); event.stopPropagation(); moveGhostOrSelected('down', event); });
+
+
+                newFileBtn.addEventListener('click', handleNewFile);
+                openFileBtn.addEventListener('click', handleOpenFile);
+                saveFileBtn.addEventListener('click', handleSaveFile);
+                exportPdfBtn.addEventListener('click', handleExportPDF);
+                editSelectionBtn.addEventListener('click', handleEditSelection); 
+                styleWhiteBtn.addEventListener('click', () => setElementStyle(true));
+                styleColorBtn.addEventListener('click', () => setElementStyle(false));
+                toggleShadowsBtn.addEventListener('click', toggleAllShadows);
+                aboutAppBtn.addEventListener('click', () => alert('MurSimulateur3D\nVersion 1.0.2\nDéveloppé par J.BROHEZ avec Three.js.\nCopyright © 2025 J.BROHEZ\n\nDimensions des éléments: Longueur x Hauteur x Profondeur (Épaisseur du mur)'));
+                helpGuideBtn.addEventListener('click', () => alert('Aide :\n- Barre d\'outils : Sélectionner un outil puis interagir.\n- Ajout : Cliquer sur la grille/objet pour fixer la position initiale du fantôme, ajuster avec le DPad, confirmer avec OK.\n- DPad : Flèches pour déplacer, ↺/↻ pour rotation, ⇞/⇟ pour monter/descendre. Maintenir Maj pour un pas plus grand.\n- Sélection : Cliquer sur un objet pour le sélectionner. Si une couleur est active (palette), elle sera appliquée.\n- Navigation : Clic gauche/droit + glisser = Orbite | Clic milieu + glisser = Pan | Molette = Zoom.\n- Raccourcis : S (Select), A (Add), M (Move), Maj+D (Duplicate), R (Rotate), Suppr (Delete), Entrée (Confirm DPad), Ctrl+Z (Annuler), Ctrl+Y (Rétablir).\n Ctrl+S (Sauvegarder), Ctrl+O (Ouvrir).\n- Barres latérales : Cliquer sur < ou > pour les replier/déplier.'));
+            
+                if (customColorPicker) {
+                    customColorPicker.addEventListener('input', (event) => {
+                        currentActiveColor = parseInt(event.target.value.substring(1), 16);
+                        if (activeSwatchElement) {
+                            activeSwatchElement.classList.remove('active-color-swatch');
+                            activeSwatchElement = null;
+                        }
+                        customColorPicker.classList.add('active-color-picker');
+                        if (currentTool !== 'select') setCurrentTool('select');
+                        updateCursorStyle(); 
+                        updateHelpBar();
+                    });
+                }
+
+                // Texture and Material UI Listeners
+                textureSelector.addEventListener('change', (event) => {
+                    currentTexturePath = event.target.value;
+                    if (currentTexturePath === "custom_loaded_texture" && !customLoadedTextureObject) {
+                        // If "Custom Texture" is selected but none is loaded, prompt to load one or revert.
+                        customTextureUploader.click(); // Open file dialog
+                        return; // Don't apply if no custom texture is ready
+                    }
+                    applyTextureAndMaterialToObject(selectedObject || ghostElement);
+                    if (currentTool === 'add' && ghostElement) {
+                        applyTextureAndMaterialToObject(ghostElement);
+                    }
+                });
+                
+                customTextureUploader.addEventListener('change', function(event) {
+                    const file = event.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            const dataURL = e.target.result;
+                            const newTexture = textureLoader.load(dataURL, () => {
+                                newTexture.needsUpdate = true;
+                                if (ghostElement) applyTextureAndMaterialToObject(ghostElement);
+                                if (selectedObject) applyTextureAndMaterialToObject(selectedObject);
+                            });
+                            customLoadedTextureObject = newTexture; // Store the THREE.Texture object
+                            
+                            let customOption = textureSelector.querySelector('option[value="custom_loaded_texture"]');
+                            if (!customOption) {
+                                customOption = document.createElement('option');
+                                customOption.value = "custom_loaded_texture";
+                                textureSelector.appendChild(customOption);
+                            }
+                            customOption.textContent = `Perso: ${file.name.substring(0,15)}${file.name.length > 15 ? '...' : ''}`;
+                            customOption.style.display = 'block';
+                            textureSelector.value = "custom_loaded_texture";
+                            currentTexturePath = "custom_loaded_texture"; // Set current path for getElementProperties
+                            
+                            customTextureFilenameLabel.textContent = file.name;
+
+                            applyTextureAndMaterialToObject(selectedObject || ghostElement);
+                             if (currentTool === 'add' && ghostElement) {
+                                applyTextureAndMaterialToObject(ghostElement);
+                            }
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+
+
+                roughnessSlider.addEventListener('input', (event) => {
+                    const value = parseFloat(event.target.value);
+                    roughnessValueLabel.textContent = value.toFixed(2);
+                    applyTextureAndMaterialToObject(selectedObject || ghostElement);
+                     if (currentTool === 'add' && ghostElement) {
+                        applyTextureAndMaterialToObject(ghostElement);
+                    }
+                });
+
+                metalnessSlider.addEventListener('input', (event) => {
+                    const value = parseFloat(event.target.value);
+                    metalnessValueLabel.textContent = value.toFixed(2);
+                    applyTextureAndMaterialToObject(selectedObject || ghostElement);
+                    if (currentTool === 'add' && ghostElement) {
+                        applyTextureAndMaterialToObject(ghostElement);
+                    }
+                });
+            }
+            
+            function updateBrickCutSelectorOptions(originalBrickLengthMeters, brickTypeValue) {
+                const isStandardBrick = ["brique_m50", "brique_m57", "brique_m65", "brique_m90"].includes(brickTypeValue);
+                const fixedWidthsCm = { "1/1": 19, "3/4": 14, "1/2": 9, "1/4": 4 };
+
+                for (let option of brickCutSelector.options) {
+                    if (option.value === "custom_cut") continue;
+
+                    if (isStandardBrick && fixedWidthsCm[option.value] !== undefined) {
+                        option.textContent = `${option.value} (${fixedWidthsCm[option.value]}cm)`;
+                        option.dataset.fixedWidthCm = fixedWidthsCm[option.value]; 
+                        delete option.dataset.multiplier; 
+                    } else if (option.dataset.multiplier) { 
+                        const multiplier = parseFloat(option.dataset.multiplier);
+                        const cutLengthCm = (originalBrickLengthMeters * multiplier * 100).toFixed(1);
+                        option.textContent = `${option.value} (${cutLengthCm}cm)`;
+                        delete option.dataset.fixedWidthCm; 
+                    }
+                }
+            }
+            
+            function updateBlockCellCutSelectorOptions(originalBlockLengthMeters = 0.625) {
+                 for (let option of blockCellCutSelector.options) {
+                    if (option.value === "custom_cut") continue;
+                    if (option.dataset.multiplier) { 
+                        const multiplier = parseFloat(option.dataset.multiplier);
+                        const cutLengthCm = (originalBlockLengthMeters * multiplier * 100).toFixed(1);
+                        option.textContent = `${option.value} (${cutLengthCm}cm)`;
+                    }
+                }
+            }
+            
+            function updateCursorStyle() {
+                viewportContainer.classList.remove('crosshair-cursor', 'default-cursor', 'move-cursor');
+                if (currentTool === 'select' && currentActiveColor !== null) {
+                    viewportContainer.style.cursor = 'copy'; 
+                } else {
+                    viewportContainer.style.cursor = ''; 
+                    switch (currentTool) {
+                        case 'add': case 'select': case 'measure': viewportContainer.classList.add('crosshair-cursor'); break;
+                        case 'move': viewportContainer.classList.add('move-cursor'); break;
+                        default: viewportContainer.classList.add('default-cursor'); break;
+                    }
+                }
+            }
+            
+            function updateHelpBar() {
+                let helpText = "Navigation: Clic Gauche/Droit + Glisser = Orbite | Clic Milieu + Glisser = Pan | Molette = Zoom.";
+                 if (currentActiveColor !== null && currentTool === 'select') {
+                    if (customColorPicker && customColorPicker.classList.contains('active-color-picker')) {
+                        helpText = "Mode PEINTURE (Perso.): Cliquez sur un élément pour appliquer la couleur. Désactivez (palette/Échap) pour sélectionner.";
+                    } else {
+                        helpText = "Mode PEINTURE: Cliquez sur un élément pour appliquer la couleur. Désactivez la couleur (palette/Échap) pour sélectionner.";
+                    }
+                } else {
+                    switch (currentTool) {
+                        case 'add':
+                            helpText = isGhostAwaitingDPadOrConfirmation ? 
+                                         "Mode AJOUT: Ajustez avec DPad, puis 'OK'. Cliquez pour repositionner. (Échap pour annuler)." :
+                                         "Mode AJOUT: Cliquez pour positionner le fantôme. Utilisez DPad et 'OK' pour placer.";
+                            break;
+                        case 'measure': helpText = "Mode MESURER: Cliquez sur un objet pour afficher ses dimensions."; break;
+                        case 'select': helpText = "Mode SÉLECTION: Cliquez sur un élément pour le sélectionner. Choisissez une couleur dans la palette pour peindre."; break;
+                        case 'move': helpText = selectedObject ? "Mode DÉPLACER: Utilisez le DPad pour déplacer. Confirmez avec 'OK'." : "Mode DÉPLACER: Cliquez sur un élément pour le sélectionner."; break;
+                        case 'rotate': helpText = selectedObject ? "Mode PIVOTER: Utilisez le DPad (↺, ↻). Confirmez avec 'OK'." : "Mode PIVOTER: Cliquez sur un élément pour le sélectionner."; break;
+                        case 'duplicate': helpText = "Mode DUPLIQUER: Cliquez sur un élément pour le dupliquer."; break;
+                        case 'delete': helpText = "Mode SUPPRIMER: Cliquez sur un élément pour le supprimer."; break;
+                    }
+                }
+                helpBar.textContent = helpText;
+            }
+
+            function setCurrentTool(tool) {
+                if ((currentTool === 'move' || currentTool === 'rotate') && selectedObject && selectedObject.userData.undoInitialTransform) {
+                    const initialTransform = selectedObject.userData.undoInitialTransform;
+                    if (!initialTransform.position.equals(selectedObject.position) || initialTransform.rotationY !== selectedObject.rotation.y) {
+                        pushActionToUndoStack({ type: 'transform', objectId: selectedObject.userData.id, oldTransform: initialTransform, newTransform: { position: selectedObject.position.clone(), rotationY: selectedObject.rotation.y } });
+                    }
+                    delete selectedObject.userData.undoInitialTransform;
+                }
+                
+                if (currentTool === 'measure' && tool !== 'measure') {
+                    clearDimensionLabelsDOM();
+                    selectedObject = null; 
+                }
+                
+                currentTool = tool;
+                updateActiveToolButton();
+                if (tool !== 'select' && currentActiveColor !== null) { 
+                    if (activeSwatchElement) activeSwatchElement.classList.remove('active-color-swatch');
+                    if (customColorPicker) customColorPicker.classList.remove('active-color-picker');
+                    currentActiveColor = null; activeSwatchElement = null;
+                }
+                updateCursorStyle(); updateHelpBar(); 
+                if (tool === 'add' || tool === 'select' || tool === 'measure') deselectObject(); 
+
+                if (tool !== 'add' && tool !== 'measure') { 
+                    hideHeightTooltip();
+                }
+                 if (tool !== 'measure') {
+                    clearDimensionLabelsDOM(); 
+                }
+
+
+                if (tool === 'add') {
+                    if (!ghostElement) createGhostElement();
+                    isGhostAwaitingDPadOrConfirmation = false; 
+                    if (ghostElement) ghostElement.visible = true; 
+                    controls.enabled = true; 
+                    controls.enableRotate = true;
+                } else {
+                    removeGhostElement(); 
+                    controls.enabled = !((tool === 'move' || tool === 'rotate') && selectedObject);  
+                    controls.enableRotate = true; 
+                }
+                if (controls) controls.update(); 
+            }
+
+            function updateActiveToolButton() {
+                Object.values(toolButtons).forEach(btn => btn.classList.remove('tool-active'));
+                if (toolButtons[currentTool]) toolButtons[currentTool].classList.add('tool-active');
+            }
+
+            function createColorPalette() {
+                const paletteDiv = colorPaletteContainer.querySelector('.color-palette');
+                paletteDiv.innerHTML = ''; // Clear existing swatches
+                colorPalette.forEach(colorHex => {
+                    const swatch = document.createElement('div');
+                    swatch.className = 'color-swatch';
+                    const swatchInner = document.createElement('div');
+                    swatchInner.className = 'color-swatch-inner';
+                    swatchInner.style.backgroundColor = '#' + colorHex.toString(16).padStart(6, '0');
+                    swatch.appendChild(swatchInner);
+                    swatch.dataset.color = colorHex; 
+                    swatch.addEventListener('click', (event) => {
+                        event.stopPropagation(); 
+                        if (activeSwatchElement === swatch) { 
+                            currentActiveColor = null; 
+                            activeSwatchElement.classList.remove('active-color-swatch'); 
+                            activeSwatchElement = null;
+                            if(customColorPicker) customColorPicker.classList.remove('active-color-picker');
+                        } else {
+                            if (activeSwatchElement) activeSwatchElement.classList.remove('active-color-swatch');
+                            if(customColorPicker) customColorPicker.classList.remove('active-color-picker');
+                            currentActiveColor = parseInt(swatch.dataset.color); 
+                            activeSwatchElement = swatch; 
+                            activeSwatchElement.classList.add('active-color-swatch');
+                            if (currentTool !== 'select') setCurrentTool('select');
+                        }
+                        updateCursorStyle(); updateHelpBar();
+                    });
+                    paletteDiv.appendChild(swatch);
+                });
+            }
+
+            function getElementProperties() {
+                const selectedOption = elementTypeSelector.options[elementTypeSelector.selectedIndex];
+                const typeKey = selectedOption.value; 
+                const baseType = typeKey.split('_')[0]; 
+                let dims, name, originalName; 
+                let cutLength = '1/1'; 
+                let widthMultiplier = 1.0;
+                let customCutWidthValue = null;
+
+                if (typeKey === 'custom') {
+                    name = customNameInput.value.trim() || 'Perso';
+                    const w = parseFloat(customWidthInput.value) || 0.2;
+                    const h = parseFloat(customHeightInput.value) || 0.1;
+                    const d = parseFloat(customDepthInput.value) || 0.1;
+                    dims = [w, h, d];
+                    originalName = name; 
+                } else {
+                    originalName = selectedOption.textContent.split(' (')[0]; 
+                    name = originalName;
+                    dims = selectedOption.dataset.dims.split(',').map(Number);
+                    if (typeKey === 'vide') {
+                        dims[2] = parseFloat(videDepthInput.value) / 100; 
+                    }
+
+                    if (baseType === 'brique') {
+                        const selectedCutOption = brickCutSelector.options[brickCutSelector.selectedIndex];
+                        cutLength = selectedCutOption.value;
+                        if (cutLength === 'custom_cut') {
+                            const customLenCm = parseFloat((brickCustomCutLengthInput.value || "0").replace(',', '.'));
+                            customCutWidthValue = isNaN(customLenCm) ? dims[0] : customLenCm / 100; 
+                            dims[0] = customCutWidthValue;
+                            name += ` (Coupe ${(customCutWidthValue * 100).toFixed(1)}cm)`;
+                        } else {
+                            if (selectedCutOption.dataset.fixedWidthCm) { 
+                                dims[0] = parseFloat(selectedCutOption.dataset.fixedWidthCm) / 100;
+                                widthMultiplier = 1.0; 
+                            } else { 
+                                widthMultiplier = parseFloat(selectedCutOption.dataset.multiplier);
+                                dims[0] = dims[0] * widthMultiplier; 
+                            }
+                            if (cutLength !== '1/1') {
+                                name += ` (${selectedCutOption.textContent.split(' (')[0]})`; 
+                            }
+                        }
+                        dims[0] = parseFloat(dims[0].toFixed(4)); 
+                    } else if (baseType === 'bloc') { 
+                        if (typeKey.startsWith('bloc_cell_')) {
+                            const selectedBlockCellCutOption = blockCellCutSelector.options[blockCellCutSelector.selectedIndex];
+                            cutLength = selectedBlockCellCutOption.value;
+                            if (cutLength === 'custom_cut') {
+                                const customLenCm = parseFloat((blockCellCustomCutLengthInput.value || "0").replace(',', '.'));
+                                customCutWidthValue = isNaN(customLenCm) ? dims[0] : customLenCm / 100;
+                                dims[0] = customCutWidthValue;
+                                name += ` (Coupe ${(customCutWidthValue * 100).toFixed(1)}cm)`;
+                            } else {
+                                widthMultiplier = parseFloat(selectedBlockCellCutOption.dataset.multiplier || "1.0");
+                                dims[0] = dims[0] * widthMultiplier; 
+                                if (cutLength !== '1/1') {
+                                    name += ` (${selectedBlockCellCutOption.textContent.split(' (')[0]})`;
+                                }
+                            }
+                        } else { // Standard blocks (bloc_b...)
+                            const selectedBlockCutOption = blockCutSelector.options[blockCutSelector.selectedIndex];
+                            cutLength = selectedBlockCutOption.value;
+                             if (cutLength === 'custom_cut') { 
+                                const customLenCm = parseFloat((blockCustomCutLengthInput.value || "0").replace(',', '.'));
+                                customCutWidthValue = isNaN(customLenCm) ? dims[0] : customLenCm / 100;
+                                dims[0] = customCutWidthValue;
+                                name += ` (Coupe ${(customCutWidthValue * 100).toFixed(1)}cm)`;
+                            } else {
+                                dims[0] = parseFloat(selectedBlockCutOption.dataset.width); 
+                                if (cutLength !== '1/1') {
+                                     name += ` (${selectedBlockCutOption.textContent.split(' (')[1].replace(')','')})`; 
+                                }
+                            }
+                        }
+                    }
+                }
+                return { 
+                    type: typeKey, 
+                    baseType: baseType, 
+                    name: name, 
+                    originalName: originalName, 
+                    width: dims[0],  
+                    height: dims[1], 
+                    depth: dims[2],
+                    seatingIndex: currentSeatingIndex,
+                    cutLength: (baseType === 'brique' || baseType === 'bloc') ? cutLength : undefined, 
+                    widthMultiplier: (baseType === 'brique' || typeKey.startsWith('bloc_cell_')) && cutLength !== 'custom_cut' ? widthMultiplier : 1.0,
+                    customCutWidthValue: (baseType === 'brique' || baseType === 'bloc') && cutLength === 'custom_cut' ? customCutWidthValue : undefined,
+                    texturePath: currentTexturePath, 
+                    roughness: parseFloat(roughnessSlider.value),
+                    metalness: parseFloat(metalnessSlider.value)
+                };
+            }
+
+            function createGhostElement() {
+                if (ghostElement) {
+                    scene.remove(ghostElement);
+                    if (ghostElement.geometry) ghostElement.geometry.dispose();
+                    if (ghostElement.material) ghostElement.material.dispose();
+                    ghostElement = null;
+                }
+
+                const props = getElementProperties();
+                const geometry = new THREE.BoxGeometry(props.width, props.height, props.depth);
+                const material = new THREE.MeshStandardMaterial({ 
+                    color: 0x03A9F4, 
+                    opacity: 0.6, 
+                    transparent: true, 
+                    roughness: props.roughness, 
+                    metalness: props.metalness 
+                });
+                
+                if (props.texturePath && props.texturePath !== 'none' && textures[props.texturePath]) {
+                    material.color.set(0xffffff); 
+                    textureLoader.load(textures[props.texturePath], (texture) => {
+                        texture.wrapS = THREE.RepeatWrapping;
+                        texture.wrapT = THREE.RepeatWrapping;
+                        texture.repeat.set(props.width / 1, props.height / 0.2); 
+                        material.map = texture;
+                        material.needsUpdate = true;
+                    });
+                } else if (props.texturePath === "custom_loaded_texture" && customLoadedTextureObject) {
+                     material.color.set(0xffffff);
+                     material.map = customLoadedTextureObject;
+                     material.needsUpdate = true;
+                }
+
+
+                ghostElement = new THREE.Mesh(geometry, material);
+                ghostElement.userData = { ...props, isGhost: true };
+
+                let jointHeightMeters = 0;
+                if (props.baseType === 'brique') {
+                    jointHeightMeters = getSanitizedJointValue('joint-distance');
+                } else if (props.baseType === 'bloc') { 
+                    jointHeightMeters = getSanitizedJointValue('block-joint-distance');
+                }
+                
+                const currentLevelY = seatingLevels[currentSeatingIndex] ? seatingLevels[currentSeatingIndex].y : 0;
+                
+                let targetBottomY = currentLevelY;
+                if (props.baseType === 'brique' || props.baseType === 'bloc') { 
+                    targetBottomY += jointHeightMeters;
+                }
+                const initialGhostCenterY = snapToGrid(targetBottomY) + props.height / 2;
+                ghostElement.position.set(0, initialGhostCenterY, 0);
+
+                ghostElement.visible = (currentTool === 'add' && !isGhostAwaitingDPadOrConfirmation);
+                scene.add(ghostElement);
+                if (!isGhostAwaitingDPadOrConfirmation) hideHeightTooltip(); 
+            }
+
+            function removeGhostElement() {
+                if (ghostElement) {
+                    scene.remove(ghostElement);
+                    if (ghostElement.geometry) ghostElement.geometry.dispose();
+                    if (ghostElement.material) {
+                        if(ghostElement.material.map) ghostElement.material.map.dispose();
+                        ghostElement.material.dispose();
+                    }
+                    ghostElement = null;
+                }
+                isGhostAwaitingDPadOrConfirmation = false; 
+                hideHeightTooltip(); 
+            }
+
+            function addElementAtPosition(position, rotationY, propsFromGhost, elementId = null, originalColorOverride = null) {
+                const geometry = new THREE.BoxGeometry(propsFromGhost.width, propsFromGhost.height, propsFromGhost.depth);
+                
+                let defaultColorForType = elementColors.default;
+                if (propsFromGhost.type.startsWith('bloc_cell_')) {
+                    defaultColorForType = elementColors.bloc_cell || 0xFFFFFF;
+                } else if (elementColors[propsFromGhost.baseType]) {
+                    defaultColorForType = elementColors[propsFromGhost.baseType];
+                }
+
+                const baseColorHex = originalColorOverride !== null ? originalColorOverride : defaultColorForType;
+                let finalColorToApply = useWhiteElements ? 0xffffff : baseColorHex;
+                
+                let textureMap = null;
+                let actualTexturePath = propsFromGhost.texturePath; // Path or "custom_loaded_texture" or data URL
+
+                if (actualTexturePath && actualTexturePath !== 'none') {
+                    finalColorToApply = 0xffffff; 
+                    if (actualTexturePath === "custom_loaded_texture" && customLoadedTextureObject) {
+                        textureMap = customLoadedTextureObject;
+                    } else if (actualTexturePath.startsWith("data:image") && propsFromGhost.customTextureData) { // For loading from save file
+                        textureMap = textureLoader.load(propsFromGhost.customTextureData, (texture) => {
+                            texture.wrapS = THREE.RepeatWrapping; texture.wrapT = THREE.RepeatWrapping;
+                            const repeatX = Math.max(1, Math.round(propsFromGhost.width / 0.5)); 
+                            const repeatY = Math.max(1, Math.round(propsFromGhost.height / 0.25));
+                            texture.repeat.set(repeatX, repeatY);
+                            element.material.needsUpdate = true;
+                        });
+                         actualTexturePath = propsFromGhost.customTextureData; // Store the data URL in userData
+                    } else if (textures[actualTexturePath]) {
+                        textureMap = textureLoader.load(textures[actualTexturePath], (texture) => {
+                            texture.wrapS = THREE.RepeatWrapping; texture.wrapT = THREE.RepeatWrapping;
+                            const repeatX = Math.max(1, Math.round(propsFromGhost.width / 0.5)); 
+                            const repeatY = Math.max(1, Math.round(propsFromGhost.height / 0.25));
+                            texture.repeat.set(repeatX, repeatY);
+                            element.material.needsUpdate = true;
+                        });
+                    }
+                }
+
+
+                const material = new THREE.MeshStandardMaterial({
+                    color: finalColorToApply,
+                    map: textureMap,
+                    roughness: propsFromGhost.roughness !== undefined ? propsFromGhost.roughness : defaultRoughness, 
+                    metalness: propsFromGhost.metalness !== undefined ? propsFromGhost.metalness : defaultMetalness,
+                    transparent: propsFromGhost.baseType === 'vide',
+                    opacity: propsFromGhost.baseType === 'vide' ? 0.3 : 1.0, 
+                    name: propsFromGhost.name 
+                });
+
+                const element = new THREE.Mesh(geometry, material);
+                element.castShadow = shadowsEnabled && propsFromGhost.baseType !== 'vide';
+                element.receiveShadow = shadowsEnabled && propsFromGhost.baseType !== 'vide';
+                element.position.copy(position); 
+                element.rotation.y = rotationY;
+                element.name = propsFromGhost.name; 
+                element.userData = {
+                    ...propsFromGhost, 
+                    isGhost: false,
+                    id: elementId || THREE.MathUtils.generateUUID(),
+                    originalColor: baseColorHex, 
+                    texturePath: actualTexturePath, // Store the actual path or data URL
+                    customTextureData: (actualTexturePath && actualTexturePath.startsWith("data:image")) ? actualTexturePath : null, // Store data URL if custom
+                    roughness: propsFromGhost.roughness,
+                    metalness: propsFromGhost.metalness,
+                    seatingIndex: propsFromGhost.seatingIndex !== undefined ? propsFromGhost.seatingIndex : currentSeatingIndex,
+                    cutLength: propsFromGhost.cutLength, 
+                    widthMultiplier: propsFromGhost.widthMultiplier, 
+                    originalName: propsFromGhost.originalName,
+                    customCutWidthValue: propsFromGhost.customCutWidthValue 
+                };
+                
+                const edges = new THREE.EdgesGeometry(element.geometry);
+                const lineMaterial = new THREE.LineBasicMaterial({ color: 0x000000, linewidth: 1.5 });
+                const lineSegments = new THREE.LineSegments(edges, lineMaterial);
+                lineSegments.name = "elementEdges"; 
+                element.add(lineSegments); 
+                objects.push(element);
+                scene.add(element);
+                updateElementCounter();
+                return element;
+            }
+            
+            function applyTextureAndMaterialToObject(targetObject) {
+                if (!targetObject || !targetObject.material) return;
+
+                const newTexturePath = textureSelector.value;
+                const newRoughness = parseFloat(roughnessSlider.value);
+                const newMetalness = parseFloat(metalnessSlider.value);
+
+                // Store for undo/redo if it's a real object
+                if (targetObject === selectedObject && targetObject.userData && !targetObject.userData.isGhost) {
+                    const oldProps = {
+                        texturePath: targetObject.userData.texturePath || 'none',
+                        customTextureData: targetObject.userData.customTextureData,
+                        roughness: targetObject.userData.roughness,
+                        metalness: targetObject.userData.metalness,
+                        color: targetObject.material.color.getHex() 
+                    };
+                    const newProps = {
+                        texturePath: newTexturePath,
+                        customTextureData: (newTexturePath === "custom_loaded_texture" && customLoadedTextureObject) ? customLoadedTextureObject.image.src : null,
+                        roughness: newRoughness,
+                        metalness: newMetalness,
+                        color: (newTexturePath !== 'none') ? 0xffffff : targetObject.userData.originalColor 
+                    };
+                    if (oldProps.texturePath !== newProps.texturePath || 
+                        oldProps.roughness !== newProps.roughness || 
+                        oldProps.metalness !== newProps.metalness ||
+                        (oldProps.texturePath === 'none' && newProps.texturePath !== 'none') || // color might change due to texture
+                        (oldProps.texturePath !== 'none' && newProps.texturePath === 'none')    // color might change due to no texture
+                        ) {
+                         pushActionToUndoStack({ type: 'material_update', objectId: targetObject.userData.id, oldProps: oldProps, newProps: newProps });
+                    }
+                }
+
+
+                targetObject.userData.texturePath = newTexturePath;
+                targetObject.userData.roughness = newRoughness;
+                targetObject.userData.metalness = newMetalness;
+                targetObject.userData.customTextureData = (newTexturePath === "custom_loaded_texture" && customLoadedTextureObject) ? customLoadedTextureObject.image.src : null;
+
+
+                targetObject.material.roughness = newRoughness;
+                targetObject.material.metalness = newMetalness;
+
+                if (newTexturePath && newTexturePath !== 'none') {
+                    targetObject.material.color.set(0xffffff); 
+                    let textureToApply = null;
+                    if (newTexturePath === "custom_loaded_texture" && customLoadedTextureObject) {
+                        textureToApply = customLoadedTextureObject;
+                    } else if (textures[newTexturePath]) {
+                        textureToApply = textureLoader.load(textures[newTexturePath], (tex) => {
+                            tex.wrapS = THREE.RepeatWrapping;
+                            tex.wrapT = THREE.RepeatWrapping;
+                            const repeatX = Math.max(1, Math.round(targetObject.userData.width / 0.5)); 
+                            const repeatY = Math.max(1, Math.round(targetObject.userData.height / 0.25));
+                            tex.repeat.set(repeatX, repeatY);
+                            targetObject.material.map = tex;
+                            targetObject.material.needsUpdate = true;
+                        });
+                    }
+                    targetObject.material.map = textureToApply;
+                } else {
+                    targetObject.material.map = null;
+                    const colorToSet = useWhiteElements ? 0xffffff : (targetObject.userData.originalColor || elementColors.default);
+                    targetObject.material.color.setHex(colorToSet);
+                }
+                targetObject.material.needsUpdate = true;
+            }
+
+
+            function confirmPlacement() {
+                if (currentTool === 'add' && ghostElement && isGhostAwaitingDPadOrConfirmation) { 
+                    const newElement = addElementAtPosition(ghostElement.position.clone(), ghostElement.rotation.y, ghostElement.userData);
+                    if (newElement) {
+                        pushActionToUndoStack({ type: 'add', objectId: newElement.userData.id, redoData: cloneObjectDataForUndo(newElement) });
+                    }
+                    isGhostAwaitingDPadOrConfirmation = false; 
+                    removeGhostElement(); 
+                    createGhostElement(); 
+                    if (ghostElement) ghostElement.visible = true;
+                    controls.enabled = true; 
+                    controls.enableRotate = true;
+                } else if ((currentTool === 'move' || currentTool === 'rotate') && selectedObject) {
+                    if (selectedObject.userData.undoInitialTransform) {
+                        const initial = selectedObject.userData.undoInitialTransform;
+                        if (!initial.position.equals(selectedObject.position) || initial.rotationY !== selectedObject.rotation.y) {
+                            pushActionToUndoStack({ type: 'transform', objectId: selectedObject.userData.id, oldTransform: initial, newTransform: { position: selectedObject.position.clone(), rotationY: selectedObject.rotation.y } });
+                        }
+                        delete selectedObject.userData.undoInitialTransform;
+                    }
+                    deselectObject(); setCurrentTool('select'); 
+                }
+                hideHeightTooltip(); 
+                updateHelpBar();
+            }
+
+            function snapToGrid(value) { return Math.round(value / snapGridSize) * snapGridSize; }
+
+            function getSnappedPosition(worldPosition, elementProps) {
+                let jointHeightMeters = 0;
+                if (elementProps.baseType === 'brique') {
+                    jointHeightMeters = getSanitizedJointValue('joint-distance');
+                } else if (elementProps.baseType === 'bloc') { // Includes cellular blocks
+                    jointHeightMeters = getSanitizedJointValue('block-joint-distance');
+                }
+                
+                const snappedX = snapToGrid(worldPosition.x);
+                const snappedZ = snapToGrid(worldPosition.z);
+
+                const seatingIdxForGhost = elementProps.seatingIndex !== undefined ? elementProps.seatingIndex : currentSeatingIndex;
+                const currentSeatingLevelY = seatingLevels[seatingIdxForGhost] ? seatingLevels[seatingIdxForGhost].y : 0;
+
+                let targetBottomY = currentSeatingLevelY;
+                if ((elementProps.baseType === 'brique' || elementProps.baseType === 'bloc') && !elementProps.snappedToObjectId) { 
+                    targetBottomY += jointHeightMeters;
+                }
+                
+                const snappedBottomY = snapToGrid(targetBottomY); 
+                const snappedCenterY = snappedBottomY + elementProps.height / 2; 
+
+                return new THREE.Vector3(snappedX, snappedCenterY, snappedZ);
+            }
+            
+            function moveGhostOrSelected(direction, eventParam) { 
+                const target = (currentTool === 'add' && ghostElement && isGhostAwaitingDPadOrConfirmation) ? ghostElement : 
+                               ((currentTool === 'move' || currentTool === 'rotate') && selectedObject) ? selectedObject : null;
+                if (!target) {
+                    hideHeightTooltip();
+                    return;
+                }
+                if (selectedObject && !target.userData.undoInitialTransform && (currentTool === 'move' || currentTool === 'rotate')) {
+                    target.userData.undoInitialTransform = { position: target.position.clone(), rotationY: target.rotation.y };
+                }
+
+                const currentEvent = eventParam || window.event; 
+                const useShift = currentEvent ? currentEvent.shiftKey : false;
+                const moveAmount = snapGridSize * (useShift ? 10 : 5); 
+                let heightAdjustAmount = snapGridSize * (useShift ? 5 : 2); 
+                
+                let jointHeightMeters = 0;
+                let currentJointCm = 0;
+
+                if (target.userData.baseType === 'brique') {
+                    jointHeightMeters = getSanitizedJointValue('joint-distance');
+                    currentJointCm = parseFloat((jointDistanceInput.value || "0").replace(',', '.'));
+                } else if (target.userData.baseType === 'bloc') { // Includes cellular blocks
+                    jointHeightMeters = getSanitizedJointValue('block-joint-distance');
+                    currentJointCm = parseFloat((blockJointDistanceInput.value || "0").replace(',', '.'));
+                }
+
+
+                if ((target.userData.baseType === 'brique' || target.userData.baseType === 'bloc') && (direction === 'up' || direction === 'down')) {
+                    heightAdjustAmount = target.userData.height + jointHeightMeters;
+                }
+
+
+                switch (direction) {
+                    case 'forward':
+                    case 'backward':
+                    case 'left':
+                    case 'right':
+                        if (direction === 'forward') target.position.z -= moveAmount;
+                        if (direction === 'backward') target.position.z += moveAmount;
+                        if (direction === 'left') target.position.x -= moveAmount;
+                        if (direction === 'right') target.position.x += moveAmount;
+                        if (target === ghostElement) hideHeightTooltip(); 
+                        break;
+                    case 'up': 
+                    case 'down':
+                        if (target.userData.snappedToObjectId) delete target.userData.snappedToObjectId;
+                        target.position.y += (direction === 'up' ? heightAdjustAmount : -heightAdjustAmount);
+                        
+                        const targetSeatingIndex = target.userData.seatingIndex !== undefined ? target.userData.seatingIndex : currentSeatingIndex;
+                        const targetSeatingLevelY = seatingLevels[targetSeatingIndex] ? seatingLevels[targetSeatingIndex].y : 0;
+                        let basePosY = targetSeatingLevelY + target.userData.height / 2; 
+
+                        if ((target.userData.baseType === 'brique' || target.userData.baseType === 'bloc') && targetSeatingLevelY < snapGridSize && !target.userData.snappedToObjectId) { 
+                            basePosY += jointHeightMeters;
+                        }
+
+                        if (direction === 'down') {
+                             target.position.y = Math.max(basePosY, target.position.y);
+                        }
+                        updateTargetSeatingAfterVerticalMove(target); 
+
+                        if (target === ghostElement && (target.userData.baseType === 'brique' || target.userData.baseType === 'bloc')) {
+                            let tooltipText = ""; 
+                            const elementHeight = target.userData.height; 
+                            const currentJointForTooltipCm = isNaN(currentJointCm) ? 0 : currentJointCm;
+                            
+                            if (typeof elementHeight === 'number' && !isNaN(elementHeight)) {
+                                const topFaceYAbsolute = target.position.y + elementHeight / 2; 
+                                const currentSeatingLevelYForTooltip = seatingLevels[target.userData.seatingIndex !== undefined ? target.userData.seatingIndex : currentSeatingIndex] ? seatingLevels[target.userData.seatingIndex !== undefined ? target.userData.seatingIndex : currentSeatingIndex].y : 0;
+                                
+                                if (target.userData.snappedToObjectId) { 
+                                    tooltipText = `Haut. ${target.userData.baseType === 'brique' ? 'Brique' : 'Bloc'}: ${(elementHeight * 100).toFixed(1)} cm`;
+                                } else { 
+                                    const distanceFromSeatingLevel = topFaceYAbsolute - currentSeatingLevelYForTooltip;
+                                    tooltipText = `Haut. / Assise: ${(distanceFromSeatingLevel * 100).toFixed(1)} cm (Joint Actuel: ${currentJointForTooltipCm.toFixed(1)} cm)`;
+                                }
+                            } else {
+                                tooltipText = "Erreur calcul hauteur"; 
+                            }
+                            showAndPositionTooltip(target, tooltipText);
+                        } else {
+                            if (target === ghostElement) hideHeightTooltip();
+                        }
+                        break;
+                }
+                target.position.x = snapToGrid(target.position.x);
+                target.position.z = snapToGrid(target.position.z);
+                target.position.y = parseFloat(target.position.y.toFixed(5)); 
+                updateHelpBar();
+            }
+
+            function updateTargetSeatingAfterVerticalMove(target) {
+                if (target === ghostElement && isGhostAwaitingDPadOrConfirmation) {
+                    let jointHeightMeters = 0;
+                    if (target.userData.baseType === 'brique') {
+                        jointHeightMeters = getSanitizedJointValue('joint-distance');
+                    } else if (target.userData.baseType === 'bloc') {
+                        jointHeightMeters = getSanitizedJointValue('block-joint-distance');
+                    }
+
+                    let ghostBaseY = target.position.y - target.userData.height / 2;
+                    
+                    if ((target.userData.baseType === 'brique' || target.userData.baseType === 'bloc') && !target.userData.snappedToObjectId) {
+                        ghostBaseY -= jointHeightMeters; 
+                    }
+
+                    let closestSeatingId = 0; 
+                    let minDiff = Infinity;
+                    for (const id in seatingLevels) {
+                        const diff = Math.abs(ghostBaseY - seatingLevels[id].y);
+                        if (diff < minDiff) { 
+                            minDiff = diff; 
+                            closestSeatingId = parseInt(id); 
+                        }
+                    }
+                    if (minDiff < snapGridSize * 2) { 
+                         ghostElement.userData.seatingIndex = closestSeatingId;
+                         const newSeatingY = seatingLevels[closestSeatingId].y;
+                         let targetBottomForSnap = newSeatingY;
+                         if ((target.userData.baseType === 'brique' || target.userData.baseType === 'bloc') && !target.userData.snappedToObjectId) {
+                             targetBottomForSnap += jointHeightMeters;
+                         }
+                         target.position.y = snapToGrid(targetBottomForSnap) + target.userData.height / 2;
+                    }
+                }
+            }
+
+            function rotateGhostOrSelected(direction, eventParam) { 
+                const target = (currentTool === 'add' && ghostElement && isGhostAwaitingDPadOrConfirmation) ? ghostElement : 
+                               ((currentTool === 'rotate' || currentTool === 'move') && selectedObject) ? selectedObject : null;
+                if (!target) return;
+                if (selectedObject && !target.userData.undoInitialTransform && (currentTool === 'move' || currentTool === 'rotate')) {
+                    target.userData.undoInitialTransform = { position: target.position.clone(), rotationY: target.rotation.y };
+                }
+                const currentEvent = eventParam || window.event;
+                const useShift = currentEvent ? currentEvent.shiftKey : false;
+                const rotAmount = Math.PI / (useShift ? 18 : 36); 
+                target.rotation.y += (direction === 'left' ? rotAmount : -rotAmount);
+                if (target === ghostElement) hideHeightTooltip(); 
+            }
+
+            function selectObject(object) {
+                if (selectedObject === object) return; 
+                if (selectedObject && selectedObject.userData.undoInitialTransform) {
+                    const initial = selectedObject.userData.undoInitialTransform;
+                    if (!initial.position.equals(selectedObject.position) || initial.rotationY !== selectedObject.rotation.y) {
+                        pushActionToUndoStack({ type: 'transform', objectId: selectedObject.userData.id, oldTransform: { position: initial.position.clone(), rotationY: initial.rotationY }, newTransform: { position: selectedObject.position.clone(), rotationY: selectedObject.rotation.y } });
+                    }
+                    delete selectedObject.userData.undoInitialTransform;
+                }
+                deselectObject(); 
+                selectedObject = object;
+                if (selectedObject && selectedObject.userData && (selectedObject.userData.isGhost === undefined || selectedObject.userData.isGhost === false)) { 
+                    selectedObject.userData.originalMaterialParams = { color: selectedObject.userData.originalColor || selectedObject.material.color.getHex(), emissive: selectedObject.material.emissive ? selectedObject.material.emissive.getHex() : 0x000000 };
+                    selectedObject.userData.originalScale = selectedObject.scale.clone();
+                    selectedObject.material.color.set(0x00ff00); selectedObject.material.emissive = new THREE.Color(0x003300); 
+                    selectedObject.material.needsUpdate = true; selectedObject.scale.multiplyScalar(1.05); 
+                    if (currentTool === 'move' || currentTool === 'rotate') {
+                        controls.enabled = false; 
+                        selectedObject.userData.undoInitialTransform = { position: selectedObject.position.clone(), rotationY: selectedObject.rotation.y };
+                    } else { controls.enabled = true; }
+
+                    // Update Texture/Material UI when selecting an object
+                    textureSelector.value = selectedObject.userData.texturePath || 'none';
+                    roughnessSlider.value = selectedObject.userData.roughness !== undefined ? selectedObject.userData.roughness : defaultRoughness;
+                    metalnessSlider.value = selectedObject.userData.metalness !== undefined ? selectedObject.userData.metalness : defaultMetalness;
+                    roughnessValueLabel.textContent = parseFloat(roughnessSlider.value).toFixed(2);
+                    metalnessValueLabel.textContent = parseFloat(metalnessSlider.value).toFixed(2);
+
+                } else { 
+                    selectedObject = null; 
+                    if (currentTool !== 'add') controls.enabled = true;
+                }
+                if(controls) controls.update(); updateHelpBar();
+            }
+
+            function deselectObject() {
+                if (selectedObject && selectedObject.userData && selectedObject.userData.isGhost !== true) { 
+                    if (selectedObject.userData.originalMaterialParams) {
+                        selectedObject.material.color.setHex(selectedObject.userData.originalMaterialParams.color);
+                        selectedObject.material.emissive.setHex(selectedObject.userData.originalMaterialParams.emissive);
+                        selectedObject.material.needsUpdate = true; delete selectedObject.userData.originalMaterialParams; 
+                    }
+                    if (selectedObject.userData.originalScale) {
+                        selectedObject.scale.copy(selectedObject.userData.originalScale); delete selectedObject.userData.originalScale; 
+                    }
+                    if (selectedObject.userData.undoInitialTransform) { 
+                         const initial = selectedObject.userData.undoInitialTransform;
+                         if (!initial.position.equals(selectedObject.position) || initial.rotationY !== selectedObject.rotation.y) {
+                            pushActionToUndoStack({ type: 'transform', objectId: selectedObject.userData.id, oldTransform: { position: initial.position.clone(), rotationY: initial.rotationY }, newTransform: { position: selectedObject.position.clone(), rotationY: selectedObject.rotation.y } });
+                        }
+                        delete selectedObject.userData.undoInitialTransform;
+                    }
+                }
+                if (currentTool === 'measure' && selectedObject) { 
+                    clearDimensionLabelsDOM();
+                }
+                selectedObject = null; 
+                if (currentTool !== 'add') { 
+                    controls.enabled = true; controls.enableRotate = true; 
+                    if(controls) controls.update();
+                }
+                if (currentTool !== 'add') isGhostAwaitingDPadOrConfirmation = false; 
+                hideHeightTooltip(); 
+                updateHelpBar();
+            }
+
+            function onWindowResize() {
+                const newWidth = viewportContainer.clientWidth, newHeight = viewportContainer.clientHeight;
+                camera.aspect = newWidth / newHeight; camera.updateProjectionMatrix();
+                renderer.setSize(newWidth, newHeight);
+            }
+
+            // onViewportPointerMove, onViewportPointerDown, onDocumentKeyDown are defined above initThreeJS
+
+
+            function pushActionToUndoStack(action) {
+                undoStack.push(action); redoStack.length = 0; updateUndoRedoButtons();
+            }
+            function updateUndoRedoButtons() {
+                undoBtn.disabled = undoStack.length === 0; redoBtn.disabled = redoStack.length === 0;
+                document.getElementById('undo-action').style.color = undoStack.length === 0 ? '#A0A0A0' : '#333333';
+                document.getElementById('redo-action').style.color = redoStack.length === 0 ? '#A0A0A0' : '#333333';
+            }
+            function getObjectById(id) { return objects.find(obj => obj.userData.id === id); }
+            function cloneObjectDataForUndo(object) {
+                if (!object || !object.userData) return null;
+                return { 
+                    id: object.userData.id, 
+                    type: object.userData.type, 
+                    baseType: object.userData.baseType, 
+                    name: object.userData.name, 
+                    originalName: object.userData.originalName, 
+                    width: object.userData.width, height: object.userData.height, depth: object.userData.depth, 
+                    originalColor: object.userData.originalColor, 
+                    seatingIndex: object.userData.seatingIndex, 
+                    position: object.position.clone(), 
+                    rotationY: object.rotation.y, 
+                    cutLength: object.userData.cutLength, 
+                    widthMultiplier: object.userData.widthMultiplier, 
+                    customCutWidthValue: object.userData.customCutWidthValue,
+                    texturePath: object.userData.texturePath, 
+                    customTextureData: object.userData.customTextureData,
+                    roughness: object.userData.roughness,
+                    metalness: object.userData.metalness
+                };
+            }
+
+            function undoLastAction() {
+                if (undoStack.length === 0) return;
+                const action = undoStack.pop(); let object;
+                switch (action.type) {
+                    case 'add':
+                        object = getObjectById(action.objectId);
+                        if (object) { action.redoData = cloneObjectDataForUndo(object); scene.remove(object); const index = objects.indexOf(object); if (index > -1) objects.splice(index, 1); if (object.geometry) object.geometry.dispose(); if (object.material) { if(Array.isArray(object.material)) object.material.forEach(m=>m.dispose()); else object.material.dispose(); } object.traverse(c => { if (c.isLineSegments && c.name === "elementEdges") { if (c.geometry) c.geometry.dispose(); if (c.material) c.material.dispose(); }}); }
+                        break;
+                    case 'delete': if (action.objectData) addElementAtPosition(new THREE.Vector3(action.objectData.position.x, action.objectData.position.y, action.objectData.position.z), action.objectData.rotationY, action.objectData, action.objectData.id, action.objectData.originalColor); break;
+                    case 'transform': object = getObjectById(action.objectId); if (object) { object.position.copy(action.oldTransform.position); object.rotation.y = action.oldTransform.rotationY; } break;
+                    case 'color': 
+                        object = getObjectById(action.objectId); 
+                        if (object) { 
+                            object.userData.originalColor = action.oldColor; 
+                            if (!useWhiteElements && (!object.userData.texturePath || object.userData.texturePath === 'none')) {
+                                object.material.color.setHex(action.oldColor);
+                            }
+                            object.material.needsUpdate = true; 
+                        } 
+                        break;
+                    case 'material_update':
+                        object = getObjectById(action.objectId);
+                        if (object) {
+                            object.userData.texturePath = action.oldProps.texturePath;
+                            object.userData.customTextureData = action.oldProps.customTextureData;
+                            object.userData.roughness = action.oldProps.roughness;
+                            object.userData.metalness = action.oldProps.metalness;
+                            object.material.roughness = action.oldProps.roughness;
+                            object.material.metalness = action.oldProps.metalness;
+                            
+                            if (action.oldProps.texturePath && action.oldProps.texturePath !== 'none') {
+                                object.material.color.set(0xffffff);
+                                let textureToLoad = action.oldProps.texturePath === "custom_loaded_texture" ? action.oldProps.customTextureData : textures[action.oldProps.texturePath];
+                                if (textureToLoad) {
+                                    textureLoader.load(textureToLoad, (texture) => {
+                                        texture.wrapS = THREE.RepeatWrapping;
+                                        texture.wrapT = THREE.RepeatWrapping;
+                                        const repeatX = Math.max(1, Math.round(object.userData.width / 0.5)); 
+                                        const repeatY = Math.max(1, Math.round(object.userData.height / 0.25));
+                                        texture.repeat.set(repeatX, repeatY);
+                                        object.material.map = texture;
+                                        object.material.needsUpdate = true;
+                                    });
+                                } else {
+                                     object.material.map = null; // Fallback if texture path is invalid
+                                     object.material.color.setHex(action.oldProps.color);
+                                }
+                            } else {
+                                object.material.map = null;
+                                object.material.color.setHex(action.oldProps.color); 
+                            }
+                            object.material.needsUpdate = true;
+                        }
+                        break;
+                }
+                redoStack.push(action); updateUndoRedoButtons(); updateElementCounter();
+            }
+            function redoLastAction() {
+                if (redoStack.length === 0) return;
+                const action = redoStack.pop(); let object;
+                switch (action.type) {
+                    case 'add': if (action.redoData) addElementAtPosition(new THREE.Vector3(action.redoData.position.x, action.redoData.position.y, action.redoData.position.z), action.redoData.rotationY, action.redoData, action.redoData.id, action.redoData.originalColor); break;
+                    case 'delete': object = getObjectById(action.objectData.id); if (object) { scene.remove(object); const index = objects.indexOf(object); if (index > -1) objects.splice(index, 1); if (object.geometry) object.geometry.dispose(); if (object.material) { if(Array.isArray(object.material)) object.material.forEach(m=>m.dispose()); else object.material.dispose(); } object.traverse(c => { if (c.isLineSegments && c.name === "elementEdges") { if (c.geometry) c.geometry.dispose(); if (c.material) c.material.dispose(); }});} break;
+                    case 'transform': object = getObjectById(action.objectId); if (object) { object.position.copy(action.newTransform.position); object.rotation.y = action.newTransform.rotationY; } break;
+                    case 'color': 
+                        object = getObjectById(action.objectId); 
+                        if (object) { 
+                            object.userData.originalColor = action.newColor; 
+                            if (!useWhiteElements && (!object.userData.texturePath || object.userData.texturePath === 'none')) {
+                                object.material.color.setHex(action.newColor);
+                            }
+                            object.material.needsUpdate = true; 
+                        } 
+                        break;
+                    case 'material_update':
+                        object = getObjectById(action.objectId);
+                        if (object) {
+                            object.userData.texturePath = action.newProps.texturePath;
+                            object.userData.customTextureData = action.newProps.customTextureData;
+                            object.userData.roughness = action.newProps.roughness;
+                            object.userData.metalness = action.newProps.metalness;
+                            object.material.roughness = action.newProps.roughness;
+                            object.material.metalness = action.newProps.metalness;
+
+                            if (action.newProps.texturePath && action.newProps.texturePath !== 'none') {
+                                object.material.color.set(0xffffff);
+                                let textureToLoad = action.newProps.texturePath === "custom_loaded_texture" ? action.newProps.customTextureData : textures[action.newProps.texturePath];
+                                 if (textureToLoad) {
+                                    textureLoader.load(textureToLoad, (texture) => {
+                                        texture.wrapS = THREE.RepeatWrapping;
+                                        texture.wrapT = THREE.RepeatWrapping;
+                                        const repeatX = Math.max(1, Math.round(object.userData.width / 0.5)); 
+                                        const repeatY = Math.max(1, Math.round(object.userData.height / 0.25));
+                                        texture.repeat.set(repeatX, repeatY);
+                                        object.material.map = texture;
+                                        object.material.needsUpdate = true;
+                                    });
+                                } else {
+                                    object.material.map = null;
+                                    object.material.color.setHex(action.newProps.color);
+                                }
+                            } else {
+                                object.material.map = null;
+                                object.material.color.setHex(action.newProps.color); 
+                            }
+                            object.material.needsUpdate = true;
+                        }
+                        break;
+                }
+                undoStack.push(action); updateUndoRedoButtons(); updateElementCounter();
+            }
+
+            function duplicateObject(objectToDuplicate) {
+                const sourceObject = objectToDuplicate || selectedObject; if (!sourceObject) return;
+                const props = sourceObject.userData; const offset = new THREE.Vector3(props.width * 1.05, 0, 0); 
+                const newPosition = sourceObject.position.clone().add(offset);
+                const snappedNewPos = new THREE.Vector3(snapToGrid(newPosition.x), sourceObject.position.y, snapToGrid(newPosition.z));
+                const newElement = addElementAtPosition(snappedNewPos, sourceObject.rotation.y, props);
+                if (newElement) { pushActionToUndoStack({ type: 'add', objectId: newElement.userData.id, redoData: cloneObjectDataForUndo(newElement) }); deselectObject(); selectObject(newElement); setCurrentTool('move'); }
+            }
+            function deleteObject(objectToDelete) {
+                const target = objectToDelete || selectedObject; if (!target || target === plane || target === ghostElement) return;
+                pushActionToUndoStack({ type: 'delete', objectData: cloneObjectDataForUndo(target) });
+                target.traverse((child) => { if (child.isLineSegments && child.name === "elementEdges") { if (child.geometry) child.geometry.dispose(); if (child.material) { if (Array.isArray(child.material)) child.material.forEach(m => m.dispose()); else child.material.dispose();}}});
+                scene.remove(target); const index = objects.indexOf(target); if ( index > -1) objects.splice(index, 1);
+                if (target.geometry) target.geometry.dispose(); if (target.material) { if (Array.isArray(target.material)) target.material.forEach(m => m.dispose()); else target.material.dispose(); }
+                if (selectedObject === target) deselectObject(); updateElementCounter();
+            }
+
+            function handleNewFile() {
+                if (!confirm("Créer un nouveau fichier ? Les modifications non sauvegardées seront perdues.")) return;
+                while(objects.length > 0) { let o = objects[0]; o.traverse((c) => { if (c.isLineSegments && c.name === "elementEdges") { if (c.geometry) c.geometry.dispose(); if (c.material) c.material.dispose(); }}); scene.remove(o); if (o.geometry) o.geometry.dispose(); if (o.material) { if(Array.isArray(o.material)) o.material.forEach(m=>m.dispose()); else o.material.dispose(); } objects.shift(); }
+                if (selectedObject) deselectObject();
+                undoStack.length = 0; redoStack.length = 0; updateUndoRedoButtons();
+                seatingLevels = { 0: { y: 0, name: "Assise 0 (Niveau 0.00m)" } }; currentSeatingIndex = 0; updateSeatingSelector();
+                updateElementCounter(); ['project-title', 'designer-name', 'operating-mode', 'project-notes'].forEach(id => document.getElementById(id).value = '');
+                if (currentTool === 'add') { removeGhostElement(); createGhostElement(); }
+                setCurrentTool('add'); 
+                if (controls) { camera.position.copy(initialCameraPosition); controls.target.copy(initialCameraLookAt); controls.update(); }
+            }
+            function handleOpenFile() {
+                const input = document.createElement('input'); input.type = 'file'; input.accept = '.json,application/json';
+                input.onchange = e => { const file = e.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = event => { try { const data = JSON.parse(event.target.result); loadSceneData(data); } catch (error) { console.error("Erreur:", error); alert('Erreur: ' + error.message);}}; reader.readAsText(file);};
+                input.click();
+            }
+            function loadSceneData(data) {
+                if (!confirm("Charger va remplacer la scène. Continuer ?")) return;
+                while(objects.length > 0) { let o = objects[0]; o.traverse((c) => { if (c.isLineSegments && c.name === "elementEdges") { if (c.geometry) c.geometry.dispose(); if (c.material) c.material.dispose(); }}); scene.remove(o); if (o.geometry) o.geometry.dispose(); if (o.material) { if(Array.isArray(o.material)) o.material.forEach(m=>m.dispose()); else o.material.dispose(); } objects.shift(); }
+                if (selectedObject) deselectObject();
+                undoStack.length = 0; redoStack.length = 0; updateUndoRedoButtons();
+                ['project-title', 'designer-name', 'operating-mode', 'project-notes'].forEach(id => document.getElementById(id).value = '');
+                if (data.metadata) { 
+                    document.getElementById('project-title').value = data.metadata.projectTitle || ''; 
+                    document.getElementById('designer-name').value = data.metadata.designerName || ''; 
+                    document.getElementById('operating-mode').value = data.metadata.operatingMode || ''; 
+                    document.getElementById('project-notes').value = data.metadata.projectNotes || '';
+                }
+                seatingLevels = (data.seatingLevels && Object.keys(data.seatingLevels).length > 0) ? data.seatingLevels : { 0: { y: 0, name: "Assise 0 (Niveau 0.00m)" } };
+                currentSeatingIndex = data.currentSeatingIndex !== undefined && seatingLevels[data.currentSeatingIndex] ? data.currentSeatingIndex : 0;
+                if (!seatingLevels[currentSeatingIndex] && Object.keys(seatingLevels).length > 0) currentSeatingIndex = parseInt(Object.keys(seatingLevels)[0]);
+                updateSeatingSelector(); 
+                if (data.styleSettings) { useWhiteElements = data.styleSettings.useWhiteElements || false; shadowsEnabled = data.styleSettings.shadowsEnabled !== undefined ? data.styleSettings.shadowsEnabled : true; } else { useWhiteElements = false; shadowsEnabled = true; }
+                renderer.shadowMap.enabled = shadowsEnabled; scene.traverse(c => { if (c.isLight) c.castShadow = shadowsEnabled; if (c.isMesh && c.material) c.material.needsUpdate = true; });
+                toggleShadowsBtn.textContent = shadowsEnabled ? "Désactiver Ombres" : "Activer Ombres";
+                if (data.objects) { 
+                    data.objects.forEach(objData => { 
+                        const props = { 
+                            type: objData.type, baseType: objData.baseType, name: objData.name, originalName: objData.originalName, 
+                            width: objData.width, height: objData.height, depth: objData.depth, 
+                            seatingIndex: objData.seatingIndex, cutLength: objData.cutLength, 
+                            widthMultiplier: objData.widthMultiplier, customCutWidthValue: objData.customCutWidthValue,
+                            texturePath: objData.texturePath || 'none', 
+                            customTextureData: objData.customTextureData, // Load custom texture data
+                            roughness: objData.roughness !== undefined ? objData.roughness : defaultRoughness,
+                            metalness: objData.metalness !== undefined ? objData.metalness : defaultMetalness
+                        }; 
+                        const pos = new THREE.Vector3(objData.position.x, objData.position.y, objData.position.z); 
+                        const rotY = objData.rotationY; 
+                        const origSeatIdx = currentSeatingIndex; 
+                        currentSeatingIndex = objData.seatingIndex !== undefined && seatingLevels[objData.seatingIndex] ? objData.seatingIndex : 0; 
+                        if (!seatingLevels[currentSeatingIndex]) currentSeatingIndex = 0; 
+                        const loadedEl = addElementAtPosition(pos, rotY, props, objData.id, objData.originalColor); 
+                        if (loadedEl) { 
+                            loadedEl.castShadow = shadowsEnabled && props.baseType !== 'vide'; 
+                            loadedEl.receiveShadow = shadowsEnabled && props.baseType !== 'vide';
+                        } 
+                        currentSeatingIndex = origSeatIdx; 
+                    }); 
+                }
+                updateElementCounter(); if (currentTool === 'add') { removeGhostElement(); createGhostElement(); } setCurrentTool('add'); 
+                if (controls) { camera.position.copy(initialCameraPosition); controls.target.copy(initialCameraLookAt); controls.update(); }
+            }
+            function handleSaveFile() {
+                const sceneData = { 
+                    metadata: { 
+                        projectTitle: document.getElementById('project-title').value, 
+                        designerName: document.getElementById('designer-name').value, 
+                        operatingMode: document.getElementById('operating-mode').value,
+                        projectNotes: document.getElementById('project-notes').value 
+                    }, 
+                    objects: objects.map(o => ({ 
+                        id: o.userData.id, type: o.userData.type, baseType: o.userData.baseType, 
+                        name: o.userData.name, originalName: o.userData.originalName, 
+                        width: o.userData.width, height: o.userData.height, depth: o.userData.depth, 
+                        position: { x: o.position.x, y: o.position.y, z: o.position.z }, 
+                        rotationY: o.rotation.y, originalColor: o.userData.originalColor, 
+                        seatingIndex: o.userData.seatingIndex, cutLength: o.userData.cutLength, 
+                        widthMultiplier: o.userData.widthMultiplier, customCutWidthValue: o.userData.customCutWidthValue,
+                        texturePath: o.userData.texturePath, 
+                        customTextureData: o.userData.customTextureData,
+                        roughness: o.userData.roughness,
+                        metalness: o.userData.metalness
+                    })), 
+                    seatingLevels: seatingLevels, 
+                    currentSeatingIndex: currentSeatingIndex, 
+                    styleSettings: { useWhiteElements: useWhiteElements, shadowsEnabled: shadowsEnabled }
+                };
+                const filename = (sceneData.metadata.projectTitle || "simulation_mur_3d").replace(/[^a-z0-9]/gi, '_').toLowerCase() + ".json";
+                const blob = new Blob([JSON.stringify(sceneData, null, 2)], { type: 'application/json' });
+                const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = filename;
+                document.body.appendChild(link); link.click(); document.body.removeChild(link); URL.revokeObjectURL(link.href);
+            }
+            async function handleExportPDF() {
+                if (typeof jsPDF === 'undefined' && typeof window.jspdf.jsPDF === 'undefined') { alert("jsPDF non chargée."); return; }
+                const { jsPDF: JSPDF_LIB } = window.jspdf; if (!JSPDF_LIB) { alert("Erreur jsPDF."); return; }
+                const pdf = new JSPDF_LIB({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+                const pdfTitle = document.getElementById('project-title').value; 
+                const designer = document.getElementById('designer-name').value; 
+                const date = new Date().toLocaleDateString('fr-FR');
+                const originalSceneBackground = scene.background.clone(); 
+                const planeOriginalVisibility = plane.visible;
+
+                const camState = { pos: camera.position.clone(), rot: camera.rotation.clone(), fov: camera.fov, aspect: camera.aspect, near: camera.near, far: camera.far, zoom: camera.zoom, target: controls.target.clone() };
+                ['GridHelper', 'DirectionalLightHelper', 'CameraHelper'].forEach(n => { const o = scene.getObjectByName(n); if(o) o.visible = false; });
+                const ghostVis = ghostElement ? ghostElement.visible : false; if (ghostElement) ghostElement.visible = false;
+                const selObj = selectedObject; deselectObject(); renderer.setPixelRatio(window.devicePixelRatio * 1.5); 
+                
+                const views = [ 
+                    { name: "Perspective", isPerspective: true, pos: initialCameraPosition.toArray() }, 
+                    { name: "Vue de Face", isPerspective: false, up: [0,1,0], viewDir: new THREE.Vector3(0,0,1) }, 
+                    { name: "Vue Arrière", isPerspective: false, up: [0,1,0], viewDir: new THREE.Vector3(0,0,-1) },
+                    { name: "Vue de Gauche", isPerspective: false, up: [0,1,0], viewDir: new THREE.Vector3(-1,0,0) },
+                    { name: "Vue de Droite", isPerspective: false, up: [0,1,0], viewDir: new THREE.Vector3(1,0,0) },
+                    { name: "Vue de Dessus", isPerspective: false, up: [0,0,-1], viewDir: new THREE.Vector3(0,1,0.001) } 
+                ];
+
+                const m=10, pw=pdf.internal.pageSize.getWidth(), ph=pdf.internal.pageSize.getHeight();
+                let headerHeight = 15; 
+                if (pdfTitle.trim() !== "") headerHeight += 10;
+                if (designer.trim() !== "") headerHeight += 5;
+
+                const footerHeight = 10; 
+                const usablePageHeight = ph - headerHeight - footerHeight;
+                const imageMaxHeight = usablePageHeight - 15; 
+                const imageMaxWidth = pw - 2*m;       
+                
+                const visibleObjects = objects.filter(obj => obj.visible && obj.geometry && obj.userData && !obj.userData.isGhost);
+                const boundingBox = new THREE.Box3();
+                
+                if (visibleObjects.length > 0) {
+                    visibleObjects.forEach(obj => {
+                        obj.updateMatrixWorld(); 
+                        const objectBox = new THREE.Box3().setFromObject(obj, true); 
+                        boundingBox.union(objectBox);
+                    });
+                } else {
+                     boundingBox.set(new THREE.Vector3(-0.5,-0.5,-0.5), new THREE.Vector3(0.5,0.5,0.5)); 
+                }
+
+                const sceneSize = new THREE.Vector3();
+                boundingBox.getSize(sceneSize);
+                const sceneCenter = new THREE.Vector3();
+                boundingBox.getCenter(sceneCenter);
+
+                const initialObjectStates = new Map();
+                objects.forEach(obj => {
+                    if (obj.isMesh && obj.material) {
+                        const mat = obj.material;
+                        initialObjectStates.set(obj.uuid, {
+                            type: 'mesh',
+                            color: mat.color.clone(), 
+                            opacity: mat.opacity,
+                            transparent: mat.transparent,
+                            visible: mat.visible,
+                            userDataOriginalColor: obj.userData.originalColor,
+                            map: mat.map, 
+                            roughness: mat.roughness,
+                            metalness: mat.metalness
+                        });
+                        const edges = obj.getObjectByName("elementEdges");
+                        if (edges) {
+                            initialObjectStates.set(edges.uuid, { type: 'edge', visible: edges.visible });
+                        }
+                    }
+                });
+                if(plane){ 
+                    initialObjectStates.set(plane.uuid, {type: 'plane', visible: plane.visible});
+                }
+
+                function restoreAllToInitialStateForPDF() {
+                    initialObjectStates.forEach((state, uuid) => {
+                        const obj = scene.getObjectByProperty('uuid', uuid);
+                        if (obj) {
+                            if (state.type === 'mesh' && obj.isMesh && obj.material) {
+                                if (state.color && typeof state.color.copy === 'function') { 
+                                    obj.material.color.copy(state.color);
+                                } else { 
+                                    obj.material.color.setHex(0xcccccc); 
+                                }
+                                obj.material.map = state.map; 
+                                obj.material.roughness = state.roughness;
+                                obj.material.metalness = state.metalness;
+                                obj.material.visible = state.visible;
+                                obj.material.opacity = state.opacity;
+                                obj.material.transparent = state.transparent;
+                                obj.material.needsUpdate = true;
+                            } else if (state.type === 'edge' && obj.isLineSegments) {
+                                obj.visible = state.visible;
+                            } else if (state.type === 'plane' && obj === plane) {
+                                obj.visible = state.visible;
+                            }
+                        }
+                    });
+                    scene.background.copy(originalSceneBackground);
+                }
+
+
+                for (let i=0; i<views.length; i++) { 
+                    if (i > 0) pdf.addPage(); 
+                    
+                    let currentYHeader = m + 5;
+                    if (pdfTitle.trim() !== "") {
+                        pdf.setFontSize(18);
+                        pdf.setFont(undefined, 'bold');
+                        const titleWidth = pdf.getStringUnitWidth(pdfTitle) * pdf.getFontSize() / pdf.internal.scaleFactor;
+                        pdf.text(pdfTitle, (pw - titleWidth) / 2, currentYHeader);
+                        currentYHeader += 10;
+                        pdf.setFont(undefined, 'normal');
+                    }
+                    pdf.setFontSize(10);
+                    if (designer.trim() !== "") {
+                         pdf.text(`Dessinateur: ${designer}`, m, currentYHeader);
+                         currentYHeader +=5;
+                    }
+                    pdf.text(`Date: ${date}`, m, currentYHeader);
+                    pdf.text(`Page ${i+1}`, pw - m -15, m + 5); 
+                    pdf.text(document.getElementById('watermark').textContent, m, ph - 5, { align: 'left' });
+                    
+                    const view=views[i];
+                    let tempCamera;
+                    
+                    restoreAllToInitialStateForPDF(); 
+
+
+                    if (view.isPerspective) {
+                        scene.background.copy(originalSceneBackground); 
+                        if(plane && initialObjectStates.has(plane.uuid)) plane.visible = initialObjectStates.get(plane.uuid).visible; 
+
+                        objects.forEach(obj => { 
+                            if (obj.isMesh && obj.material && initialObjectStates.has(obj.uuid)) {
+                                const initialState = initialObjectStates.get(obj.uuid);
+                                if (initialState.type === 'mesh') {
+                                    obj.material.color.copy(initialState.color); // Use current color (which might be white if texture is applied)
+                                    obj.material.map = initialState.map; // Use current map
+                                    obj.material.roughness = initialState.roughness;
+                                    obj.material.metalness = initialState.metalness;
+                                    obj.material.visible = initialState.visible; 
+                                    obj.material.opacity = initialState.opacity;
+                                    obj.material.transparent = initialState.transparent;
+                                    obj.material.needsUpdate = true;
+                                }
+                                const edges = obj.getObjectByName("elementEdges");
+                                if (edges && initialObjectStates.has(edges.uuid)) {
+                                    const edgeState = initialObjectStates.get(edges.uuid);
+                                    if(edgeState.type === 'edge') edges.visible = edgeState.visible; 
+                                }
+                            }
+                        });
+
+                        tempCamera = camera; 
+                        const sphere = new THREE.Sphere();
+                        boundingBox.getBoundingSphere(sphere);
+                        const distanceFactor = 1.8; 
+                        const safeRadius = Math.max(sphere.radius, 0.1); 
+                        const distance = Math.max(safeRadius * distanceFactor / Math.sin(THREE.MathUtils.degToRad(tempCamera.fov * 0.5)), safeRadius + 0.1);
+                        
+                        const camDirection = new THREE.Vector3().subVectors(new THREE.Vector3().fromArray(view.pos) , sceneCenter).normalize(); 
+                        if (camDirection.lengthSq() === 0) camDirection.set(0,0,1); 
+                        tempCamera.position.copy(sceneCenter).addScaledVector(camDirection, distance);
+                        tempCamera.lookAt(sceneCenter);
+                        tempCamera.aspect = imageMaxWidth / imageMaxHeight; 
+                        tempCamera.updateProjectionMatrix();
+
+                    } else { 
+                        scene.background = new THREE.Color(0xffffff); 
+                        if(plane) plane.visible = false; 
+
+                        objects.forEach(obj => {
+                            if (obj.isMesh && obj.material && !obj.userData.isGhost && (obj.userData.baseType === 'brique' || obj.userData.baseType === 'bloc' || obj.userData.baseType === 'linteau')) {
+                                obj.material.color.setHex(0xffffff); 
+                                obj.material.map = null; // No texture for ortho
+                                obj.material.roughness = 1.0; // Make it non-shiny
+                                obj.material.metalness = 0.0;
+                                obj.material.opacity = 1.0;
+                                obj.material.transparent = false;
+                                obj.material.visible = true; 
+                                obj.material.needsUpdate = true;
+                                const edges = obj.getObjectByName("elementEdges");
+                                if (edges) {
+                                    edges.visible = true; 
+                                }
+                            } else if (obj.isMesh && obj.material) { 
+                                obj.material.visible = false;
+                                const edges = obj.getObjectByName("elementEdges");
+                                if (edges) edges.visible = false;
+                            }
+                        });
+                        
+                        const scaleMmPerMeter = 100; 
+                        const orthoWidthMeters = imageMaxWidth / scaleMmPerMeter;
+                        const orthoHeightMeters = imageMaxHeight / scaleMmPerMeter;
+
+                        tempCamera = new THREE.OrthographicCamera(
+                            -orthoWidthMeters / 2, orthoWidthMeters / 2,
+                            orthoHeightMeters / 2, -orthoHeightMeters / 2,
+                            0.01, 1000 
+                        );
+                        
+                        const camDistance = Math.max(sceneSize.x, sceneSize.y, sceneSize.z, 1) * 5; 
+                        tempCamera.position.copy(sceneCenter).addScaledVector(view.viewDir, camDistance);
+                        tempCamera.lookAt(sceneCenter);
+                        if(view.up) tempCamera.up.set(view.up[0], view.up[1], view.up[2]);
+                        tempCamera.updateProjectionMatrix();
+                    }
+                    
+                    renderer.render(scene, tempCamera);
+                    const imgData=renderer.domElement.toDataURL('image/png');
+                    
+                    let actualImgWidth = imageMaxWidth;
+                    let actualImgHeight = imageMaxWidth / tempCamera.aspect;
+                    if (actualImgHeight > imageMaxHeight) {
+                        actualImgHeight = imageMaxHeight;
+                        actualImgWidth = actualImgHeight * tempCamera.aspect;
+                    }
+                    const xP = (pw - actualImgWidth) / 2;
+                    const yP = headerHeight + m;
+
+                    pdf.addImage(imgData,'PNG', xP, yP, actualImgWidth, actualImgHeight);
+                    
+                    let currentTextY = yP + actualImgHeight + 5; 
+
+                    pdf.setFontSize(9);
+                    const viewTitleWidth = pdf.getStringUnitWidth(view.name) * pdf.getFontSize() / pdf.internal.scaleFactor;
+                    const viewTitleX = xP + (actualImgWidth - viewTitleWidth) / 2;
+                    pdf.text(view.name, viewTitleX, currentTextY);
+                    pdf.setDrawColor(0); 
+                    pdf.line(viewTitleX, currentTextY + 0.5, viewTitleX + viewTitleWidth, currentTextY + 0.5); 
+                    currentTextY += 4; 
+
+                    if (!view.isPerspective) {
+                        const scaleText = "Échelle: 1/10 (1cm = 10cm)";
+                        const scaleTextWidth = pdf.getStringUnitWidth(scaleText) * pdf.getFontSize() / pdf.internal.scaleFactor;
+                        pdf.text(scaleText, xP + (actualImgWidth - scaleTextWidth) / 2, currentTextY); 
+                        currentTextY += 4; 
+
+                        if (view.name.includes("Face") || view.name.includes("Arrière") || view.name.includes("Gauche") || view.name.includes("Droite")) {
+                            const groundWorldY = 0;
+                            const groundPoint3D = new THREE.Vector3(0, groundWorldY, 0); 
+                            const groundPointNDC = groundPoint3D.clone().project(tempCamera);
+                            const groundLinePdfYInImage = (groundPointNDC.y * -0.5 + 0.5) * actualImgHeight + yP;
+
+                            if (groundLinePdfYInImage >= yP && groundLinePdfYInImage <= (yP + actualImgHeight)) { 
+                                pdf.setDrawColor(0, 0, 0); 
+                                pdf.setLineWidth(0.3);    
+                                pdf.line(xP, groundLinePdfYInImage, xP + actualImgWidth, groundLinePdfYInImage);
+                                pdf.setLineWidth(0.2); 
+                            }
+                        }
+                    }
+                    vc++;
+                }
+
+                // Add new page for Metre, Mode Operatoire and Notes
+                pdf.addPage();
+                let summaryPageY = m + 5;
+                if (pdfTitle.trim() !== "") {
+                    pdf.setFontSize(18);
+                    pdf.setFont(undefined, 'bold');
+                    const titleWidth = pdf.getStringUnitWidth(pdfTitle) * pdf.getFontSize() / pdf.internal.scaleFactor;
+                    pdf.text(pdfTitle, (pw - titleWidth) / 2, summaryPageY);
+                    summaryPageY += 10;
+                    pdf.setFont(undefined, 'normal');
+                }
+                pdf.setFontSize(10);
+                if (designer.trim() !== "") {
+                    pdf.text(`Dessinateur: ${designer}`, m, summaryPageY);
+                    summaryPageY +=5;
+                }
+                pdf.text(`Date: ${date}`, m, summaryPageY);
+                pdf.text(`Page ${Math.floor(vc/2)+1}`, pw - m -15, m + 5);
+                summaryPageY += 10;
+
+
+                pdf.setFontSize(14);
+                pdf.setFont(undefined, 'bold');
+                pdf.text("Métré des matériaux", m, summaryPageY);
+                summaryPageY += 7;
+                pdf.setFontSize(10);
+                pdf.setFont(undefined, 'normal');
+                
+                let tableX = m;
+                pdf.setFontSize(8);
+                pdf.text("Type", tableX, summaryPageY);
+                pdf.text("Quantité", tableX + 70, summaryPageY); 
+                summaryPageY += 5;
+                pdf.setLineWidth(0.2);
+                pdf.line(tableX, summaryPageY - 4, tableX + 90, summaryPageY - 4); 
+
+                for (let i = 0; i < elementCounterTableBody.rows.length; i++) {
+                    const row = elementCounterTableBody.rows[i];
+                    pdf.text(row.cells[0].textContent, tableX, summaryPageY);
+                    pdf.text(row.cells[1].textContent, tableX + 70, summaryPageY);
+                    summaryPageY += 5;
+                    if (summaryPageY > ph - 40) { 
+                        pdf.addPage();
+                        summaryPageY = m + 5;
+                         if (pdfTitle.trim() !== "") {
+                            pdf.setFontSize(18); pdf.setFont(undefined, 'bold');
+                            const titleWidth = pdf.getStringUnitWidth(pdfTitle) * pdf.getFontSize() / pdf.internal.scaleFactor;
+                            pdf.text(pdfTitle, (pw - titleWidth) / 2, summaryPageY); summaryPageY +=10;
+                             pdf.setFont(undefined, 'normal');
+                        }
+                        pdf.setFontSize(10);
+                        if (designer.trim() !== "") {
+                           pdf.text(`Dessinateur: ${designer}`, m, summaryPageY); summaryPageY +=5;
+                        }
+                        pdf.text(`Date: ${date}`, m, summaryPageY); 
+                        pdf.text(`Page ${Math.floor(vc/2)+1 + (summaryPageY > ph -40 ? 1:0) }`, pw - m -15, m + 5); 
+                        summaryPageY += 15;
+
+                        pdf.setFontSize(14); pdf.setFont(undefined, 'bold');
+                        pdf.text("Métré des matériaux (suite)", m, summaryPageY); summaryPageY += 7;
+                        pdf.setFontSize(8); pdf.setFont(undefined, 'normal');
+                        pdf.text("Type", tableX, summaryPageY); pdf.text("Quantité", tableX + 70, summaryPageY); summaryPageY += 5;
+                        pdf.line(tableX, summaryPageY - 4, tableX + 90, summaryPageY - 4);
+                    }
+                }
+                summaryPageY += 10; 
+                
+                const operatingModeText = document.getElementById('operating-mode').value;
+                if (operatingModeText.trim() !== "") {
+                    if (summaryPageY > ph - 30 - (pdf.splitTextToSize(operatingModeText, pw - 2*m).length * 4)) { 
+                        pdf.addPage();
+                        summaryPageY = m + 5;
+                         if (pdfTitle.trim() !== "") {
+                            pdf.setFontSize(18); pdf.setFont(undefined, 'bold');
+                            const titleWidth = pdf.getStringUnitWidth(pdfTitle) * pdf.getFontSize() / pdf.internal.scaleFactor;
+                            pdf.text(pdfTitle, (pw - titleWidth) / 2, summaryPageY); summaryPageY +=10;
+                             pdf.setFont(undefined, 'normal');
+                        }
+                        pdf.setFontSize(10);
+                        if (designer.trim() !== "") {
+                           pdf.text(`Dessinateur: ${designer}`, m, summaryPageY); summaryPageY +=5;
+                        }
+                        pdf.text(`Date: ${date}`, m, summaryPageY); 
+                        pdf.text(`Page ${Math.floor(vc/2)+1 + (summaryPageY > ph -30 ? 1:0) }`, pw - m -15, m + 5); 
+                        summaryPageY += 15;
+                    }
+                    pdf.setFontSize(14);
+                    pdf.setFont(undefined, 'bold');
+                    pdf.text("Mode opératoire", m, summaryPageY);
+                    summaryPageY += 7;
+                    pdf.setFontSize(10);
+                    pdf.setFont(undefined, 'normal');
+                    const splitOperatingMode = pdf.splitTextToSize(operatingModeText, pw - 2*m);
+                    pdf.text(splitOperatingMode, m, summaryPageY);
+                    summaryPageY += (splitOperatingMode.length * 4) + 5; 
+                }
+
+                const notesText = document.getElementById('project-notes').value;
+                if (notesText.trim() !== "") {
+                    if (summaryPageY > ph - 30 - (pdf.splitTextToSize(notesText, pw - 2*m).length * 4)) { 
+                        pdf.addPage();
+                        summaryPageY = m + 5;
+                         if (pdfTitle.trim() !== "") {
+                            pdf.setFontSize(18); pdf.setFont(undefined, 'bold');
+                            const titleWidth = pdf.getStringUnitWidth(pdfTitle) * pdf.getFontSize() / pdf.internal.scaleFactor;
+                            pdf.text(pdfTitle, (pw - titleWidth) / 2, summaryPageY); summaryPageY +=10;
+                             pdf.setFont(undefined, 'normal');
+                        }
+                        pdf.setFontSize(10);
+                         if (designer.trim() !== "") {
+                           pdf.text(`Dessinateur: ${designer}`, m, summaryPageY); summaryPageY +=5;
+                        }
+                        pdf.text(`Date: ${date}`, m, summaryPageY); 
+                        pdf.text(`Page ${Math.floor(vc/2)+1 + (summaryPageY > ph -30 ? 1:0) }`, pw - m -15, m + 5); 
+                        summaryPageY += 15;
+                    }
+                    pdf.setFontSize(14);
+                    pdf.setFont(undefined, 'bold');
+                    pdf.text("Notes", m, summaryPageY);
+                    summaryPageY += 7;
+                    pdf.setFontSize(10);
+                    pdf.setFont(undefined, 'normal');
+                    const splitNotes = pdf.splitTextToSize(notesText, pw - 2*m);
+                    pdf.text(splitNotes, m, summaryPageY);
+                }
+
+                pdf.text(document.getElementById('watermark').textContent, m, ph - 5, { align: 'left' });
+
+
+                // Restore original materials and scene state
+                restoreAllToInitialStateForPDF();
+                
+                camera.position.copy(camState.pos);camera.rotation.copy(camState.rot);camera.fov=camState.fov;camera.aspect=camState.aspect;camera.near=camState.near;camera.far=camState.far;camera.zoom=camState.zoom;controls.target.copy(camState.target);camera.updateProjectionMatrix();controls.update();
+                scene.background.copy(originalSceneBackground); 
+                ['GridHelper', 'DirectionalLightHelper', 'CameraHelper'].forEach(n => { const o = scene.getObjectByName(n); if(o) o.visible = true; });
+                if (ghostElement && ghostVis) ghostElement.visible = true; if (selObj) selectObject(selObj); renderer.setPixelRatio(window.devicePixelRatio); 
+                pdf.save((pdfTitle.trim() !== "" ? pdfTitle.replace(/[^a-z0-9]/gi, '_').toLowerCase() : "simulation_mur_3d") + "_vues.pdf");
+            }
+            function handleEditSelection() {
+                if (!selectedObject) { alert("Aucun élément sélectionné."); return; }
+                elementTypeSelector.value = selectedObject.userData.type; 
+                elementTypeSelector.dispatchEvent(new Event('change')); 
+
+                if (selectedObject.userData.baseType === 'brique') {
+                    brickCutContainer.style.display = 'inline-flex';
+                    if (selectedObject.userData.cutLength === 'custom_cut' && selectedObject.userData.customCutWidthValue !== undefined) {
+                        brickCutSelector.value = 'custom_cut';
+                        brickCustomCutLengthInput.value = (selectedObject.userData.customCutWidthValue * 100).toFixed(1);
+                        brickCustomCutLengthContainer.style.display = 'inline-flex';
+                    } else if (selectedObject.userData.cutLength) {
+                        brickCutSelector.value = selectedObject.userData.cutLength;
+                        brickCustomCutLengthContainer.style.display = 'none';
+                    }
+                } else if (selectedObject.userData.baseType === 'bloc') {
+                    if (selectedObject.userData.type.startsWith('bloc_cell_')) {
+                        blockCellCutContainer.style.display = 'inline-flex';
+                        if (selectedObject.userData.cutLength === 'custom_cut' && selectedObject.userData.customCutWidthValue !== undefined) {
+                            blockCellCutSelector.value = 'custom_cut';
+                            blockCellCustomCutLengthInput.value = (selectedObject.userData.customCutWidthValue * 100).toFixed(1);
+                            blockCellCustomCutLengthContainer.style.display = 'inline-flex';
+                        } else if (selectedObject.userData.cutLength) {
+                            blockCellCutSelector.value = selectedObject.userData.cutLength;
+                            blockCellCustomCutLengthContainer.style.display = 'none';
+                        }
+                    } else {
+                        blockCutContainer.style.display = 'inline-flex';
+                         if (selectedObject.userData.cutLength === 'custom_cut' && selectedObject.userData.customCutWidthValue !== undefined) { 
+                            blockCutSelector.value = 'custom_cut';
+                            blockCustomCutLengthInput.value = (selectedObject.userData.customCutWidthValue * 100).toFixed(1);
+                            blockCustomCutLengthContainer.style.display = 'inline-flex';
+                        } else if (selectedObject.userData.cutLength) {
+                            blockCutSelector.value = selectedObject.userData.cutLength;
+                             blockCustomCutLengthContainer.style.display = 'none'; 
+                        }
+                    }
+                }
+                
+                if (selectedObject.userData.type === 'custom') { customNameInput.value = selectedObject.userData.name.replace(/ \((1\/1|3\/4|1\/2|1\/4|Ailette|Coupe 34|Coupe [0-9.]+cm)\)$/, ''); customWidthInput.value = selectedObject.userData.width; customHeightInput.value = selectedObject.userData.height; customDepthInput.value = selectedObject.userData.depth; } 
+                else if (selectedObject.userData.type === 'vide') { videDepthInput.value = selectedObject.userData.depth * 100; }
+                
+                 // Set texture and material sliders
+                textureSelector.value = selectedObject.userData.texturePath || 'none';
+                roughnessSlider.value = selectedObject.userData.roughness !== undefined ? selectedObject.userData.roughness : defaultRoughness;
+                metalnessSlider.value = selectedObject.userData.metalness !== undefined ? selectedObject.userData.metalness : defaultMetalness;
+                roughnessValueLabel.textContent = parseFloat(roughnessSlider.value).toFixed(2);
+                metalnessValueLabel.textContent = parseFloat(metalnessSlider.value).toFixed(2);
+
+                const oldPos = selectedObject.position.clone(), oldRotY = selectedObject.rotation.y, oldSeatIdx = selectedObject.userData.seatingIndex, origColor = selectedObject.userData.originalColor;
+                const selId = selectedObject.userData.id; scene.remove(selectedObject); const idx = objects.findIndex(o => o.userData.id === selId); if (idx > -1) objects.splice(idx, 1); if (selectedObject.geometry) selectedObject.geometry.dispose(); if (selectedObject.material) selectedObject.material.dispose(); selectedObject.traverse(c => { if (c.isLineSegments && c.name === "elementEdges") { if (c.geometry) c.geometry.dispose(); if (c.material) c.material.dispose(); }}); selectedObject = null; updateElementCounter();
+                setCurrentTool('add'); 
+                if (ghostElement) { const newProps = getElementProperties(); ghostElement.geometry.dispose(); ghostElement.geometry = new THREE.BoxGeometry(newProps.width, newProps.height, newProps.depth); ghostElement.userData = {...newProps, isGhost: true, seatingIndex: oldSeatIdx, originalColor: origColor}; ghostElement.position.copy(oldPos); ghostElement.rotation.y = oldRotY; currentSeatingIndex = oldSeatIdx; const cLevelY = seatingLevels[oldSeatIdx] ? seatingLevels[oldSeatIdx].y : 0; let yAdjust = cLevelY + newProps.height / 2; if(newProps.baseType === 'brique') yAdjust += getSanitizedJointValue('joint-distance'); else if(newProps.baseType === 'bloc') yAdjust += getSanitizedJointValue('block-joint-distance'); ghostElement.position.y = snapToGrid(yAdjust); ghostElement.visible = true; isGhostAwaitingDPadOrConfirmation = true; controls.enabled = true; controls.enableRotate = true; }
+                updateHelpBar(); alert("Modifiez propriétés, ajustez avec DPad, confirmez (OK/Entrée).");
+            }
+            function setElementStyle(isWhite) {
+                useWhiteElements = isWhite;
+                objects.forEach(obj => { 
+                    if (obj.material && obj.userData.originalColor) { 
+                        if (obj.userData.texturePath && obj.userData.texturePath !== 'none') {
+                            obj.material.color.set(0xffffff); // Keep white if texture is applied
+                        } else {
+                            obj.material.color.set(useWhiteElements ? 0xffffff : obj.userData.originalColor);
+                        }
+                        obj.material.needsUpdate = true; 
+                    }
+                });
+                if (selectedObject) { 
+                    const tempSel = selectedObject; 
+                    deselectObject(); // This will restore its original color/texture based on useWhiteElements
+                    selectObject(tempSel); // This will re-apply selection highlight
+                }
+            }
+            function toggleAllShadows() {
+                shadowsEnabled = !shadowsEnabled; renderer.shadowMap.enabled = shadowsEnabled;
+                scene.traverse(c => { if (c.isLight && c.castShadow !== undefined) c.castShadow = shadowsEnabled; if (c.isMesh && c !== plane && c !== ghostElement) { c.castShadow = shadowsEnabled && c.userData.baseType !== 'vide'; c.receiveShadow = shadowsEnabled && c.userData.baseType !== 'vide'; if (c.material) c.material.needsUpdate = true; }});
+                if (plane.material) plane.material.needsUpdate = true; toggleShadowsBtn.textContent = shadowsEnabled ? "Désactiver Ombres" : "Activer Ombres";
+            }
+            function setView(viewType) {
+                const dist=5, center=new THREE.Vector3(0,0.5,0); controls.enabled=true; controls.enableRotate=true; camera.fov=initialPerspectiveFOV; camera.up.set(0,1,0);
+                switch(viewType) {
+                    case '3d': camera.position.copy(initialCameraPosition); controls.target.copy(initialCameraLookAt); break;
+                    case 'top': camera.position.set(center.x, center.y + dist, center.z + 0.01); controls.target.copy(center); camera.lookAt(center); controls.enableRotate = false; break;
+                    case 'front': camera.position.set(center.x, center.y, center.z + dist); controls.target.copy(center); camera.lookAt(center); controls.enableRotate = false; break;
+                    case 'back': camera.position.set(center.x, center.y, center.z - dist); controls.target.copy(center); camera.lookAt(center); controls.enableRotate = false; break;
+                    case 'left': camera.position.set(center.x - dist, center.y, center.z); controls.target.copy(center); camera.lookAt(center); controls.enableRotate = false; break;
+                    case 'right': camera.position.set(center.x + dist, center.y, center.z); controls.target.copy(center); camera.lookAt(center); controls.enableRotate = false; break;
+                }
+                camera.updateProjectionMatrix(); controls.update();
+            }
+            function animate() { 
+                requestAnimationFrame(animate); 
+                controls.update(); 
+                if (currentTool === 'measure' && selectedObject) {
+                    updateDimensionLabelPositions();
+                }
+                if (heightTooltip.style.display === 'block' && ghostElement && isGhostAwaitingDPadOrConfirmation && (ghostElement.userData.baseType === 'brique' || ghostElement.userData.baseType === 'bloc') ) {
+                    updateTooltipPosition(ghostElement);
+                }
+                renderer.render(scene, camera); 
+            }
+            function updateSeatingSelector() { /* Placeholder */ }
+            
+            function clearDimensionLabelsDOM() {
+                dimensionElements.forEach(labelInfo => {
+                    if (labelInfo.element.parentNode) {
+                        labelInfo.element.parentNode.removeChild(labelInfo.element);
+                    }
+                });
+                dimensionElements = [];
+            }
+
+            function displayDimensionsDOM(object) {
+                clearDimensionLabelsDOM(); 
+
+                const box = new THREE.Box3().setFromObject(object); 
+                const size = box.getSize(new THREE.Vector3());
+                const min = box.min;
+                const max = box.max;
+                const center = box.getCenter(new THREE.Vector3());
+                const labelOffset = 0.05; 
+
+                const widthLabelDiv = document.createElement('div');
+                widthLabelDiv.className = 'dimension-label-3d';
+                widthLabelDiv.textContent = `L: ${(size.x * 100).toFixed(1)} cm`;
+                viewportContainer.appendChild(widthLabelDiv);
+                const widthAnchor = new THREE.Vector3(center.x, min.y - labelOffset, center.z);
+                dimensionElements.push({ element: widthLabelDiv, anchor: widthAnchor, objectId: object.userData.id, type: 'width' });
+
+                const heightLabelDiv = document.createElement('div');
+                heightLabelDiv.className = 'dimension-label-3d';
+                heightLabelDiv.textContent = `H: ${(size.y * 100).toFixed(1)} cm`;
+                viewportContainer.appendChild(heightLabelDiv);
+                const heightAnchor = new THREE.Vector3(min.x - labelOffset, center.y, center.z); 
+                dimensionElements.push({ element: heightLabelDiv, anchor: heightAnchor, objectId: object.userData.id, type: 'height' });
+
+                const depthLabelDiv = document.createElement('div');
+                depthLabelDiv.className = 'dimension-label-3d';
+                depthLabelDiv.textContent = `P: ${(size.z * 100).toFixed(1)} cm`;
+                viewportContainer.appendChild(depthLabelDiv);
+                const depthAnchor = new THREE.Vector3(center.x, center.y, max.z + labelOffset); 
+                dimensionElements.push({ element: depthLabelDiv, anchor: depthAnchor, objectId: object.userData.id, type: 'depth' });
+                
+                updateDimensionLabelPositions(); 
+            }
+
+            function updateDimensionLabelPositions() {
+                dimensionElements.forEach(labelInfo => {
+                    const object = getObjectById(labelInfo.objectId); 
+                    if (object && object.visible && selectedObject && selectedObject.userData.id === labelInfo.objectId && currentTool === 'measure') {
+                        const currentBox = new THREE.Box3().setFromObject(object);
+                        const currentSize = currentBox.getSize(new THREE.Vector3());
+                        const currentMin = currentBox.min;
+                        const currentMax = currentBox.max;
+                        const currentCenter = currentBox.getCenter(new THREE.Vector3());
+                        const labelOffset = 0.05; 
+                        let anchorPoint;
+
+                        if (labelInfo.type === 'width') {
+                            anchorPoint = new THREE.Vector3(currentCenter.x, currentMin.y - labelOffset, currentCenter.z);
+                            labelInfo.element.textContent = `L: ${(currentSize.x * 100).toFixed(1)} cm`;
+                        } else if (labelInfo.type === 'height') {
+                            anchorPoint = new THREE.Vector3(currentMin.x - labelOffset, currentCenter.y, currentCenter.z);
+                            labelInfo.element.textContent = `H: ${(currentSize.y * 100).toFixed(1)} cm`;
+                        } else if (labelInfo.type === 'depth') {
+                            anchorPoint = new THREE.Vector3(currentCenter.x, currentCenter.y, currentMax.z + labelOffset );
+                            labelInfo.element.textContent = `P: ${(currentSize.z * 100).toFixed(1)} cm`;
+                        } 
+                        
+                        if (anchorPoint) { 
+                            const screenPosition = anchorPoint.clone().project(camera);
+                            
+                            if (screenPosition.z > 1) { 
+                                labelInfo.element.style.display = 'none';
+                                return;
+                            }
+
+                            const x = (screenPosition.x * .5 + .5) * viewportContainer.clientWidth;
+                            const y = (screenPosition.y * -.5 + .5) * viewportContainer.clientHeight;
+
+                            labelInfo.element.style.left = `${x}px`;
+                            labelInfo.element.style.top = `${y}px`;
+                            labelInfo.element.style.display = 'block';
+                        } else {
+                             labelInfo.element.style.display = 'none'; 
+                        }
+                    } else {
+                        labelInfo.element.style.display = 'none'; 
+                    }
+                });
+            }
+
+            initThreeJS(); console.log("MurSimulateur3D initialisé.");
+            function updateElementCounter() {
+                const counts = {}; 
+                objects.forEach(obj => { 
+                    let countName = obj.userData.originalName || obj.userData.name || 'Inconnu';
+                    if ((obj.userData.baseType === 'brique' || obj.userData.baseType === 'bloc') && obj.userData.cutLength && obj.userData.cutLength !== '1/1') {
+                        let cutLabel = obj.userData.cutLength;
+                        if (obj.userData.cutLength === 'custom_cut' && obj.userData.customCutWidthValue !== undefined) {
+                            cutLabel = `Coupe ${(obj.userData.customCutWidthValue * 100).toFixed(1)}cm`;
+                        } else if (obj.userData.type.startsWith('bloc_cell_')) {
+                             const blockCellCutOption = Array.from(blockCellCutSelector.options).find(opt => opt.value === obj.userData.cutLength);
+                             if(blockCellCutOption) cutLabel = blockCellCutOption.textContent.split(' (')[0]; 
+                        } else if (obj.userData.baseType === 'bloc') { 
+                             const blockCutOption = Array.from(blockCutSelector.options).find(opt => opt.value === obj.userData.cutLength);
+                             if(blockCutOption) cutLabel = blockCutOption.textContent.split(' (')[1].replace(')','');
+                        } else if (obj.userData.baseType === 'brique') {
+                            const brickCutOption = Array.from(brickCutSelector.options).find(opt => opt.value === obj.userData.cutLength);
+                            if(brickCutOption && obj.userData.cutLength !== 'custom_cut') cutLabel = brickCutOption.textContent.split(' (')[0]; 
+                        }
+                        countName += ` (${cutLabel})`;
+                    }
+                    counts[countName] = (counts[countName] || 0) + 1; 
+                });
+                elementCounterTableBody.innerHTML = ''; 
+                for (const name in counts) { 
+                    const row = elementCounterTableBody.insertRow(); 
+                    row.insertCell().textContent = name; 
+                    row.insertCell().textContent = counts[name];
+                }
+            }
+        });
+    </script>
+</body>
+</html>
