@@ -21,7 +21,7 @@
             background-color: #E5E5E5; 
         }
 
-        button, select, input[type="text"], input[type="number"], input[type="color"], input[type="range"] {
+        button, select, input[type="text"], input[type="number"] {
             font-size: inherit;
             border-radius: 3px; 
             border: 1px solid #B0B0B0; 
@@ -29,14 +29,6 @@
             background-color: #F5F5F5; 
             color: #333333; 
             margin: 2px;
-            box-sizing: border-box;
-        }
-        input[type="color"] {
-            padding: 2px; /* Specific padding for color input */
-            height: 30px;
-        }
-        input[type="range"] {
-            padding: 0; /* Remove padding for range for better appearance */
         }
         button:hover {
             background-color: #E0E0E0; 
@@ -76,14 +68,6 @@
             cursor: pointer;
             transition: background-color 0.2s ease;
             border-right: 1px solid #D1D1D1;
-            display: flex; /* For icon alignment */
-            align-items: center; /* For icon alignment */
-        }
-        .menu-item > i { /* Icon in main menu item */
-            margin-right: 6px;
-            font-size: 0.9em;
-            width: 16px; /* Ensure consistent width for alignment */
-            text-align: center;
         }
         .menu-item:hover {
             background-color: #D5D5D5; 
@@ -92,7 +76,7 @@
             display: none;
             position: absolute;
             background-color: #F5F5F5; 
-            min-width: 220px; /* Increased width for icons */
+            min-width: 200px;
             box-shadow: 0px 4px 8px 0px rgba(0,0,0,0.15);
             z-index: 1;
             left: 0;
@@ -104,15 +88,8 @@
             color: #333333; 
             padding: 10px 15px;
             text-decoration: none;
-            display: flex; /* For icon alignment */
-            align-items: center; /* For icon alignment */
+            display: block;
             transition: background-color 0.2s ease;
-        }
-        .dropdown-content a i { /* Icon in dropdown item */
-            margin-right: 8px;
-            width: 16px; /* Ensure consistent width */
-            text-align: center;
-            color: #555; /* Slightly dimmer icon color */
         }
         .dropdown-content a:hover {
             background-color: #E0E0E0; 
@@ -126,28 +103,13 @@
             align-items: center;
             padding-right: 10px; 
         }
-        .main-menu-title { /* New style for the title */
-            margin-right: 10px;
-            color: #333;
-            display: flex;
-            align-items: baseline; /* Align text baselines */
-        }
-        .main-menu-title strong {
-            font-size: 1em; /* Same as menu items */
-        }
-        .main-menu-title span {
-            font-size: 0.8em;
-            margin-left: 5px;
-            color: #555;
-        }
         .main-menu-separator {
             border-left: 1px solid #C0C0C0; 
             height: 20px; 
             margin: 0 8px; 
         }
         #main-menu #undo-tool,
-        #main-menu #redo-tool,
-        #main-menu #export-print-button { 
+        #main-menu #redo-tool {
             background-color: transparent;
             border: none;
             padding: 8px; 
@@ -155,12 +117,8 @@
             cursor: pointer;
             margin: 0 2px; 
         }
-        #main-menu #export-print-button {
-            padding: 8px 10px; 
-        }
         #main-menu #undo-tool:hover:not(:disabled),
-        #main-menu #redo-tool:hover:not(:disabled),
-        #main-menu #export-print-button:hover:not(:disabled) {
+        #main-menu #redo-tool:hover:not(:disabled) {
             background-color: #D5D5D5; 
         }
         #main-menu #undo-tool:disabled,
@@ -169,13 +127,8 @@
             cursor: not-allowed;
         }
         #main-menu #undo-tool i,
-        #main-menu #redo-tool i,
-        #main-menu #export-print-button i {
+        #main-menu #redo-tool i {
             font-size: 1em; 
-            margin-right: 5px; 
-        }
-         #main-menu #export-print-button i {
-            font-size: 0.9em; 
         }
 
 
@@ -215,20 +168,16 @@
         #custom-dims-container input, 
         #vide-depth-container input, 
         #brick-custom-cut-length-container input,
-        #block-custom-cut-length-container input,
-        #block-cell-custom-cut-length-container input { 
+        #block-custom-cut-length-container input {
             margin-left: 5px;
         }
         #vide-depth-container label, 
         #brick-custom-cut-length-container label,
-        #block-custom-cut-length-container label,
-        #block-cell-custom-cut-length-container label { 
+        #block-custom-cut-length-container label { 
             margin-left: 8px;
             color: #424242; 
         }
-        #brick-cut-container label, 
-        #block-cut-container label,
-        #block-cell-cut-container label { 
+        #brick-cut-container label, #block-cut-container label { 
             margin-left: 5px;
             color: #424242;
         }
@@ -237,6 +186,11 @@
             height: 20px; 
             margin-left: 5px; 
             margin-right: 10px;
+        }
+        .toolbar-export-button-container { /* Nouveau style pour le conteneur du bouton */
+            margin-left: auto;
+            display: flex; /* Pour s'assurer que le bouton à l'intérieur est bien aligné si nécessaire */
+            align-items: center;
         }
 
 
@@ -407,16 +361,11 @@
             width: calc(100% - 10px); 
             padding: 0 5px;
             box-sizing: border-box;
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
         }
         .color-palette {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(40px, 1fr)); 
             gap: 5px; 
-            width: 100%; 
-            margin-bottom: 8px; 
         }
         .color-swatch {
             width: 100%; 
@@ -443,107 +392,6 @@
         .color-swatch.active-color-swatch {
             border: 2px solid #3498db; 
             transform: scale(1.05);
-        }
-        #custom-color-picker-container {
-            display: flex;
-            align-items: center;
-            margin-top: 5px;
-            width: 100%;
-            justify-content: center;
-        }
-        #custom-color-picker-container label {
-             margin-right: 5px;
-             font-size: 0.9em;
-             color: #555;
-        }
-        #custom-color-picker {
-            width: 50px; 
-            height: 30px; 
-            border: 1px solid #B0B0B0;
-            border-radius: 3px;
-            cursor: pointer;
-            padding: 2px;
-        }
-        #custom-color-picker.active-color-picker {
-             border: 2px solid #3498db;
-        }
-        #texture-material-section label {
-            margin-top: 8px;
-            margin-bottom: 2px;
-        }
-        #texture-material-section select,
-        #texture-material-section input[type="range"] {
-            width: calc(100% - 20px);
-            margin-bottom: 8px;
-        }
-        .slider-container {
-            display: flex;
-            align-items: center;
-            width: calc(100% - 20px);
-            margin-bottom: 8px;
-        }
-        .slider-container label {
-            min-width: 70px; /* Adjust as needed */
-            margin-right: 5px;
-        }
-        .slider-container input[type="range"] {
-            flex-grow: 1;
-        }
-        .slider-container span {
-            min-width: 35px; /* Adjust as needed */
-            text-align: right;
-            margin-left: 5px;
-        }
-        #custom-texture-uploader-container {
-            margin-top: 8px;
-            width: calc(100% - 20px);
-        }
-        #custom-texture-uploader {
-            width: 100%;
-        }
-        #custom-texture-filename {
-            font-size: 0.8em;
-            color: #666;
-            margin-top: 2px;
-            display: block;
-            text-align: center;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-        .texture-palette { 
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(60px, 1fr)); 
-            gap: 5px;
-            width: 100%;
-            margin-top: 5px;
-            margin-bottom: 8px;
-        }
-        .texture-swatch {
-            width: 100%;
-            padding: 5px;
-            border: 1px solid #B0B0B0;
-            border-radius: 3px;
-            cursor: pointer;
-            text-align: center;
-            font-size: 0.75em;
-            line-height: 1.2;
-            min-height: 40px; 
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: #f0f0f0; 
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: normal; 
-        }
-        .texture-swatch:hover {
-            border-color: #777;
-            background-color: #e0e0e0;
-        }
-        .texture-swatch.active-texture-swatch {
-            border: 2px solid #3498db;
-            background-color: #c5e1a5;
         }
 
 
@@ -661,22 +509,6 @@
             transform: translate(-50%, -120%); 
             white-space: nowrap; 
         }
-        
-        /* --- DIMENSION LABELS --- */
-        .dimension-label-3d {
-            position: absolute;
-            color: #000000;
-            background-color: rgba(255, 255, 255, 0.8);
-            padding: 2px 5px;
-            border-radius: 3px;
-            font-size: 10px;
-            font-family: Arial, sans-serif;
-            pointer-events: none; 
-            transform: translate(-50%, -100%); 
-            white-space: nowrap;
-            border: 1px solid #555;
-        }
-
 
     </style>
 </head>
@@ -684,43 +516,38 @@
     <header>
         <nav id="main-menu">
             <div class="menu-item">
-                <i class="fas fa-folder"></i>Fichier
+                Fichier
                 <div class="dropdown-content">
-                    <a href="#" id="new-file"><i class="fas fa-file"></i>Nouveau</a>
-                    <a href="#" id="open-file"><i class="fas fa-folder-open"></i>Ouvrir</a>
-                    <a href="#" id="save-file"><i class="fas fa-save"></i>Enregistrer</a>
-                    <a href="#" id="export-pdf"><i class="fas fa-file-pdf"></i>Exporter en PDF</a>
+                    <a href="#" id="new-file">Nouveau</a>
+                    <a href="#" id="open-file">Ouvrir</a>
+                    <a href="#" id="save-file">Enregistrer</a>
+                    <a href="#" id="export-pdf">Exporter en PDF</a>
                 </div>
             </div>
             <div class="menu-item">
-                <i class="fas fa-edit"></i>Edition
+                Edition
                 <div class="dropdown-content">
-                    <a href="#" id="undo-action"><i class="fas fa-undo-alt"></i>Annuler (Ctrl+Z)</a>
-                    <a href="#" id="redo-action"><i class="fas fa-redo-alt"></i>Rétablir (Ctrl+Y)</a>
-                    <a href="#" id="edit-selection"><i class="fas fa-pencil-alt"></i>Modifier Sélection</a>
+                    <a href="#" id="undo-action">Annuler (Ctrl+Z)</a>
+                    <a href="#" id="redo-action">Rétablir (Ctrl+Y)</a>
+                    <a href="#" id="edit-selection">Modifier Sélection</a>
                 </div>
             </div>
             <div class="menu-item">
-                <i class="fas fa-palette"></i>Style
+                Style
                 <div class="dropdown-content">
-                    <a href="#" id="style-white"><i class="fas fa-fill-drip"></i>Éléments en Blanc</a>
-                    <a href="#" id="style-color"><i class="fas fa-paint-brush"></i>Éléments en Couleur</a>
-                    <a href="#" id="toggle-shadows"><i class="fas fa-cloud-sun"></i>Activer/Désactiver Ombres</a>
+                    <a href="#" id="style-white">Éléments en Blanc</a>
+                    <a href="#" id="style-color">Éléments en Couleur</a>
+                    <a href="#" id="toggle-shadows">Activer/Désactiver Ombres</a>
                 </div>
             </div>
             <div class="menu-item">
-                <i class="fas fa-question-circle"></i>Aide
+                Aide
                 <div class="dropdown-content">
-                    <a href="#" id="about-app"><i class="fas fa-info-circle"></i>À Propos</a>
-                    <a href="#" id="help-guide"><i class="fas fa-book-open"></i>Aide</a>
+                    <a href="#" id="about-app">À Propos</a>
+                    <a href="#" id="help-guide">Aide</a>
                 </div>
             </div>
             <div class="menu-actions-right">
-                <div class="main-menu-title">
-                    <strong>MurSimulateur3D</strong>
-                    <span>par J.BROHEZ</span>
-                </div>
-                <button id="export-print-button" title="Exporter/Imprimer PDF"><i class="fas fa-print"></i> Exporter/Imprimer</button>
                 <span class="main-menu-separator"></span>
                 <button id="undo-tool" title="Annuler (Ctrl+Z)" disabled><i class="fas fa-undo"></i></button>
                 <button id="redo-tool" title="Rétablir (Ctrl+Y)" disabled><i class="fas fa-redo"></i></button>
@@ -741,11 +568,6 @@
                     <option value="bloc_b14" data-dims="0.39,0.19,0.14">Bloc B14 (39x19x14)</option>
                     <option value="bloc_b19" data-dims="0.39,0.19,0.19">Bloc B19 (39x19x19)</option>
                     <option value="bloc_b29" data-dims="0.39,0.19,0.29">Bloc B29 (39x19x29)</option>
-                    <option value="bloc_cell_15" data-dims="0.625,0.25,0.15">Bloc cell. 62.5x25x15</option>
-                    <option value="bloc_cell_20" data-dims="0.625,0.25,0.20">Bloc cell. 62.5x25x20</option>
-                    <option value="bloc_cell_25" data-dims="0.625,0.25,0.25">Bloc cell. 62.5x25x25</option>
-                    <option value="bloc_cell_30" data-dims="0.625,0.25,0.30">Bloc cell. 62.5x25x30</option>
-                    <option value="bloc_cell_365" data-dims="0.625,0.25,0.365">Bloc cell. 62.5x25x36.5</option>
                 </optgroup>
                 <optgroup label="Linteaux">
                     <option value="linteau_l120_14" data-dims="1.20,0.19,0.14">Linteau L120 (120x19x14)</option>
@@ -797,20 +619,6 @@
                 <label for="block-custom-cut-length" style="margin-right:5px;">Long. (cm):</label>
                 <input type="number" id="block-custom-cut-length" value="20" min="1" step="0.1" style="width: 60px;">
             </div>
-            <div id="block-cell-cut-container" style="display: none; align-items: center; margin-left: 10px;">
-                <label for="block-cell-cut-selector" style="margin-right:5px;">Coupe Bloc Cell.:</label>
-                <select id="block-cell-cut-selector">
-                    <option value="1/1" data-multiplier="1.0">1/1 (Entier)</option>
-                    <option value="3/4" data-multiplier="0.75">3/4</option>
-                    <option value="1/2" data-multiplier="0.5">1/2</option>
-                    <option value="1/4" data-multiplier="0.25">1/4</option>
-                    <option value="custom_cut">Personnaliser...</option> 
-                </select>
-            </div>
-            <div id="block-cell-custom-cut-length-container" style="display: none; align-items: center; margin-left: 5px;"> 
-                <label for="block-cell-custom-cut-length" style="margin-right:5px;">Long. (cm):</label>
-                <input type="number" id="block-cell-custom-cut-length" value="30" min="1" step="0.1" style="width: 60px;">
-            </div>
             <div id="custom-dims-container" style="display: none; align-items: center;">
                 <input type="text" id="custom-name" placeholder="Nom" style="width:100px;">
                 <input type="number" id="custom-width" placeholder="L (m)" step="0.01" min="0.01">
@@ -822,14 +630,6 @@
                 <input type="number" id="vide-depth" value="1" min="1" max="5" step="0.1">
             </div>
             <span class="toolbar-separator"></span> 
-             <div id="joint-settings-toolbar" style="display: flex; align-items: center; padding: 0 5px;">
-                <label for="joint-distance" style="margin-right:2px; font-size:0.9em; color: #424242;">Joint Briques (cm):</label>
-                <input type="number" id="joint-distance" value="1" min="0" step="0.1" style="width: 50px; padding: 4px; margin-right: 8px;">
-                
-                <label for="block-joint-distance" style="margin-right:2px; font-size:0.9em; color: #424242;">Joint Blocs (cm):</label>
-                <input type="number" id="block-joint-distance" value="1" min="0" step="0.1" style="width: 50px; padding: 4px;">
-            </div>
-            <span class="toolbar-separator"></span> 
             <span style="margin-left: 5px;">Vues:</span>
             <button id="view-3d" title="Vue 3D Perspective">3D</button>
             <button id="view-top" title="Vue de Dessus">Dessus</button>
@@ -837,7 +637,9 @@
             <button id="view-back" title="Vue Arrière">Arrière</button>
             <button id="view-left" title="Vue Gauche">Gauche</button>
             <button id="view-right" title="Vue Droite">Droite</button>
-
+            <div class="toolbar-export-button-container">
+                <button id="export-print-button" title="Exporter/Imprimer PDF"><i class="fas fa-print"></i> Exporter/Imprimer</button>
+            </div>
             </div>
         <div id="help-bar">
             Bienvenue ! Utilisez la barre d'outils pour commencer.
@@ -857,10 +659,6 @@
                         <i class="fas fa-plus"></i>
                         <span>Ajout</span>
                     </button>
-                    <button id="measure-tool" class="tool-button" title="Mesurer (T)">
-                        <i class="fas fa-ruler-combined"></i>
-                        <span>Mesurer</span>
-                    </button>
                     <button id="move-tool" class="tool-button" title="Déplacer (M)">
                         <i class="fas fa-arrows-alt"></i>
                         <span>Dépl.</span>
@@ -879,39 +677,15 @@
                     </button>
                 </div>
 
+                <h3>Réglage des Joints</h3>
+                <label for="joint-distance">Joint Briques (cm):</label>
+                <input type="number" id="joint-distance" value="1" min="0" step="0.1">
+                
+                <label for="block-joint-distance">Joint Blocs (cm):</label>
+                <input type="number" id="block-joint-distance" value="1" min="0" step="0.1">
+
                 <h3>Palette de Couleurs</h3>
                 <div id="color-palette-container">
-                    <div class="color-palette">
-                        </div>
-                    <div id="custom-color-picker-container">
-                        <label for="custom-color-picker">Perso:</label>
-                        <input type="color" id="custom-color-picker" value="#AABBCC" title="Choisir une couleur personnalisée">
-                    </div>
-                </div>
-                 <div id="texture-material-section" style="width: calc(100% - 10px); padding: 0 5px; box-sizing: border-box;">
-                    <h3>Textures et Matériaux</h3>
-                    <label for="texture-category-selector">Catégorie Texture:</label>
-                    <select id="texture-category-selector">
-                        <option value="none">Aucune</option>
-                        </select>
-                    <div id="texture-palette-grid" class="texture-palette">
-                        </div>
-                    <div id="custom-texture-uploader-container">
-                        <label for="custom-texture-uploader" style="font-size:0.9em; margin-bottom:0;">Charger Texture Perso:</label>
-                        <input type="file" id="custom-texture-uploader" accept="image/jpeg, image/png" style="width:100%; font-size:0.8em; padding: 3px;">
-                        <span id="custom-texture-filename"></span>
-                    </div>
-
-                    <div class="slider-container">
-                        <label for="roughness-slider">Rugosité:</label>
-                        <input type="range" id="roughness-slider" min="0" max="1" step="0.01" value="0.7">
-                        <span id="roughness-value">0.70</span>
-                    </div>
-                    <div class="slider-container">
-                        <label for="metalness-slider">Métallicité:</label>
-                        <input type="range" id="metalness-slider" min="0" max="1" step="0.01" value="0.2">
-                        <span id="metalness-value">0.20</span>
-                    </div>
                 </div>
             </div>
         </aside>
@@ -966,8 +740,7 @@
             let plane; 
             let objects = []; 
             let ghostElement = null; 
-            let selectedObject = null; 
-            let dimensionElements = []; 
+            let selectedObject = null;
             const initialCameraPosition = new THREE.Vector3(0.5, 0.4, 0.8);
             const initialCameraLookAt = new THREE.Vector3(0, 0.3, 0);
             let initialPerspectiveFOV;
@@ -976,12 +749,11 @@
             // --- APPLICATION STATE ---
             let currentTool = 'add'; 
             const snapGridSize = 0.01; 
-            let isGhostAwaitingDPadOrConfirmation = false;
+            let isGhostFixed = false; 
 
             const elementColors = { 
                 brique: 0xCD5C5C,  
                 bloc: 0x87CEEB,    
-                bloc_cell: 0xFFFFFF, 
                 linteau: 0x778899, 
                 isolant: 0xFFE4B5, 
                 vide: 0xADD8E6,    
@@ -992,48 +764,25 @@
             let useWhiteElements = false;
             let shadowsEnabled = true; 
 
-            // --- TEXTURES & MATERIALS ---
-            const textureLoader = new THREE.TextureLoader();
-            const textures = {
-                none: { name: "Aucune", path: null, previewColor: 0xeeeeee }, // For the "Aucune" option in category selector
-                briques: [
-                    { id: "briques/rouge_1", name: "Brique Rouge", path: 'https://julienbro.github.io/MurSimulateur3d/textures/brique_rouge_1.png', previewColor: 0xCD5C5C },
-                    { id: "briques/claire_1", name: "Brique Claire", path: 'https://julienbro.github.io/MurSimulateur3d/textures/brique_claire_1.png', previewColor: 0xF5DEB3 },
-                    { id: "briques/grise_1", name: "Brique Grise 1", path: 'https://julienbro.github.io/MurSimulateur3d/textures/brique_grise_1.png', previewColor: 0xA9A9A9 },
-                    { id: "briques/grise_2", name: "Brique Grise 2", path: 'https://julienbro.github.io/MurSimulateur3d/textures/brique_grise_2.png', previewColor: 0xBEBEBE },
-                    { id: "briques/brune_1", name: "Brique Brune", path: 'https://julienbro.github.io/MurSimulateur3d/textures/brique_brune_1.png', previewColor: 0x8B4513 }
-                ],
-                beton: [ 
-                    { id: "beton/concrete_grey_block", name: "Bloc Béton Gris", path: 'https://julienbro.github.io/MurSimulateur3d/textures/beton_1.png', previewColor: 0x87CEEB },
-                    { id: "beton/concrete_smooth_light", name: "Béton Lisse Clair", path: 'https://placehold.co/64x64/D3D3D3/000000?text=BetonClair', previewColor: 0xD3D3D3 }
-                ],
-                bois: [
-                    { id: "bois/wood_light_planks", name: "Bois Clair Planches", path: 'https://julienbro.github.io/MurSimulateur3d/textures/bois_pin_1.png', previewColor: 0xDEB887 },
-                    { id: "bois/wood_dark_grain", name: "Bois Foncé Veiné", path: 'https://placehold.co/64x64/8B4513/FFFFFF?text=BoisFonce', previewColor: 0x8B4513 }
-                ],
-                custom: [] 
-            };
-            let activeTextureSwatchElement = null;
-            let currentTextureId = 'none'; 
-            let customLoadedTextureObject = null; 
-            let defaultRoughness = 0.7;
-            let defaultMetalness = 0.2;
-
-
             // --- COLOR PALETTE ---
              const colorPalette = [
                 0xCC0000, 0xD2B48C, 0x8B4513, 0x2F4F4F, 0x000000, 
                 0xD3D3D3, 0xA9A9A9, 0x696969, 0xF5F5DC, 0xFFFFE0, 
-                0x90EE90, 0xFFFFFF
+                0x90EE90, 0xFFFFFF  
             ];
             let currentActiveColor = null; 
             let activeSwatchElement = null; 
-            let customColorPicker; 
 
             // --- UNDO/REDO ---
             const undoStack = [];
             const redoStack = [];
             let undoBtn, redoBtn; 
+
+            // --- TOUCH STATE VARIABLES ---
+            let touchStartTime, touchStartPoint = { x: 0, y: 0 };
+            let isDraggingWithTouch = false; // True if touch has moved beyond threshold
+            const TAP_DURATION_THRESHOLD = 250; // Milliseconds
+            const DRAG_MOVEMENT_THRESHOLD = 10; // Pixels
 
 
             // --- DOM ELEMENTS ---
@@ -1048,12 +797,6 @@
             const blockCutSelector = document.getElementById('block-cut-selector'); 
             const blockCustomCutLengthContainer = document.getElementById('block-custom-cut-length-container'); 
             const blockCustomCutLengthInput = document.getElementById('block-custom-cut-length'); 
-            
-            const blockCellCutContainer = document.getElementById('block-cell-cut-container');
-            const blockCellCutSelector = document.getElementById('block-cell-cut-selector');
-            const blockCellCustomCutLengthContainer = document.getElementById('block-cell-custom-cut-length-container');
-            const blockCellCustomCutLengthInput = document.getElementById('block-cell-custom-cut-length');
-
             const customDimsContainer = document.getElementById('custom-dims-container');
             const customNameInput = document.getElementById('custom-name');
             const customWidthInput = document.getElementById('custom-width');
@@ -1067,20 +810,10 @@
             const blockJointDistanceInput = document.getElementById('block-joint-distance'); 
             const heightTooltip = document.getElementById('height-tooltip'); 
 
-            const textureCategorySelector = document.getElementById('texture-category-selector');
-            const texturePaletteGrid = document.getElementById('texture-palette-grid');
-            const customTextureUploader = document.getElementById('custom-texture-uploader');
-            const customTextureFilenameLabel = document.getElementById('custom-texture-filename');
-            const roughnessSlider = document.getElementById('roughness-slider');
-            const metalnessSlider = document.getElementById('metalness-slider');
-            const roughnessValueLabel = document.getElementById('roughness-value');
-            const metalnessValueLabel = document.getElementById('metalness-value');
-
 
             const toolButtons = {
                 select: document.getElementById('select-tool'),
                 add: document.getElementById('add-tool'),
-                measure: document.getElementById('measure-tool'), 
                 move: document.getElementById('move-tool'),
                 duplicate: document.getElementById('duplicate-tool'),
                 rotate: document.getElementById('rotate-tool'),
@@ -1117,13 +850,15 @@
             const openFileBtn = document.getElementById('open-file');
             const saveFileBtn = document.getElementById('save-file');
             const exportPdfBtn = document.getElementById('export-pdf');
+            const exportPrintButton = document.getElementById('export-print-button'); // Ajout pour le nouveau bouton
             const editSelectionBtn = document.getElementById('edit-selection'); 
             const styleWhiteBtn = document.getElementById('style-white');
             const styleColorBtn = document.getElementById('style-color');
             const toggleShadowsBtn = document.getElementById('toggle-shadows');
             const aboutAppBtn = document.getElementById('about-app');
             const helpGuideBtn = document.getElementById('help-guide');
-            const exportPrintButton = document.getElementById('export-print-button'); 
+
+            exportPrintButton.addEventListener('click', handleExportPDF); // Ajout de l'écouteur d'événement
 
             let currentSeatingIndex = 0;
             let seatingLevels = { 0: { y: 0, name: "Assise 0 (Niveau 0.00m)" } };
@@ -1134,247 +869,6 @@
                 const jointCmStr = (inputElement.value || "0").replace(',', '.');
                 const jointCm = parseFloat(jointCmStr);
                 return isNaN(jointCm) ? 0 : jointCm / 100; // Convert to meters
-            }
-            
-            // --- EVENT HANDLER FUNCTIONS (Defined before initThreeJS) ---
-            function positionGhostElement(currentMousePointer, currentRaycaster, currentCamera, ghostEl, groundPlane, sceneObjects) {
-                if (!ghostEl) return;
-
-                currentRaycaster.setFromCamera(currentMousePointer, currentCamera);
-
-                let snappedToExistingObjectSurface = false;
-                const potentialSnapTargets = sceneObjects.filter(o => o !== ghostEl && o.userData && !o.userData.isGhost && o.geometry && o.material && o.visible);
-                const intersectsObjects = currentRaycaster.intersectObjects(potentialSnapTargets, false);
-
-                if (intersectsObjects.length > 0) {
-                    const intersect = intersectsObjects[0];
-                    const intersectedObject = intersect.object;
-                    const point = intersect.point;
-                    const worldNormal = intersect.face.normal.clone().applyMatrix4(intersectedObject.matrixWorld).sub(intersectedObject.getWorldPosition(new THREE.Vector3())).normalize();
-
-                    if (worldNormal.y > 0.85) { 
-                        let jointHeightMeters = 0;
-                        if (ghostEl.userData.baseType === 'brique') {
-                            jointHeightMeters = getSanitizedJointValue('joint-distance');
-                        } else if (ghostEl.userData.baseType === 'bloc') { 
-                            jointHeightMeters = getSanitizedJointValue('block-joint-distance');
-                        }
-                        
-                        let yPositionForGhostBase = intersectedObject.position.y + intersectedObject.userData.height / 2; 
-
-                        if (ghostEl.userData.baseType === 'brique' || ghostEl.userData.baseType === 'bloc') { 
-                            yPositionForGhostBase += jointHeightMeters; 
-                        }
-                        ghostEl.position.y = snapToGrid(yPositionForGhostBase) + ghostEl.userData.height / 2; 
-                        
-                        ghostEl.position.x = snapToGrid(point.x); 
-                        ghostEl.position.z = snapToGrid(point.z);
-
-                        ghostEl.material.color.setHex(0x4CAF50); 
-                        ghostEl.material.opacity = 0.7;
-                        snappedToExistingObjectSurface = true;
-                        ghostEl.userData.snappedToObjectId = intersectedObject.userData.id;
-                        ghostEl.userData.seatingIndex = intersectedObject.userData.seatingIndex; 
-                    }
-                }
-
-                if (!snappedToExistingObjectSurface) {
-                    delete ghostEl.userData.snappedToObjectId;
-                    const intersectsPlane = currentRaycaster.intersectObject(groundPlane);
-                    if (intersectsPlane.length > 0) {
-                        const intersectPoint = intersectsPlane[0].point;
-                        if (ghostEl.userData.seatingIndex === undefined) { 
-                            ghostEl.userData.seatingIndex = currentSeatingIndex;
-                        }
-                        ghostEl.position.copy(getSnappedPosition(intersectPoint, ghostEl.userData));
-                        ghostEl.material.color.setHex(0x03A9F4); ghostEl.material.opacity = 0.6;
-                    }
-                }
-                if (ghostEl.material.needsUpdate !== undefined) ghostEl.material.needsUpdate = true;
-                if (!ghostEl.visible && !isGhostAwaitingDPadOrConfirmation) ghostEl.visible = true;
-            }
-
-
-            function onViewportPointerMove(event) {
-                if (event.type === 'touchmove') {
-                    event.preventDefault(); 
-                }
-                if (currentTool !== 'add' || !ghostElement || isGhostAwaitingDPadOrConfirmation) { 
-                    return;
-                }
-                const rect = viewportContainer.getBoundingClientRect();
-                let clientX, clientY;
-                 if (event.touches && event.touches.length > 0) { 
-                    clientX = event.touches[0].clientX;
-                    clientY = event.touches[0].clientY;
-                } else { 
-                    clientX = event.clientX;
-                    clientY = event.clientY;
-                }
-                mousePointer.x = ((clientX - rect.left) / rect.width) * 2 - 1;
-                mousePointer.y = -((clientY - rect.top) / rect.height) * 2 + 1;
-                
-                positionGhostElement(mousePointer, raycaster, camera, ghostElement, plane, objects);
-                if (!ghostElement.visible) ghostElement.visible = true;
-                hideHeightTooltip(); 
-            }
-
-            function onViewportPointerDown(event) {
-                if (event.type === 'touchstart') {
-                    event.preventDefault(); 
-                }
-                const dpadContainer = document.getElementById('dpad-controls');
-                if (dpadContainer && dpadContainer.contains(event.target)) {
-                    return;
-                }
-
-                let clientX, clientY;
-                if (event.type === 'touchstart') {
-                    if (event.touches.length > 0) {
-                        clientX = event.touches[0].clientX;
-                        clientY = event.touches[0].clientY;
-                    } else {
-                        return; 
-                    }
-                } else { 
-                    clientX = event.clientX;
-                    clientY = event.clientY;
-                }
-
-                if (event.button === 0 || event.type === 'touchstart') { 
-                    const rect = viewportContainer.getBoundingClientRect();
-                    mousePointer.x = ((clientX - rect.left) / rect.width) * 2 - 1;
-                    mousePointer.y = -((clientY - rect.top) / rect.height) * 2 + 1;
-                    
-                    raycaster.setFromCamera(mousePointer, camera);
-
-                    if (currentTool === 'add') {
-                        if (ghostElement) { 
-                            positionGhostElement(mousePointer, raycaster, camera, ghostElement, plane, objects);
-                            isGhostAwaitingDPadOrConfirmation = true; 
-                            if (ghostElement) ghostElement.visible = true; 
-                            
-                            if ((ghostElement.userData.baseType === 'brique' || ghostElement.userData.baseType === 'bloc')) {
-                                let tooltipText = ""; 
-                                const elementHeight = ghostElement.userData.height; 
-                                const jointInputId = ghostElement.userData.baseType === 'brique' ? 'joint-distance' : 'block-joint-distance';
-                                const currentJointCm = parseFloat((document.getElementById(jointInputId).value || "0").replace(',', '.'));
-                                
-                                if (typeof elementHeight === 'number' && !isNaN(elementHeight)) {
-                                    const topFaceYAbsolute = ghostElement.position.y + elementHeight / 2; 
-                                    const currentSeatingLevelYForTooltip = seatingLevels[ghostElement.userData.seatingIndex !== undefined ? ghostElement.userData.seatingIndex : currentSeatingIndex] ? seatingLevels[ghostElement.userData.seatingIndex !== undefined ? ghostElement.userData.seatingIndex : currentSeatingIndex].y : 0;
-                                    
-                                    if (ghostElement.userData.snappedToObjectId) { 
-                                        tooltipText = `Haut. ${ghostElement.userData.baseType === 'brique' ? 'Brique' : 'Bloc'}: ${(elementHeight * 100).toFixed(1)} cm`;
-                                    } else { 
-                                        const distanceFromSeatingLevel = topFaceYAbsolute - currentSeatingLevelYForTooltip;
-                                        const jointHeightMetersForTooltip = getSanitizedJointValue(jointInputId);
-                                        tooltipText = `Haut. / Assise: ${(distanceFromSeatingLevel * 100).toFixed(1)} cm (Joint: ${(jointHeightMetersForTooltip * 100).toFixed(1)} cm)`;
-                                    }
-                                } else {
-                                    tooltipText = "Erreur calcul hauteur"; 
-                                }
-                                showAndPositionTooltip(ghostElement, tooltipText);
-                            }
-
-
-                            controls.enabled = false; 
-                            controls.enableRotate = false;
-                            updateHelpBar();
-                        }
-                    } else if (currentTool === 'measure') {
-                        clearDimensionLabelsDOM();
-                        const intersects = raycaster.intersectObjects(objects.filter(o => o.visible && !o.userData.isGhost), false);
-                        if (intersects.length > 0) {
-                            const clickedObject = intersects[0].object;
-                            selectedObject = clickedObject; 
-                            displayDimensionsDOM(selectedObject);
-                        } else {
-                            selectedObject = null; 
-                        }
-                    }
-                    else if (currentTool === 'select') {
-                        const intersectsObjects = raycaster.intersectObjects(objects, false);
-                        if (intersectsObjects.length > 0) {
-                            const clickedObject = intersectsObjects[0].object;
-                            if (clickedObject !== plane && clickedObject.name !== "GridHelper") {
-                                if (currentActiveColor !== null) { 
-                                    const oldColor = clickedObject.userData.originalColor || clickedObject.material.color.getHex();
-                                    if (oldColor !== currentActiveColor) pushActionToUndoStack({ type: 'color', objectId: clickedObject.userData.id, oldColor: oldColor, newColor: currentActiveColor });
-                                    clickedObject.userData.originalColor = currentActiveColor;
-                                    if (!useWhiteElements) clickedObject.material.color.setHex(currentActiveColor);
-                                    clickedObject.material.needsUpdate = true;
-                                } else { selectObject(clickedObject); }
-                            } else { deselectObject(); }
-                        } else { deselectObject(); }
-                    } else if (currentTool === 'move' || currentTool === 'duplicate' || currentTool === 'rotate' || currentTool === 'delete') {
-                        const intersectsObjects = raycaster.intersectObjects(objects, false); 
-                        if (intersectsObjects.length > 0) {
-                            const clickedObject = intersectsObjects[0].object;
-                            if (clickedObject !== plane && clickedObject.name !== "GridHelper") {
-                                if (currentTool === 'move' || currentTool === 'rotate') selectObject(clickedObject); 
-                                else if (currentTool === 'duplicate') duplicateObject(clickedObject);
-                                else if (currentTool === 'delete') deleteObject(clickedObject);
-                            } else { deselectObject(); }
-                        } else { deselectObject(); }
-                    }
-                }
-            }
-            
-            function onDocumentKeyDown(event) {
-                if (document.activeElement && ( document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA' || document.activeElement.tagName === 'SELECT')) {
-                    if (event.key === 'Escape') {
-                        hideHeightTooltip(); 
-                        document.activeElement.blur(); 
-                    }
-                    return;
-                }
-                let dpadAction = true; const isCtrlOrMeta = event.ctrlKey || event.metaKey;
-                switch (event.key.toLowerCase()) {
-                    case 'z': if (isCtrlOrMeta) { event.preventDefault(); undoLastAction(); } else { dpadAction = false; } break;
-                    case 'y': if (isCtrlOrMeta) { event.preventDefault(); redoLastAction(); } else { dpadAction = false; } break;
-                    case 's': if (isCtrlOrMeta) { event.preventDefault(); handleSaveFile(); } else if (!event.shiftKey) { setCurrentTool('select'); } else { dpadAction = false; } break;
-                    case 'a': if (!isCtrlOrMeta && !event.altKey) setCurrentTool('add'); else dpadAction = false; break;
-                    case 't': setCurrentTool('measure'); dpadAction = false; break; 
-                    case 'm': setCurrentTool('move'); break;
-                    case 'd': if (event.shiftKey && !isCtrlOrMeta) { setCurrentTool('duplicate'); } else { dpadAction = false; } break; 
-                    case 'r': if (!isCtrlOrMeta) setCurrentTool('rotate'); else dpadAction = false; break; 
-                    case 'delete': case 'backspace': if (selectedObject) deleteObject(selectedObject); else setCurrentTool('delete'); break;
-                    case 'enter': 
-                        if ((currentTool === 'add' && ghostElement && isGhostAwaitingDPadOrConfirmation) || ((currentTool === 'move' || currentTool === 'rotate') && selectedObject)) {
-                            confirmPlacement();
-                        }
-                        break;
-                    case 'escape':
-                        hideHeightTooltip(); 
-                        if (currentActiveColor !== null) { if (activeSwatchElement) activeSwatchElement.classList.remove('active-color-swatch'); currentActiveColor = null; activeSwatchElement = null; updateCursorStyle(); updateHelpBar(); } 
-                        else if (currentTool === 'add' && ghostElement) { 
-                            if (isGhostAwaitingDPadOrConfirmation) { 
-                                isGhostAwaitingDPadOrConfirmation = false; 
-                                if (ghostElement) ghostElement.visible = true; 
-                                controls.enabled = true; 
-                                controls.enableRotate = true; 
-                                updateHelpBar(); 
-                                hideHeightTooltip(); 
-                            } else { 
-                                removeGhostElement(); 
-                                setCurrentTool('select'); 
-                            } 
-                        } 
-                        else if (selectedObject) deselectObject();
-                        break;
-                    case 'w': case 'arrowup': moveGhostOrSelected('forward', event); break;
-                    case 'x': case 'arrowdown': moveGhostOrSelected('backward', event); break; 
-                    case 'j': case 'arrowleft': moveGhostOrSelected('left', event); break;
-                    case 'l': case 'arrowright': moveGhostOrSelected('right', event); break;
-                    case 'q': rotateGhostOrSelected('left', event); break;
-                    case 'e': rotateGhostOrSelected('right', event); break;
-                    case 'pageup': moveGhostOrSelected('up', event); break;
-                    case 'pagedown': moveGhostOrSelected('down', event); break;
-                    case 'o': if (isCtrlOrMeta) { event.preventDefault(); handleOpenFile(); } else { dpadAction = false; } break;
-                    default: dpadAction = false; break;
-                }
-                if (dpadAction) event.preventDefault(); 
             }
 
 
@@ -1435,25 +929,25 @@
                 mousePointer = new THREE.Vector2();
 
                 window.addEventListener('resize', onWindowResize, false);
+                // Mouse events
                 viewportContainer.addEventListener('pointerdown', onViewportPointerDown, false); 
-                viewportContainer.addEventListener('touchstart', onViewportPointerDown, { passive: false }); 
                 viewportContainer.addEventListener('pointermove', onViewportPointerMove, false);
-                viewportContainer.addEventListener('touchmove', onViewportPointerMove, { passive: false });
+                // Touch events
+                viewportContainer.addEventListener('touchstart', onViewportTouchStart, { passive: false });
+                viewportContainer.addEventListener('touchmove', onViewportTouchMove, { passive: false });
+                viewportContainer.addEventListener('touchend', onViewportTouchEnd, { passive: false });
+                viewportContainer.addEventListener('touchcancel', onViewportTouchEnd, { passive: false }); // Handle cancel as end
+
+
                 document.addEventListener('keydown', onDocumentKeyDown, false);
 
                 setupUIEventListeners();
                 createColorPalette(); 
-                populateTextureCategories(); 
-                populateTextureSwatches(textureCategorySelector.value); 
-
                 updateActiveToolButton(); 
                 updateCursorStyle();
                 updateHelpBar(); 
                 updateUndoRedoButtons();
                 updateSeatingSelector();
-                
-                elementTypeSelector.value = "brique_m50";
-                elementTypeSelector.dispatchEvent(new Event('change'));
                 
                 setCurrentTool('add'); 
                 animate();
@@ -1494,45 +988,34 @@
             function setupUIEventListeners() {
                 undoBtn = document.getElementById('undo-tool');
                 redoBtn = document.getElementById('redo-tool');
-                customColorPicker = document.getElementById('custom-color-picker');
 
 
                 elementTypeSelector.addEventListener('change', () => {
                     const selectedOption = elementTypeSelector.options[elementTypeSelector.selectedIndex];
-                    const typeValue = selectedOption.value; 
-                    const baseType = typeValue.split('_')[0]; 
+                    const baseType = selectedOption.value.split('_')[0];
 
-                    customDimsContainer.style.display = 'none';
-                    videDepthContainer.style.display = 'none';
-                    brickCutContainer.style.display = 'none';
-                    brickCustomCutLengthContainer.style.display = 'none';
-                    blockCutContainer.style.display = 'none';
-                    blockCustomCutLengthContainer.style.display = 'none';
-                    blockCellCutContainer.style.display = 'none'; 
-                    blockCellCustomCutLengthContainer.style.display = 'none';
-
-                    if (typeValue === 'custom') {
-                        customDimsContainer.style.display = 'inline-flex';
-                    } else if (typeValue === 'vide') {
-                        videDepthContainer.style.display = 'inline-flex';
-                    } else if (baseType === 'brique') {
-                        brickCutContainer.style.display = 'inline-flex';
-                        updateBrickCutSelectorOptions(parseFloat(selectedOption.dataset.dims.split(',')[0]), typeValue);
-                        brickCustomCutLengthContainer.style.display = (brickCutSelector.value === 'custom_cut') ? 'inline-flex' : 'none';
-                    } else if (baseType === 'bloc') {
-                        if (typeValue.startsWith('bloc_cell_')) { 
-                            blockCellCutContainer.style.display = 'inline-flex';
-                            updateBlockCellCutSelectorOptions(parseFloat(selectedOption.dataset.dims.split(',')[0]));
-                            blockCellCustomCutLengthContainer.style.display = (blockCellCutSelector.value === 'custom_cut') ? 'inline-flex' : 'none';
-                        } else { 
-                            blockCutContainer.style.display = 'inline-flex';
-                            blockCustomCutLengthContainer.style.display = (blockCutSelector.value === 'custom_cut') ? 'inline-flex' : 'none';
-                        }
-                    }
+                    customDimsContainer.style.display = elementTypeSelector.value === 'custom' ? 'inline-flex' : 'none';
+                    videDepthContainer.style.display = elementTypeSelector.value === 'vide' ? 'inline-flex' : 'none';
                     
+                    brickCutContainer.style.display = baseType === 'brique' ? 'inline-flex' : 'none';
+                    blockCutContainer.style.display = baseType === 'bloc' ? 'inline-flex' : 'none';
+                    brickCustomCutLengthContainer.style.display = (baseType === 'brique' && brickCutSelector.value === 'custom_cut') ? 'inline-flex' : 'none';
+                    blockCustomCutLengthContainer.style.display = (baseType === 'bloc' && blockCutSelector.value === 'custom_cut') ? 'inline-flex' : 'none'; 
+
+
+                    if (baseType !== 'brique') {
+                        brickCutSelector.value = '1/1'; 
+                        brickCustomCutLengthContainer.style.display = 'none';
+                    }
+                    if (baseType !== 'bloc') {
+                        blockCutSelector.value = '1/1'; 
+                        blockCustomCutLengthContainer.style.display = 'none'; 
+                    }
+
+
                     if (currentTool === 'add') {
                         removeGhostElement(); 
-                        isGhostAwaitingDPadOrConfirmation = false; 
+                        isGhostFixed = false; 
                         createGhostElement(); 
                     }
                 });
@@ -1541,50 +1024,33 @@
                     brickCustomCutLengthContainer.style.display = brickCutSelector.value === 'custom_cut' ? 'inline-flex' : 'none';
                     if (currentTool === 'add' && ghostElement && ghostElement.userData.baseType === 'brique') {
                         removeGhostElement();
-                        isGhostAwaitingDPadOrConfirmation = false; 
+                        isGhostFixed = false; 
                         createGhostElement();
                     }
                 });
                 brickCustomCutLengthInput.addEventListener('input', () => {
                      if (currentTool === 'add' && ghostElement && ghostElement.userData.baseType === 'brique' && brickCutSelector.value === 'custom_cut') {
                         removeGhostElement();
-                        isGhostAwaitingDPadOrConfirmation = false; 
+                        isGhostFixed = false; 
                         createGhostElement();
                     }
                 });
 
                 blockCutSelector.addEventListener('change', () => { 
                     blockCustomCutLengthContainer.style.display = blockCutSelector.value === 'custom_cut' ? 'inline-flex' : 'none'; 
-                    if (currentTool === 'add' && ghostElement && ghostElement.userData.baseType === 'bloc' && !ghostElement.userData.type.startsWith('bloc_cell_')) {
+                    if (currentTool === 'add' && ghostElement && ghostElement.userData.baseType === 'bloc') {
                         removeGhostElement();
-                        isGhostAwaitingDPadOrConfirmation = false;
+                        isGhostFixed = false;
                         createGhostElement();
                     }
                 });
                 blockCustomCutLengthInput.addEventListener('input', () => { 
-                     if (currentTool === 'add' && ghostElement && ghostElement.userData.baseType === 'bloc' && !ghostElement.userData.type.startsWith('bloc_cell_') && blockCutSelector.value === 'custom_cut') {
+                     if (currentTool === 'add' && ghostElement && ghostElement.userData.baseType === 'bloc' && blockCutSelector.value === 'custom_cut') {
                         removeGhostElement();
-                        isGhostAwaitingDPadOrConfirmation = false; 
+                        isGhostFixed = false; 
                         createGhostElement();
                     }
                 });
-                
-                blockCellCutSelector.addEventListener('change', () => { 
-                    blockCellCustomCutLengthContainer.style.display = blockCellCutSelector.value === 'custom_cut' ? 'inline-flex' : 'none'; 
-                    if (currentTool === 'add' && ghostElement && ghostElement.userData.type.startsWith('bloc_cell_')) {
-                        removeGhostElement();
-                        isGhostAwaitingDPadOrConfirmation = false;
-                        createGhostElement();
-                    }
-                });
-                blockCellCustomCutLengthInput.addEventListener('input', () => { 
-                     if (currentTool === 'add' && ghostElement && ghostElement.userData.type.startsWith('bloc_cell_') && blockCellCutSelector.value === 'custom_cut') {
-                        removeGhostElement();
-                        isGhostAwaitingDPadOrConfirmation = false; 
-                        createGhostElement();
-                    }
-                });
-
 
                 videDepthInput.addEventListener('change', () => {
                     if (ghostElement && ghostElement.userData.type === 'vide') {
@@ -1609,7 +1075,7 @@
                         }
                         ghostElement.position.y = snapToGrid(targetBottomY) + props.height / 2;
 
-                        if (isGhostAwaitingDPadOrConfirmation) {
+                        if (isGhostFixed) {
                             let tooltipText;
                             const topFaceYAbsolute = ghostElement.position.y + props.height / 2;
                             if (ghostElement.userData.snappedToObjectId) {
@@ -1649,188 +1115,28 @@
                 redoBtn.addEventListener('click', redoLastAction);
                 document.getElementById('undo-action').addEventListener('click', undoLastAction); 
                 document.getElementById('redo-action').addEventListener('click', redoLastAction); 
-                if (exportPrintButton) exportPrintButton.addEventListener('click', handleExportPDF);
 
-                dpad.up.addEventListener('click', (event) => { event.preventDefault(); event.stopPropagation(); moveGhostOrSelected('forward', event); });
-                dpad.down.addEventListener('click', (event) => { event.preventDefault(); event.stopPropagation(); moveGhostOrSelected('backward', event); });
-                dpad.left.addEventListener('click', (event) => { event.preventDefault(); event.stopPropagation(); moveGhostOrSelected('left', event); });
-                dpad.right.addEventListener('click', (event) => { event.preventDefault(); event.stopPropagation(); moveGhostOrSelected('right', event); });
-                dpad.confirm.addEventListener('click', (event) => { event.preventDefault(); event.stopPropagation(); confirmPlacement(); }); 
-                dpad.rotLeft.addEventListener('click', (event) => { event.preventDefault(); event.stopPropagation(); rotateGhostOrSelected('left', event); });
-                dpad.rotRight.addEventListener('click', (event) => { event.preventDefault(); event.stopPropagation(); rotateGhostOrSelected('right', event); });
-                dpad.levelUp.addEventListener('click', (event) => { event.preventDefault(); event.stopPropagation(); moveGhostOrSelected('up', event); });
-                dpad.levelDown.addEventListener('click', (event) => { event.preventDefault(); event.stopPropagation(); moveGhostOrSelected('down', event); });
-
-                // Add touchstart listeners for D-Pad
-                dpad.up.addEventListener('touchstart', (event) => { event.preventDefault(); event.stopPropagation(); moveGhostOrSelected('forward', event); });
-                dpad.down.addEventListener('touchstart', (event) => { event.preventDefault(); event.stopPropagation(); moveGhostOrSelected('backward', event); });
-                dpad.left.addEventListener('touchstart', (event) => { event.preventDefault(); event.stopPropagation(); moveGhostOrSelected('left', event); });
-                dpad.right.addEventListener('touchstart', (event) => { event.preventDefault(); event.stopPropagation(); moveGhostOrSelected('right', event); });
-                dpad.confirm.addEventListener('touchstart', (event) => { event.preventDefault(); event.stopPropagation(); confirmPlacement(); });
-                dpad.rotLeft.addEventListener('touchstart', (event) => { event.preventDefault(); event.stopPropagation(); rotateGhostOrSelected('left', event); });
-                dpad.rotRight.addEventListener('touchstart', (event) => { event.preventDefault(); event.stopPropagation(); rotateGhostOrSelected('right', event); });
-                dpad.levelUp.addEventListener('touchstart', (event) => { event.preventDefault(); event.stopPropagation(); moveGhostOrSelected('up', event); });
-                dpad.levelDown.addEventListener('touchstart', (event) => { event.preventDefault(); event.stopPropagation(); moveGhostOrSelected('down', event); });
-
+                dpad.up.addEventListener('click', (event) => { event.stopPropagation(); moveGhostOrSelected('forward', event); });
+                dpad.down.addEventListener('click', (event) => { event.stopPropagation(); moveGhostOrSelected('backward', event); });
+                dpad.left.addEventListener('click', (event) => { event.stopPropagation(); moveGhostOrSelected('left', event); });
+                dpad.right.addEventListener('click', (event) => { event.stopPropagation(); moveGhostOrSelected('right', event); });
+                dpad.confirm.addEventListener('click', (event) => { event.stopPropagation(); confirmPlacement(); }); 
+                dpad.rotLeft.addEventListener('click', (event) => { event.stopPropagation(); rotateGhostOrSelected('left', event); });
+                dpad.rotRight.addEventListener('click', (event) => { event.stopPropagation(); rotateGhostOrSelected('right', event); });
+                dpad.levelUp.addEventListener('click', (event) => { event.stopPropagation(); moveGhostOrSelected('up', event); });
+                dpad.levelDown.addEventListener('click', (event) => { event.stopPropagation(); moveGhostOrSelected('down', event); });
 
                 newFileBtn.addEventListener('click', handleNewFile);
                 openFileBtn.addEventListener('click', handleOpenFile);
                 saveFileBtn.addEventListener('click', handleSaveFile);
                 exportPdfBtn.addEventListener('click', handleExportPDF);
+                exportPrintButton.addEventListener('click', handleExportPDF); // Ajout de l'écouteur d'événement
                 editSelectionBtn.addEventListener('click', handleEditSelection); 
                 styleWhiteBtn.addEventListener('click', () => setElementStyle(true));
                 styleColorBtn.addEventListener('click', () => setElementStyle(false));
                 toggleShadowsBtn.addEventListener('click', toggleAllShadows);
-                aboutAppBtn.addEventListener('click', () => alert('MurSimulateur3D\nVersion 1.0.2\nDéveloppé par J.BROHEZ avec Three.js.\nCopyright © 2025 J.BROHEZ\n\nDimensions des éléments: Longueur x Hauteur x Profondeur (Épaisseur du mur)'));
+                aboutAppBtn.addEventListener('click', () => alert('MurSimulate3D\nVersion 1.0.2\nDéveloppé par J.BROHEZ avec Three.js.\nCopyright © 2025 J.BROHEZ\n\nDimensions des éléments: Longueur x Hauteur x Profondeur (Épaisseur du mur)'));
                 helpGuideBtn.addEventListener('click', () => alert('Aide :\n- Barre d\'outils : Sélectionner un outil puis interagir.\n- Ajout : Cliquer sur la grille/objet pour fixer la position initiale du fantôme, ajuster avec le DPad, confirmer avec OK.\n- DPad : Flèches pour déplacer, ↺/↻ pour rotation, ⇞/⇟ pour monter/descendre. Maintenir Maj pour un pas plus grand.\n- Sélection : Cliquer sur un objet pour le sélectionner. Si une couleur est active (palette), elle sera appliquée.\n- Navigation : Clic gauche/droit + glisser = Orbite | Clic milieu + glisser = Pan | Molette = Zoom.\n- Raccourcis : S (Select), A (Add), M (Move), Maj+D (Duplicate), R (Rotate), Suppr (Delete), Entrée (Confirm DPad), Ctrl+Z (Annuler), Ctrl+Y (Rétablir).\n Ctrl+S (Sauvegarder), Ctrl+O (Ouvrir).\n- Barres latérales : Cliquer sur < ou > pour les replier/déplier.'));
-            
-                if (customColorPicker) {
-                    customColorPicker.addEventListener('input', (event) => {
-                        currentActiveColor = parseInt(event.target.value.substring(1), 16);
-                        if (activeSwatchElement) {
-                            activeSwatchElement.classList.remove('active-color-swatch');
-                            activeSwatchElement = null;
-                        }
-                        customColorPicker.classList.add('active-color-picker');
-                        if (currentTool !== 'select') setCurrentTool('select');
-                        
-                        if (activeTextureSwatchElement) {
-                            activeTextureSwatchElement.classList.remove('active-texture-swatch');
-                            activeTextureSwatchElement = null;
-                        }
-                        currentTextureId = 'none';
-                        textureCategorySelector.value = 'none';
-                        populateTextureSwatches('none');
-                        applyTextureAndMaterialToObject(selectedObject || ghostElement);
-
-                        updateCursorStyle(); 
-                        updateHelpBar();
-                    });
-                }
-
-                // Texture and Material UI Listeners
-                textureCategorySelector.addEventListener('change', (event) => {
-                    populateTextureSwatches(event.target.value);
-                    if (event.target.value === 'none') {
-                        currentTextureId = 'none';
-                        if (activeTextureSwatchElement) {
-                            activeTextureSwatchElement.classList.remove('active-texture-swatch');
-                            activeTextureSwatchElement = null;
-                        }
-                        applyTextureAndMaterialToObject(selectedObject || ghostElement);
-                        if (currentTool === 'add' && ghostElement) {
-                            applyTextureAndMaterialToObject(ghostElement);
-                        }
-                    }
-                });
-                
-                customTextureUploader.addEventListener('change', function(event) {
-                    const file = event.target.files[0];
-                    if (file) {
-                        const reader = new FileReader();
-                        reader.onload = (e) => {
-                            const dataURL = e.target.result;
-                            const newTexture = textureLoader.load(dataURL, () => {
-                                newTexture.needsUpdate = true;
-                                let targetForMaterialUpdate = selectedObject;
-                                if (currentTool === 'add' && ghostElement) {
-                                    targetForMaterialUpdate = ghostElement;
-                                }
-                                if(targetForMaterialUpdate) applyTextureAndMaterialToObject(targetForMaterialUpdate);
-                            });
-                            customLoadedTextureObject = newTexture; 
-                            
-                            const customTextureEntry = {
-                                id: 'custom/' + file.name,
-                                name: file.name,
-                                path: dataURL, 
-                                previewColor: 0xcccccc, 
-                                isCustom: true,
-                                dataURL: dataURL
-                            };
-                            
-                            const existingCustomTextureIndex = textures.custom.findIndex(t => t.dataURL === dataURL);
-                            if (existingCustomTextureIndex === -1) {
-                                textures.custom.push(customTextureEntry);
-                            } else {
-                                textures.custom[existingCustomTextureIndex] = customTextureEntry;
-                            }
-                            
-                            populateTextureCategories(); 
-                            textureCategorySelector.value = "custom";
-                            populateTextureSwatches("custom");
-
-                            const newSwatch = Array.from(texturePaletteGrid.children).find(sw => sw.dataset.textureId === customTextureEntry.id);
-                            if (newSwatch) {
-                                if (activeTextureSwatchElement) activeTextureSwatchElement.classList.remove('active-texture-swatch');
-                                newSwatch.classList.add('active-texture-swatch');
-                                activeTextureSwatchElement = newSwatch;
-                                currentTextureId = customTextureEntry.id;
-                            }
-                            
-                            customTextureFilenameLabel.textContent = file.name;
-                            
-                            let targetForMaterialUpdate = selectedObject;
-                            if (currentTool === 'add' && ghostElement) {
-                                targetForMaterialUpdate = ghostElement;
-                            }
-                            applyTextureAndMaterialToObject(targetForMaterialUpdate);
-                        };
-                        reader.readAsDataURL(file);
-                    }
-                });
-
-
-                roughnessSlider.addEventListener('input', (event) => {
-                    const value = parseFloat(event.target.value);
-                    roughnessValueLabel.textContent = value.toFixed(2);
-                    let targetForMaterialUpdate = selectedObject;
-                    if (currentTool === 'add' && ghostElement) {
-                        targetForMaterialUpdate = ghostElement;
-                    }
-                    if (targetForMaterialUpdate) applyTextureAndMaterialToObject(targetForMaterialUpdate);
-                });
-
-                metalnessSlider.addEventListener('input', (event) => {
-                    const value = parseFloat(event.target.value);
-                    metalnessValueLabel.textContent = value.toFixed(2);
-                    let targetForMaterialUpdate = selectedObject;
-                    if (currentTool === 'add' && ghostElement) {
-                        targetForMaterialUpdate = ghostElement;
-                    }
-                   if (targetForMaterialUpdate) applyTextureAndMaterialToObject(targetForMaterialUpdate);
-                });
-            }
-            
-            function updateBrickCutSelectorOptions(originalBrickLengthMeters, brickTypeValue) {
-                const isStandardBrick = ["brique_m50", "brique_m57", "brique_m65", "brique_m90"].includes(brickTypeValue);
-                const fixedWidthsCm = { "1/1": 19, "3/4": 14, "1/2": 9, "1/4": 4 };
-
-                for (let option of brickCutSelector.options) {
-                    if (option.value === "custom_cut") continue;
-
-                    if (isStandardBrick && fixedWidthsCm[option.value] !== undefined) {
-                        option.textContent = `${option.value} (${fixedWidthsCm[option.value]}cm)`;
-                        option.dataset.fixedWidthCm = fixedWidthsCm[option.value]; 
-                        delete option.dataset.multiplier; 
-                    } else if (option.dataset.multiplier) { 
-                        const multiplier = parseFloat(option.dataset.multiplier);
-                        const cutLengthCm = (originalBrickLengthMeters * multiplier * 100).toFixed(1);
-                        option.textContent = `${option.value} (${cutLengthCm}cm)`;
-                        delete option.dataset.fixedWidthCm; 
-                    }
-                }
-            }
-            
-            function updateBlockCellCutSelectorOptions(originalBlockLengthMeters = 0.625) {
-                 for (let option of blockCellCutSelector.options) {
-                    if (option.value === "custom_cut") continue;
-                    if (option.dataset.multiplier) { 
-                        const multiplier = parseFloat(option.dataset.multiplier);
-                        const cutLengthCm = (originalBlockLengthMeters * multiplier * 100).toFixed(1);
-                        option.textContent = `${option.value} (${cutLengthCm}cm)`;
-                    }
-                }
             }
             
             function updateCursorStyle() {
@@ -1840,7 +1146,7 @@
                 } else {
                     viewportContainer.style.cursor = ''; 
                     switch (currentTool) {
-                        case 'add': case 'select': case 'measure': viewportContainer.classList.add('crosshair-cursor'); break;
+                        case 'add': case 'select': viewportContainer.classList.add('crosshair-cursor'); break;
                         case 'move': viewportContainer.classList.add('move-cursor'); break;
                         default: viewportContainer.classList.add('default-cursor'); break;
                     }
@@ -1850,19 +1156,14 @@
             function updateHelpBar() {
                 let helpText = "Navigation: Clic Gauche/Droit + Glisser = Orbite | Clic Milieu + Glisser = Pan | Molette = Zoom.";
                  if (currentActiveColor !== null && currentTool === 'select') {
-                    if (customColorPicker && customColorPicker.classList.contains('active-color-picker')) {
-                        helpText = "Mode PEINTURE (Perso.): Cliquez sur un élément pour appliquer la couleur. Désactivez (palette/Échap) pour sélectionner.";
-                    } else {
-                        helpText = "Mode PEINTURE: Cliquez sur un élément pour appliquer la couleur. Désactivez la couleur (palette/Échap) pour sélectionner.";
-                    }
+                    helpText = "Mode PEINTURE: Cliquez sur un élément pour appliquer la couleur. Désactivez la couleur (palette/Échap) pour sélectionner.";
                 } else {
                     switch (currentTool) {
                         case 'add':
-                            helpText = isGhostAwaitingDPadOrConfirmation ? 
-                                         "Mode AJOUT: Ajustez avec DPad, puis 'OK'. Cliquez pour repositionner. (Échap pour annuler)." :
-                                         "Mode AJOUT: Cliquez pour positionner le fantôme. Utilisez DPad et 'OK' pour placer.";
+                            helpText = isGhostFixed ? 
+                                         "Mode AJOUT: Ajustez avec le DPad, puis confirmez avec 'OK'. (Échap pour annuler/repositionner). Clic Droit/Molette pour naviguer." :
+                                         "Mode AJOUT: Cliquez/Tapez sur la grille ou un objet pour placer l'élément fantôme. Glissez pour positionner.";
                             break;
-                        case 'measure': helpText = "Mode MESURER: Cliquez sur un objet pour afficher ses dimensions."; break;
                         case 'select': helpText = "Mode SÉLECTION: Cliquez sur un élément pour le sélectionner. Choisissez une couleur dans la palette pour peindre."; break;
                         case 'move': helpText = selectedObject ? "Mode DÉPLACER: Utilisez le DPad pour déplacer. Confirmez avec 'OK'." : "Mode DÉPLACER: Cliquez sur un élément pour le sélectionner."; break;
                         case 'rotate': helpText = selectedObject ? "Mode PIVOTER: Utilisez le DPad (↺, ↻). Confirmez avec 'OK'." : "Mode PIVOTER: Cliquez sur un élément pour le sélectionner."; break;
@@ -1881,40 +1182,33 @@
                     }
                     delete selectedObject.userData.undoInitialTransform;
                 }
-                
-                if (currentTool === 'measure' && tool !== 'measure') {
-                    clearDimensionLabelsDOM();
-                    selectedObject = null; 
-                }
-                
                 currentTool = tool;
                 updateActiveToolButton();
                 if (tool !== 'select' && currentActiveColor !== null) { 
                     if (activeSwatchElement) activeSwatchElement.classList.remove('active-color-swatch');
-                    if (customColorPicker) customColorPicker.classList.remove('active-color-picker');
                     currentActiveColor = null; activeSwatchElement = null;
                 }
                 updateCursorStyle(); updateHelpBar(); 
-                if (tool === 'add' || tool === 'select' || tool === 'measure') deselectObject(); 
+                if (tool === 'add' || tool === 'select') deselectObject(); 
 
-                if (tool !== 'add' && tool !== 'measure') { 
+                if (tool !== 'add' || (tool === 'add' && !isGhostFixed)) { 
                     hideHeightTooltip();
                 }
-                 if (tool !== 'measure') {
-                    clearDimensionLabelsDOM(); 
-                }
-
 
                 if (tool === 'add') {
                     if (!ghostElement) createGhostElement();
-                    isGhostAwaitingDPadOrConfirmation = false; 
-                    if (ghostElement) ghostElement.visible = true; 
-                    controls.enabled = true; 
-                    controls.enableRotate = true;
+                    if (ghostElement) ghostElement.visible = !isGhostFixed;
+                    // For 'add' mode: if ghost is NOT fixed, disable single-touch camera rotation/pan.
+                    // If ghost IS fixed, DPad is active, OrbitControls can be fully enabled for multi-touch navigation.
+                    controls.enabled = isGhostFixed; 
+                    controls.enableRotate = isGhostFixed; 
+                    controls.enablePan = isGhostFixed;    
                 } else {
                     removeGhostElement(); 
                     controls.enabled = !((tool === 'move' || tool === 'rotate') && selectedObject);  
                     controls.enableRotate = true; 
+                    controls.enablePan = true; 
+                    isGhostFixed = false;
                 }
                 if (controls) controls.update(); 
             }
@@ -1925,8 +1219,8 @@
             }
 
             function createColorPalette() {
-                const paletteDiv = colorPaletteContainer.querySelector('.color-palette');
-                paletteDiv.innerHTML = ''; // Clear existing swatches
+                const paletteDiv = document.createElement('div');
+                paletteDiv.className = 'color-palette';
                 colorPalette.forEach(colorHex => {
                     const swatch = document.createElement('div');
                     swatch.className = 'color-swatch';
@@ -1938,108 +1232,18 @@
                     swatch.addEventListener('click', (event) => {
                         event.stopPropagation(); 
                         if (activeSwatchElement === swatch) { 
-                            currentActiveColor = null; 
-                            activeSwatchElement.classList.remove('active-color-swatch'); 
-                            activeSwatchElement = null;
-                            if(customColorPicker) customColorPicker.classList.remove('active-color-picker');
+                            currentActiveColor = null; activeSwatchElement.classList.remove('active-color-swatch'); activeSwatchElement = null;
                         } else {
                             if (activeSwatchElement) activeSwatchElement.classList.remove('active-color-swatch');
-                            if(customColorPicker) customColorPicker.classList.remove('active-color-picker');
-                            currentActiveColor = parseInt(swatch.dataset.color); 
-                            activeSwatchElement = swatch; 
-                            activeSwatchElement.classList.add('active-color-swatch');
+                            currentActiveColor = parseInt(swatch.dataset.color); activeSwatchElement = swatch; activeSwatchElement.classList.add('active-color-swatch');
                             if (currentTool !== 'select') setCurrentTool('select');
                         }
-                        // When a color is selected, deselect any active texture
-                        if (activeTextureSwatchElement) {
-                            activeTextureSwatchElement.classList.remove('active-texture-swatch');
-                            activeTextureSwatchElement = null;
-                        }
-                        currentTextureId = 'none'; // Reset current texture
-                        textureCategorySelector.value = 'none'; // Reset category selector
-                        populateTextureSwatches('none'); // Clear texture swatches or show "Aucune"
-                        applyTextureAndMaterialToObject(selectedObject || ghostElement); // Apply color change
-                        
                         updateCursorStyle(); updateHelpBar();
                     });
                     paletteDiv.appendChild(swatch);
                 });
+                colorPaletteContainer.appendChild(paletteDiv);
             }
-            
-            function populateTextureCategories() {
-                textureCategorySelector.innerHTML = '<option value="none">Aucune</option>'; // Start with "Aucune"
-                for (const categoryKey in textures) {
-                    if (textures.hasOwnProperty(categoryKey) && categoryKey !== 'none') {
-                        const option = document.createElement('option');
-                        option.value = categoryKey;
-                        // Capitalize first letter for display
-                        option.textContent = categoryKey.charAt(0).toUpperCase() + categoryKey.slice(1);
-                        if (categoryKey === 'custom' && textures.custom.length === 0) {
-                             option.style.display = 'none'; // Hide custom if empty initially
-                        }
-                        textureCategorySelector.appendChild(option);
-                    }
-                }
-            }
-
-            function populateTextureSwatches(category) {
-                texturePaletteGrid.innerHTML = ''; // Clear existing swatches
-                if (activeTextureSwatchElement) {
-                    activeTextureSwatchElement.classList.remove('active-texture-swatch');
-                    activeTextureSwatchElement = null;
-                }
-
-                let texturesToShow = [];
-                if (category === 'none') {
-                    currentTextureId = 'none';
-                    applyTextureAndMaterialToObject(selectedObject || ghostElement);
-                    return;
-                } else if (textures[category]) {
-                    texturesToShow = textures[category];
-                }
-
-                texturesToShow.forEach(tex => {
-                    const swatch = document.createElement('div');
-                    swatch.className = 'texture-swatch';
-                    swatch.textContent = tex.name;
-                    swatch.style.backgroundColor = '#' + (tex.previewColor || 0xeeeeee).toString(16).padStart(6, '0');
-                    swatch.dataset.textureId = tex.id;
-                    swatch.dataset.texturePath = tex.path; // Store full path or dataURL
-
-                    if (tex.id === currentTextureId) {
-                        swatch.classList.add('active-texture-swatch');
-                        activeTextureSwatchElement = swatch;
-                    }
-
-                    swatch.addEventListener('click', (event) => {
-                        event.stopPropagation();
-                        if (activeTextureSwatchElement) {
-                            activeTextureSwatchElement.classList.remove('active-texture-swatch');
-                        }
-                        if (customColorPicker) customColorPicker.classList.remove('active-color-picker');
-                        if (activeSwatchElement) activeSwatchElement.classList.remove('active-color-swatch');
-                        
-                        currentActiveColor = null; // Deselect color when texture is chosen
-
-                        swatch.classList.add('active-texture-swatch');
-                        activeTextureSwatchElement = swatch;
-                        currentTextureId = tex.id;
-                        
-                        if (tex.isCustom) {
-                            customLoadedTextureObject = textureLoader.load(tex.dataURL); // Re-create if needed
-                        } else {
-                            customLoadedTextureObject = null; // Not a custom loaded one
-                        }
-
-                        applyTextureAndMaterialToObject(selectedObject || ghostElement);
-                        if (currentTool === 'add' && ghostElement) {
-                            applyTextureAndMaterialToObject(ghostElement);
-                        }
-                    });
-                    texturePaletteGrid.appendChild(swatch);
-                });
-            }
-
 
             function getElementProperties() {
                 const selectedOption = elementTypeSelector.options[elementTypeSelector.selectedIndex];
@@ -2074,47 +1278,25 @@
                             dims[0] = customCutWidthValue;
                             name += ` (Coupe ${(customCutWidthValue * 100).toFixed(1)}cm)`;
                         } else {
-                            if (selectedCutOption.dataset.fixedWidthCm) { 
-                                dims[0] = parseFloat(selectedCutOption.dataset.fixedWidthCm) / 100;
-                                widthMultiplier = 1.0; 
-                            } else { 
-                                widthMultiplier = parseFloat(selectedCutOption.dataset.multiplier);
-                                dims[0] = dims[0] * widthMultiplier; 
-                            }
+                            widthMultiplier = parseFloat(selectedCutOption.dataset.multiplier);
+                            dims[0] = dims[0] * widthMultiplier; 
                             if (cutLength !== '1/1') {
-                                name += ` (${selectedCutOption.textContent.split(' (')[0]})`; 
+                                name += ` (${cutLength})`; 
                             }
                         }
                         dims[0] = parseFloat(dims[0].toFixed(4)); 
                     } else if (baseType === 'bloc') { 
-                        if (typeKey.startsWith('bloc_cell_')) {
-                            const selectedBlockCellCutOption = blockCellCutSelector.options[blockCellCutSelector.selectedIndex];
-                            cutLength = selectedBlockCellCutOption.value;
-                            if (cutLength === 'custom_cut') {
-                                const customLenCm = parseFloat((blockCellCustomCutLengthInput.value || "0").replace(',', '.'));
-                                customCutWidthValue = isNaN(customLenCm) ? dims[0] : customLenCm / 100;
-                                dims[0] = customCutWidthValue;
-                                name += ` (Coupe ${(customCutWidthValue * 100).toFixed(1)}cm)`;
-                            } else {
-                                widthMultiplier = parseFloat(selectedBlockCellCutOption.dataset.multiplier || "1.0");
-                                dims[0] = dims[0] * widthMultiplier; 
-                                if (cutLength !== '1/1') {
-                                    name += ` (${selectedBlockCellCutOption.textContent.split(' (')[0]})`;
-                                }
-                            }
-                        } else { // Standard blocks (bloc_b...)
-                            const selectedBlockCutOption = blockCutSelector.options[blockCutSelector.selectedIndex];
-                            cutLength = selectedBlockCutOption.value;
-                             if (cutLength === 'custom_cut') { 
-                                const customLenCm = parseFloat((blockCustomCutLengthInput.value || "0").replace(',', '.'));
-                                customCutWidthValue = isNaN(customLenCm) ? dims[0] : customLenCm / 100;
-                                dims[0] = customCutWidthValue;
-                                name += ` (Coupe ${(customCutWidthValue * 100).toFixed(1)}cm)`;
-                            } else {
-                                dims[0] = parseFloat(selectedBlockCutOption.dataset.width); 
-                                if (cutLength !== '1/1') {
-                                     name += ` (${selectedBlockCutOption.textContent.split(' (')[1].replace(')','')})`; 
-                                }
+                        const selectedBlockCutOption = blockCutSelector.options[blockCutSelector.selectedIndex];
+                        cutLength = selectedBlockCutOption.value;
+                         if (cutLength === 'custom_cut') { 
+                            const customLenCm = parseFloat((blockCustomCutLengthInput.value || "0").replace(',', '.'));
+                            customCutWidthValue = isNaN(customLenCm) ? dims[0] : customLenCm / 100;
+                            dims[0] = customCutWidthValue;
+                            name += ` (Coupe ${(customCutWidthValue * 100).toFixed(1)}cm)`;
+                        } else {
+                            dims[0] = parseFloat(selectedBlockCutOption.dataset.width); 
+                            if (cutLength !== '1/1') {
+                                 name += ` (${selectedBlockCutOption.textContent.split(' (')[1].replace(')','')})`; 
                             }
                         }
                     }
@@ -2129,12 +1311,8 @@
                     depth: dims[2],
                     seatingIndex: currentSeatingIndex,
                     cutLength: (baseType === 'brique' || baseType === 'bloc') ? cutLength : undefined, 
-                    widthMultiplier: (baseType === 'brique' || typeKey.startsWith('bloc_cell_')) && cutLength !== 'custom_cut' ? widthMultiplier : 1.0,
-                    customCutWidthValue: (baseType === 'brique' || baseType === 'bloc') && cutLength === 'custom_cut' ? customCutWidthValue : undefined,
-                    textureId: currentTextureId, 
-                    customTextureData: (currentTextureId && currentTextureId.startsWith('custom/')) ? customLoadedTextureObject.image.src : null,
-                    roughness: parseFloat(roughnessSlider.value),
-                    metalness: parseFloat(metalnessSlider.value)
+                    widthMultiplier: baseType === 'brique' && cutLength !== 'custom_cut' ? widthMultiplier : 1.0,
+                    customCutWidthValue: (baseType === 'brique' || baseType === 'bloc') && cutLength === 'custom_cut' ? customCutWidthValue : undefined
                 };
             }
 
@@ -2148,47 +1326,14 @@
 
                 const props = getElementProperties();
                 const geometry = new THREE.BoxGeometry(props.width, props.height, props.depth);
-                const material = new THREE.MeshStandardMaterial({ 
-                    color: 0x03A9F4, 
-                    opacity: 0.6, 
-                    transparent: true, 
-                    roughness: props.roughness, 
-                    metalness: props.metalness 
-                });
-                
-                if (props.textureId && props.textureId !== 'none') {
-                    material.color.set(0xffffff); 
-                    let textureToLoadPath = null;
-                    if (props.textureId === "custom_loaded_texture" && customLoadedTextureObject) {
-                        textureToLoadPath = customLoadedTextureObject.image.src; // Use data URL for custom
-                    } else if (props.textureId.startsWith('custom/')) { // For custom textures loaded via save file
-                         textureToLoadPath = props.customTextureData;
-                    } else {
-                        const category = props.textureId.split('/')[0];
-                        const texName = props.textureId.split('/')[1];
-                        const texData = textures[category]?.find(t => t.id === props.textureId);
-                        if (texData) textureToLoadPath = texData.path;
-                    }
-
-                    if (textureToLoadPath) {
-                        textureLoader.load(textureToLoadPath, (texture) => {
-                            texture.wrapS = THREE.RepeatWrapping;
-                            texture.wrapT = THREE.RepeatWrapping;
-                            texture.repeat.set(props.width / 1, props.height / 0.2); 
-                            material.map = texture;
-                            material.needsUpdate = true;
-                        });
-                    }
-                }
-
-
+                const material = new THREE.MeshStandardMaterial({ color: 0x03A9F4, opacity: 0.6, transparent: true, roughness: 0.8, metalness: 0.1 });
                 ghostElement = new THREE.Mesh(geometry, material);
                 ghostElement.userData = { ...props, isGhost: true };
 
                 let jointHeightMeters = 0;
                 if (props.baseType === 'brique') {
                     jointHeightMeters = getSanitizedJointValue('joint-distance');
-                } else if (props.baseType === 'bloc') { 
+                } else if (props.baseType === 'bloc') {
                     jointHeightMeters = getSanitizedJointValue('block-joint-distance');
                 }
                 
@@ -2201,76 +1346,28 @@
                 const initialGhostCenterY = snapToGrid(targetBottomY) + props.height / 2;
                 ghostElement.position.set(0, initialGhostCenterY, 0);
 
-                ghostElement.visible = (currentTool === 'add' && !isGhostAwaitingDPadOrConfirmation);
+                ghostElement.visible = (currentTool === 'add' && !isGhostFixed);
                 scene.add(ghostElement);
-                if (!isGhostAwaitingDPadOrConfirmation) hideHeightTooltip(); 
+                if (!isGhostFixed) hideHeightTooltip(); 
             }
 
             function removeGhostElement() {
                 if (ghostElement) {
                     scene.remove(ghostElement);
                     if (ghostElement.geometry) ghostElement.geometry.dispose();
-                    if (ghostElement.material) {
-                        if(ghostElement.material.map) ghostElement.material.map.dispose();
-                        ghostElement.material.dispose();
-                    }
+                    if (ghostElement.material) ghostElement.material.dispose();
                     ghostElement = null;
                 }
-                isGhostAwaitingDPadOrConfirmation = false; 
+                isGhostFixed = false; 
                 hideHeightTooltip(); 
             }
 
             function addElementAtPosition(position, rotationY, propsFromGhost, elementId = null, originalColorOverride = null) {
                 const geometry = new THREE.BoxGeometry(propsFromGhost.width, propsFromGhost.height, propsFromGhost.depth);
-                
-                let defaultColorForType = elementColors.default;
-                if (propsFromGhost.type.startsWith('bloc_cell_')) {
-                    defaultColorForType = elementColors.bloc_cell || 0xFFFFFF;
-                } else if (elementColors[propsFromGhost.baseType]) {
-                    defaultColorForType = elementColors[propsFromGhost.baseType];
-                }
-
-                const baseColorHex = originalColorOverride !== null ? originalColorOverride : defaultColorForType;
-                let finalColorToApply = useWhiteElements ? 0xffffff : baseColorHex;
-                
-                let textureMap = null;
-                let actualTexturePath = propsFromGhost.textureId; // Use textureId from props
-
-                if (actualTexturePath && actualTexturePath !== 'none') {
-                    finalColorToApply = 0xffffff; 
-                    if (actualTexturePath === "custom_loaded_texture" && customLoadedTextureObject) {
-                        textureMap = customLoadedTextureObject;
-                    } else if (actualTexturePath.startsWith("data:image") && propsFromGhost.customTextureData) { 
-                        textureMap = textureLoader.load(propsFromGhost.customTextureData, (texture) => {
-                            texture.wrapS = THREE.RepeatWrapping; texture.wrapT = THREE.RepeatWrapping;
-                            const repeatX = Math.max(1, Math.round(propsFromGhost.width / 0.5)); 
-                            const repeatY = Math.max(1, Math.round(propsFromGhost.height / 0.25));
-                            texture.repeat.set(repeatX, repeatY);
-                            element.material.needsUpdate = true;
-                        });
-                         actualTexturePath = propsFromGhost.customTextureData; 
-                    } else {
-                        const category = actualTexturePath.split('/')[0];
-                        const texName = actualTexturePath.split('/')[1];
-                        const texData = textures[category]?.find(t => t.id === actualTexturePath);
-                        if (texData && texData.path) {
-                            textureMap = textureLoader.load(texData.path, (texture) => {
-                                texture.wrapS = THREE.RepeatWrapping; texture.wrapT = THREE.RepeatWrapping;
-                                const repeatX = Math.max(1, Math.round(propsFromGhost.width / 0.5)); 
-                                const repeatY = Math.max(1, Math.round(propsFromGhost.height / 0.25));
-                                texture.repeat.set(repeatX, repeatY);
-                                element.material.needsUpdate = true;
-                            });
-                        }
-                    }
-                }
-
-
+                const baseColorHex = originalColorOverride !== null ? originalColorOverride : (elementColors[propsFromGhost.baseType] || elementColors.default);
                 const material = new THREE.MeshStandardMaterial({
-                    color: finalColorToApply,
-                    map: textureMap,
-                    roughness: propsFromGhost.roughness !== undefined ? propsFromGhost.roughness : defaultRoughness, 
-                    metalness: propsFromGhost.metalness !== undefined ? propsFromGhost.metalness : defaultMetalness,
+                    color: useWhiteElements ? 0xffffff : baseColorHex,
+                    roughness: 0.7, metalness: 0.2,
                     transparent: propsFromGhost.baseType === 'vide',
                     opacity: propsFromGhost.baseType === 'vide' ? 0.3 : 1.0, 
                     name: propsFromGhost.name 
@@ -2286,11 +1383,7 @@
                     ...propsFromGhost, 
                     isGhost: false,
                     id: elementId || THREE.MathUtils.generateUUID(),
-                    originalColor: baseColorHex, 
-                    texturePath: actualTexturePath, 
-                    customTextureData: (actualTexturePath && actualTexturePath.startsWith("data:image")) ? actualTexturePath : null, 
-                    roughness: propsFromGhost.roughness,
-                    metalness: propsFromGhost.metalness,
+                    originalColor: baseColorHex,
                     seatingIndex: propsFromGhost.seatingIndex !== undefined ? propsFromGhost.seatingIndex : currentSeatingIndex,
                     cutLength: propsFromGhost.cutLength, 
                     widthMultiplier: propsFromGhost.widthMultiplier, 
@@ -2308,111 +1401,21 @@
                 updateElementCounter();
                 return element;
             }
-            
-            function applyTextureAndMaterialToObject(targetObject) {
-                if (!targetObject || !targetObject.material) return;
-
-                const newTextureId = currentTextureId; 
-                const newRoughness = parseFloat(roughnessSlider.value);
-                const newMetalness = parseFloat(metalnessSlider.value);
-
-                if (targetObject === selectedObject && targetObject.userData && !targetObject.userData.isGhost) {
-                    const oldProps = {
-                        texturePath: targetObject.userData.texturePath || 'none', 
-                        customTextureData: targetObject.userData.customTextureData,
-                        roughness: targetObject.userData.roughness,
-                        metalness: targetObject.userData.metalness,
-                        color: targetObject.material.color.getHex() 
-                    };
-                    let newCustomData = null;
-                    if (newTextureId.startsWith('custom/') && customLoadedTextureObject && customLoadedTextureObject.image) {
-                        newCustomData = customLoadedTextureObject.image.src;
-                    }
-
-                    const newProps = {
-                        texturePath: newTextureId,
-                        customTextureData: newCustomData,
-                        roughness: newRoughness,
-                        metalness: newMetalness,
-                        color: (newTextureId !== 'none') ? 0xffffff : 
-                               (useWhiteElements ? 0xffffff : (targetObject.userData.originalColor || elementColors.default))
-                    };
-                    if (oldProps.texturePath !== newProps.texturePath || 
-                        oldProps.roughness !== newProps.roughness || 
-                        oldProps.metalness !== newProps.metalness ||
-                        (oldProps.texturePath === 'none' && newProps.texturePath !== 'none') || 
-                        (oldProps.texturePath !== 'none' && newProps.texturePath === 'none')    
-                        ) {
-                         pushActionToUndoStack({ type: 'material_update', objectId: targetObject.userData.id, oldProps: oldProps, newProps: newProps });
-                    }
-                }
-
-
-                targetObject.userData.texturePath = newTextureId;
-                targetObject.userData.roughness = newRoughness;
-                targetObject.userData.metalness = newMetalness;
-                if (newTextureId.startsWith('custom/') && customLoadedTextureObject && customLoadedTextureObject.image) {
-                    targetObject.userData.customTextureData = customLoadedTextureObject.image.src;
-                } else {
-                    targetObject.userData.customTextureData = null;
-                }
-
-
-                targetObject.material.roughness = newRoughness;
-                targetObject.material.metalness = newMetalness;
-
-                if (newTextureId && newTextureId !== 'none') {
-                    targetObject.material.color.set(0xffffff); 
-                    let textureToApply = null;
-                    let pathToLoad = null;
-
-                    if (newTextureId.startsWith('custom/')) {
-                        if (customLoadedTextureObject && customLoadedTextureObject.image.src) {
-                            pathToLoad = customLoadedTextureObject.image.src;
-                        } else if (targetObject.userData.customTextureData) { 
-                            pathToLoad = targetObject.userData.customTextureData;
-                        }
-                    } else {
-                        const category = newTextureId.split('/')[0];
-                        const texData = textures[category]?.find(t => t.id === newTextureId);
-                        if (texData) pathToLoad = texData.path;
-                    }
-                    
-                    if (pathToLoad) {
-                        textureToApply = textureLoader.load(pathToLoad, (tex) => {
-                            tex.wrapS = THREE.RepeatWrapping;
-                            tex.wrapT = THREE.RepeatWrapping;
-                            const repeatX = Math.max(1, Math.round(targetObject.userData.width / 0.5)); 
-                            const repeatY = Math.max(1, Math.round(targetObject.userData.height / 0.25));
-                            tex.repeat.set(repeatX, repeatY);
-                            targetObject.material.map = tex;
-                            targetObject.material.needsUpdate = true;
-                        });
-                         targetObject.material.map = textureToApply; 
-                    } else {
-                         targetObject.material.map = null;
-                    }
-                } else {
-                    targetObject.material.map = null;
-                    const colorToSet = useWhiteElements ? 0xffffff : (targetObject.userData.originalColor || elementColors.default);
-                    targetObject.material.color.setHex(colorToSet);
-                }
-                targetObject.material.needsUpdate = true;
-            }
-
 
             function confirmPlacement() {
-                if (currentTool === 'add' && ghostElement && isGhostAwaitingDPadOrConfirmation) { 
+                if (currentTool === 'add' && ghostElement && ghostElement.visible && isGhostFixed) {
                     const newElement = addElementAtPosition(ghostElement.position.clone(), ghostElement.rotation.y, ghostElement.userData);
                     if (newElement) {
                         pushActionToUndoStack({ type: 'add', objectId: newElement.userData.id, redoData: cloneObjectDataForUndo(newElement) });
                     }
-                    isGhostAwaitingDPadOrConfirmation = false; 
-                    removeGhostElement(); 
-                    createGhostElement(); 
+                    isGhostFixed = false;
+                    removeGhostElement(); createGhostElement(); 
                     if (ghostElement) ghostElement.visible = true;
-                    controls.enabled = true; 
-                    controls.enableRotate = true;
+                    // After placement, re-enable single-touch rotate/pan for 'add' mode (while ghost is not fixed)
+                    controls.enabled = false; 
+                    controls.enableRotate = false;
+                    controls.enablePan = false;
+
                 } else if ((currentTool === 'move' || currentTool === 'rotate') && selectedObject) {
                     if (selectedObject.userData.undoInitialTransform) {
                         const initial = selectedObject.userData.undoInitialTransform;
@@ -2433,7 +1436,7 @@
                 let jointHeightMeters = 0;
                 if (elementProps.baseType === 'brique') {
                     jointHeightMeters = getSanitizedJointValue('joint-distance');
-                } else if (elementProps.baseType === 'bloc') { // Includes cellular blocks
+                } else if (elementProps.baseType === 'bloc') {
                     jointHeightMeters = getSanitizedJointValue('block-joint-distance');
                 }
                 
@@ -2455,7 +1458,7 @@
             }
             
             function moveGhostOrSelected(direction, eventParam) { 
-                const target = (currentTool === 'add' && ghostElement && isGhostAwaitingDPadOrConfirmation) ? ghostElement : 
+                const target = (currentTool === 'add' && ghostElement && isGhostFixed) ? ghostElement : 
                                ((currentTool === 'move' || currentTool === 'rotate') && selectedObject) ? selectedObject : null;
                 if (!target) {
                     hideHeightTooltip();
@@ -2476,7 +1479,7 @@
                 if (target.userData.baseType === 'brique') {
                     jointHeightMeters = getSanitizedJointValue('joint-distance');
                     currentJointCm = parseFloat((jointDistanceInput.value || "0").replace(',', '.'));
-                } else if (target.userData.baseType === 'bloc') { // Includes cellular blocks
+                } else if (target.userData.baseType === 'bloc') {
                     jointHeightMeters = getSanitizedJointValue('block-joint-distance');
                     currentJointCm = parseFloat((blockJointDistanceInput.value || "0").replace(',', '.'));
                 }
@@ -2547,7 +1550,7 @@
             }
 
             function updateTargetSeatingAfterVerticalMove(target) {
-                if (target === ghostElement && isGhostAwaitingDPadOrConfirmation) {
+                if (target === ghostElement && isGhostFixed) {
                     let jointHeightMeters = 0;
                     if (target.userData.baseType === 'brique') {
                         jointHeightMeters = getSanitizedJointValue('joint-distance');
@@ -2583,7 +1586,7 @@
             }
 
             function rotateGhostOrSelected(direction, eventParam) { 
-                const target = (currentTool === 'add' && ghostElement && isGhostAwaitingDPadOrConfirmation) ? ghostElement : 
+                const target = (currentTool === 'add' && ghostElement && isGhostFixed) ? ghostElement : 
                                ((currentTool === 'rotate' || currentTool === 'move') && selectedObject) ? selectedObject : null;
                 if (!target) return;
                 if (selectedObject && !target.userData.undoInitialTransform && (currentTool === 'move' || currentTool === 'rotate')) {
@@ -2616,42 +1619,6 @@
                         controls.enabled = false; 
                         selectedObject.userData.undoInitialTransform = { position: selectedObject.position.clone(), rotationY: selectedObject.rotation.y };
                     } else { controls.enabled = true; }
-
-                    // Update Texture/Material UI when selecting an object
-                    const textureIdToSelect = selectedObject.userData.texturePath || 'none';
-                    if (textureIdToSelect.startsWith('custom/') || (selectedObject.userData.customTextureData && textureIdToSelect.startsWith("data:image"))) {
-                        textureCategorySelector.value = 'custom';
-                        populateTextureSwatches('custom'); // Ensure custom swatches are populated
-                        const customSwatch = Array.from(texturePaletteGrid.children).find(sw => sw.dataset.textureId === textureIdToSelect || (selectedObject.userData.customTextureData && sw.dataset.texturePath === selectedObject.userData.customTextureData));
-                        if (customSwatch) {
-                            if (activeTextureSwatchElement) activeTextureSwatchElement.classList.remove('active-texture-swatch');
-                            customSwatch.classList.add('active-texture-swatch');
-                            activeTextureSwatchElement = customSwatch;
-                            currentTextureId = textureIdToSelect;
-                        }
-                    } else {
-                        const category = textureIdToSelect.split('/')[0] || 'none';
-                        textureCategorySelector.value = category;
-                        populateTextureSwatches(category);
-                        const swatchToSelect = Array.from(texturePaletteGrid.children).find(sw => sw.dataset.textureId === textureIdToSelect);
-                        if (swatchToSelect) {
-                            if (activeTextureSwatchElement) activeTextureSwatchElement.classList.remove('active-texture-swatch');
-                            swatchToSelect.classList.add('active-texture-swatch');
-                            activeTextureSwatchElement = swatchToSelect;
-                            currentTextureId = textureIdToSelect;
-                        } else if (textureIdToSelect === 'none') {
-                             if (activeTextureSwatchElement) activeTextureSwatchElement.classList.remove('active-texture-swatch');
-                             activeTextureSwatchElement = null;
-                             currentTextureId = 'none';
-                        }
-                    }
-
-
-                    roughnessSlider.value = selectedObject.userData.roughness !== undefined ? selectedObject.userData.roughness : defaultRoughness;
-                    metalnessSlider.value = selectedObject.userData.metalness !== undefined ? selectedObject.userData.metalness : defaultMetalness;
-                    roughnessValueLabel.textContent = parseFloat(roughnessSlider.value).toFixed(2);
-                    metalnessValueLabel.textContent = parseFloat(metalnessSlider.value).toFixed(2);
-
                 } else { 
                     selectedObject = null; 
                     if (currentTool !== 'add') controls.enabled = true;
@@ -2677,15 +1644,12 @@
                         delete selectedObject.userData.undoInitialTransform;
                     }
                 }
-                if (currentTool === 'measure' && selectedObject) { 
-                    clearDimensionLabelsDOM();
-                }
                 selectedObject = null; 
                 if (currentTool !== 'add') { 
                     controls.enabled = true; controls.enableRotate = true; 
                     if(controls) controls.update();
                 }
-                if (currentTool !== 'add') isGhostAwaitingDPadOrConfirmation = false; 
+                if (currentTool !== 'add') isGhostFixed = false; 
                 hideHeightTooltip(); 
                 updateHelpBar();
             }
@@ -2696,8 +1660,318 @@
                 renderer.setSize(newWidth, newHeight);
             }
 
-            // onViewportPointerMove, onViewportPointerDown, onDocumentKeyDown are defined above initThreeJS
+            function updateGhostOnIntersection(raycasterInstance) {
+                if (!ghostElement || currentTool !== 'add' || isGhostFixed) return;
 
+                let snappedToExistingObjectSurface = false;
+                const potentialSnapTargets = objects.filter(o => o !== ghostElement && o.userData && !o.userData.isGhost && o.geometry && o.material && o.visible);
+                const intersectsObjects = raycasterInstance.intersectObjects(potentialSnapTargets, false);
+
+                if (intersectsObjects.length > 0) {
+                    const intersect = intersectsObjects[0];
+                    const intersectedObject = intersect.object;
+                    const point = intersect.point;
+                    const worldNormal = intersect.face.normal.clone().applyMatrix4(intersectedObject.matrixWorld).sub(intersectedObject.getWorldPosition(new THREE.Vector3())).normalize();
+
+                    if (worldNormal.y > 0.85) { 
+                        let jointHeightMeters = 0;
+                        if (ghostElement.userData.baseType === 'brique') jointHeightMeters = getSanitizedJointValue('joint-distance');
+                        else if (ghostElement.userData.baseType === 'bloc') jointHeightMeters = getSanitizedJointValue('block-joint-distance');
+                        
+                        let yPositionForGhostBase = intersectedObject.position.y + intersectedObject.userData.height / 2; 
+                        if (ghostElement.userData.baseType === 'brique' || ghostElement.userData.baseType === 'bloc') yPositionForGhostBase += jointHeightMeters; 
+                        
+                        ghostElement.position.y = snapToGrid(yPositionForGhostBase) + ghostElement.userData.height / 2; 
+                        ghostElement.position.x = snapToGrid(point.x); 
+                        ghostElement.position.z = snapToGrid(point.z);
+                        ghostElement.material.color.setHex(0x4CAF50); 
+                        ghostElement.material.opacity = 0.7;
+                        snappedToExistingObjectSurface = true;
+                        ghostElement.userData.snappedToObjectId = intersectedObject.userData.id;
+                        ghostElement.userData.seatingIndex = intersectedObject.userData.seatingIndex; 
+                    }
+                }
+
+                if (!snappedToExistingObjectSurface) {
+                    delete ghostElement.userData.snappedToObjectId;
+                    const intersectsPlane = raycasterInstance.intersectObject(plane);
+                    if (intersectsPlane.length > 0) {
+                        const intersectPoint = intersectsPlane[0].point;
+                        if (ghostElement.userData.seatingIndex === undefined) ghostElement.userData.seatingIndex = currentSeatingIndex;
+                        ghostElement.position.copy(getSnappedPosition(intersectPoint, ghostElement.userData));
+                        ghostElement.material.color.setHex(0x03A9F4); ghostElement.material.opacity = 0.6;
+                    }
+                }
+                if (ghostElement.material.needsUpdate !== undefined) ghostElement.material.needsUpdate = true;
+                hideHeightTooltip();
+            }
+
+            function handleTapOrClick(screenX, screenY) {
+                const rect = viewportContainer.getBoundingClientRect();
+                mousePointer.x = ((screenX - rect.left) / rect.width) * 2 - 1;
+                mousePointer.y = -((screenY - rect.top) / rect.height) * 2 + 1;
+                raycaster.setFromCamera(mousePointer, camera);
+
+                if (currentTool === 'select') {
+                    const intersectsObjects = raycaster.intersectObjects(objects, false);
+                    if (intersectsObjects.length > 0) {
+                        const clickedObject = intersectsObjects[0].object;
+                        if (clickedObject !== plane && clickedObject.name !== "GridHelper") {
+                            if (currentActiveColor !== null) { 
+                                const oldColor = clickedObject.userData.originalColor || clickedObject.material.color.getHex();
+                                if (oldColor !== currentActiveColor) pushActionToUndoStack({ type: 'color', objectId: clickedObject.userData.id, oldColor: oldColor, newColor: currentActiveColor });
+                                clickedObject.userData.originalColor = currentActiveColor;
+                                if (!useWhiteElements) clickedObject.material.color.setHex(currentActiveColor);
+                                clickedObject.material.needsUpdate = true;
+                            } else { selectObject(clickedObject); }
+                        } else { deselectObject(); }
+                    } else { deselectObject(); }
+                } else if (currentTool === 'move' || currentTool === 'duplicate' || currentTool === 'rotate' || currentTool === 'delete') {
+                    const intersectsObjects = raycaster.intersectObjects(objects, false); 
+                    if (intersectsObjects.length > 0) {
+                        const clickedObject = intersectsObjects[0].object;
+                        if (clickedObject !== plane && clickedObject.name !== "GridHelper") {
+                            if (currentTool === 'move' || currentTool === 'rotate') selectObject(clickedObject); 
+                            else if (currentTool === 'duplicate') duplicateObject(clickedObject);
+                            else if (currentTool === 'delete') deleteObject(clickedObject);
+                        } else { deselectObject(); }
+                    } else { deselectObject(); }
+                }
+            }
+
+            function showTooltipForFixedGhost() {
+                if (ghostElement && isGhostFixed && (ghostElement.userData.baseType === 'brique' || ghostElement.userData.baseType === 'bloc')) {
+                    let tooltipText = ""; 
+                    const elementHeight = ghostElement.userData.height; 
+                    const jointInputId = ghostElement.userData.baseType === 'brique' ? 'joint-distance' : 'block-joint-distance';
+                    const currentJointCm = parseFloat((document.getElementById(jointInputId).value || "0").replace(',', '.'));
+                    
+                    if (typeof elementHeight === 'number' && !isNaN(elementHeight)) {
+                        const topFaceYAbsolute = ghostElement.position.y + elementHeight / 2; 
+                        const currentSeatingLevelYForTooltip = seatingLevels[ghostElement.userData.seatingIndex !== undefined ? ghostElement.userData.seatingIndex : currentSeatingIndex] ? seatingLevels[ghostElement.userData.seatingIndex !== undefined ? ghostElement.userData.seatingIndex : currentSeatingIndex].y : 0;
+                        
+                        if (ghostElement.userData.snappedToObjectId) { 
+                            tooltipText = `Haut. ${ghostElement.userData.baseType === 'brique' ? 'Brique' : 'Bloc'}: ${(elementHeight * 100).toFixed(1)} cm`;
+                        } else { 
+                            const distanceFromSeatingLevel = topFaceYAbsolute - currentSeatingLevelYForTooltip;
+                            const jointHeightMeters = getSanitizedJointValue(jointInputId);
+                            tooltipText = `Haut. / Assise: ${(distanceFromSeatingLevel * 100).toFixed(1)} cm (Joint: ${(jointHeightMeters * 100).toFixed(1)} cm)`;
+                        }
+                    } else {
+                        tooltipText = "Erreur calcul hauteur"; 
+                    }
+                    showAndPositionTooltip(ghostElement, tooltipText);
+                }
+            }
+
+
+            function onViewportPointerDown(event) {
+                const dpadContainer = document.getElementById('dpad-controls');
+                if (dpadContainer && dpadContainer.contains(event.target)) return; 
+                
+                if (event.pointerType === 'mouse' || event.pointerType === undefined) {
+                    if (event.button === 0) { // Left click
+                        const rect = viewportContainer.getBoundingClientRect();
+                        mousePointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+                        mousePointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+                        raycaster.setFromCamera(mousePointer, camera);
+
+                        if (currentTool === 'add') {
+                            if (ghostElement && !isGhostFixed) { 
+                                updateGhostOnIntersection(raycaster);
+                                isGhostFixed = true; 
+                                controls.enabled = true; 
+                                controls.enableRotate = true; 
+                                controls.enablePan = true;
+                                updateHelpBar(); 
+                                showTooltipForFixedGhost();
+                            }
+                        } else { 
+                            handleTapOrClick(event.clientX, event.clientY);
+                        }
+                    }
+                }
+            }
+            
+            function onViewportPointerMove(event) {
+                if (currentTool !== 'add' || !ghostElement || isGhostFixed) {
+                    // If not in add mode, or ghost is fixed, OrbitControls should handle camera movement
+                    if (controls.enabled && (event.buttons & 1)) { // Check if left mouse button is pressed for drag
+                        // Let OrbitControls handle
+                    }
+                    return;
+                }
+                 // This is for mouse moving the ghost before it's fixed
+                if (event.pointerType === 'mouse' || event.pointerType === undefined) {
+                    const rect = viewportContainer.getBoundingClientRect();
+                    mousePointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+                    mousePointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+                    raycaster.setFromCamera(mousePointer, camera);
+                    updateGhostOnIntersection(raycaster);
+                    if(ghostElement) ghostElement.visible = true;
+                }
+            }
+
+            function onViewportTouchStart(event) {
+                event.preventDefault();
+                if (event.touches.length === 1) {
+                    touchStartTime = Date.now();
+                    touchStartPoint.x = event.touches[0].clientX;
+                    touchStartPoint.y = event.touches[0].clientY;
+                    isDraggingWithTouch = false;
+
+                    if (currentTool === 'add' && ghostElement && !isGhostFixed) {
+                        controls.enabled = false; // Disable OrbitControls for this single touch
+                    } else {
+                        controls.enabled = true; // Allow OrbitControls for other tools or multi-touch
+                    }
+                } else { // Multi-touch
+                    controls.enabled = true;
+                }
+            }
+
+            function onViewportTouchMove(event) {
+                event.preventDefault();
+                if (event.touches.length === 1) {
+                    const touch = event.touches[0];
+                    const deltaX = touch.clientX - touchStartPoint.x;
+                    const deltaY = touch.clientY - touchStartPoint.y;
+
+                    if (Math.sqrt(deltaX * deltaX + deltaY * deltaY) > DRAG_MOVEMENT_THRESHOLD) {
+                        isDraggingWithTouch = true;
+                    }
+
+                    if (currentTool === 'add' && ghostElement && !isGhostFixed && !controls.enabled) {
+                        // We are manually dragging the ghost
+                        const rect = viewportContainer.getBoundingClientRect();
+                        mousePointer.x = ((touch.clientX - rect.left) / rect.width) * 2 - 1;
+                        mousePointer.y = -((touch.clientY - rect.top) / rect.height) * 2 + 1;
+                        raycaster.setFromCamera(mousePointer, camera);
+                        updateGhostOnIntersection(raycaster);
+                        if (ghostElement) ghostElement.visible = true;
+                    } else if (isDraggingWithTouch) {
+                        // If it's a drag for other tools or camera, ensure controls are enabled
+                        controls.enabled = true;
+                    }
+                } else { // Multi-touch
+                    controls.enabled = true;
+                }
+            }
+
+            function onViewportTouchEnd(event) {
+                event.preventDefault();
+                const touchDuration = Date.now() - touchStartTime;
+
+                if (event.changedTouches.length === 1) {
+                    const touch = event.changedTouches[0];
+                    if (currentTool === 'add' && ghostElement && !isGhostFixed) {
+                        if (!isDraggingWithTouch && touchDuration < TAP_DURATION_THRESHOLD) { // TAP to fix ghost
+                            const rect = viewportContainer.getBoundingClientRect();
+                            mousePointer.x = ((touch.clientX - rect.left) / rect.width) * 2 - 1;
+                            mousePointer.y = -((touch.clientY - rect.top) / rect.height) * 2 + 1;
+                            raycaster.setFromCamera(mousePointer, camera);
+                            updateGhostOnIntersection(raycaster); 
+
+                            isGhostFixed = true;
+                            controls.enabled = true; // Allow multi-touch nav, DPad is active
+                            controls.enableRotate = true; 
+                            controls.enablePan = true;
+                            updateHelpBar();
+                            showTooltipForFixedGhost();
+
+                        } else if (isDraggingWithTouch) { // DRAGGED ghost to position
+                            // Ghost is already at the final drag position from touchmove
+                            isGhostFixed = true;
+                            controls.enabled = true; 
+                            controls.enableRotate = true; 
+                            controls.enablePan = true;
+                            updateHelpBar();
+                            showTooltipForFixedGhost();
+                        } else { // Long press without significant drag, or was a camera drag
+                             controls.enabled = true;
+                             controls.enableRotate = true;
+                             controls.enablePan = true;
+                        }
+                    } else if (!isDraggingWithTouch && touchDuration < TAP_DURATION_THRESHOLD) {
+                        handleTapOrClick(touch.clientX, touch.clientY);
+                         controls.enabled = true; controls.enableRotate = true; controls.enablePan = true;
+                    } else { 
+                        controls.enabled = true; controls.enableRotate = true; controls.enablePan = true;
+                    }
+                }
+                
+                isDraggingWithTouch = false; 
+                
+                if (currentTool === 'add' && isGhostFixed) {
+                    // DPad is active, allow multi-touch navigation but single touch is for DPad buttons
+                    controls.enabled = true; 
+                    controls.enableRotate = true; 
+                    controls.enablePan = true; 
+                } else if (!((currentTool === 'move' || currentTool === 'rotate') && selectedObject)) {
+                    controls.enabled = true;
+                    controls.enableRotate = true;
+                    controls.enablePan = true;
+                } else if (((currentTool === 'move' || currentTool === 'rotate') && selectedObject)){
+                    controls.enabled = false; // if object selected for move/rotate, disable camera via touch
+                }
+
+
+                if(controls) controls.update();
+            }
+
+
+            function onDocumentKeyDown(event) {
+                if (document.activeElement && ( document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA' || document.activeElement.tagName === 'SELECT')) {
+                    if (event.key === 'Escape') {
+                        hideHeightTooltip(); 
+                        document.activeElement.blur(); 
+                    }
+                    return;
+                }
+                let dpadAction = true; const isCtrlOrMeta = event.ctrlKey || event.metaKey;
+                switch (event.key.toLowerCase()) {
+                    case 'z': if (isCtrlOrMeta) { event.preventDefault(); undoLastAction(); } else { dpadAction = false; } break;
+                    case 'y': if (isCtrlOrMeta) { event.preventDefault(); redoLastAction(); } else { dpadAction = false; } break;
+                    case 's': if (isCtrlOrMeta) { event.preventDefault(); handleSaveFile(); } else if (!event.shiftKey) { setCurrentTool('select'); } else { dpadAction = false; } break;
+                    case 'a': if (!isCtrlOrMeta && !event.altKey) setCurrentTool('add'); else dpadAction = false; break;
+                    case 'm': setCurrentTool('move'); break;
+                    case 'd': if (event.shiftKey && !isCtrlOrMeta) { setCurrentTool('duplicate'); } else { dpadAction = false; } break; 
+                    case 'r': if (!isCtrlOrMeta) setCurrentTool('rotate'); else dpadAction = false; break; 
+                    case 'delete': case 'backspace': if (selectedObject) deleteObject(selectedObject); else setCurrentTool('delete'); break;
+                    case 'enter': 
+                        if ((currentTool === 'add' && ghostElement && ghostElement.visible && isGhostFixed) || ((currentTool === 'move' || currentTool === 'rotate') && selectedObject)) {
+                            confirmPlacement();
+                        }
+                        break;
+                    case 'escape':
+                        hideHeightTooltip(); 
+                        if (currentActiveColor !== null) { if (activeSwatchElement) activeSwatchElement.classList.remove('active-color-swatch'); currentActiveColor = null; activeSwatchElement = null; updateCursorStyle(); updateHelpBar(); } 
+                        else if (currentTool === 'add' && ghostElement) { 
+                            if (isGhostFixed) { 
+                                isGhostFixed = false; 
+                                if (ghostElement) ghostElement.visible = true; 
+                                setCurrentTool('add'); // This will set controls.enableRotate/Pan to false
+                                updateHelpBar(); 
+                            } else { 
+                                removeGhostElement(); 
+                                setCurrentTool('select'); 
+                            } 
+                        } 
+                        else if (selectedObject) deselectObject();
+                        break;
+                    case 'w': case 'arrowup': moveGhostOrSelected('forward', event); break;
+                    case 'x': case 'arrowdown': moveGhostOrSelected('backward', event); break; 
+                    case 'j': case 'arrowleft': moveGhostOrSelected('left', event); break;
+                    case 'l': case 'arrowright': moveGhostOrSelected('right', event); break;
+                    case 'q': rotateGhostOrSelected('left', event); break;
+                    case 'e': rotateGhostOrSelected('right', event); break;
+                    case 'pageup': moveGhostOrSelected('up', event); break;
+                    case 'pagedown': moveGhostOrSelected('down', event); break;
+                    case 'o': if (isCtrlOrMeta) { event.preventDefault(); handleOpenFile(); } else { dpadAction = false; } break;
+                    default: dpadAction = false; break;
+                }
+                if (dpadAction) event.preventDefault(); 
+            }
 
             function pushActionToUndoStack(action) {
                 undoStack.push(action); redoStack.length = 0; updateUndoRedoButtons();
@@ -2710,25 +1984,7 @@
             function getObjectById(id) { return objects.find(obj => obj.userData.id === id); }
             function cloneObjectDataForUndo(object) {
                 if (!object || !object.userData) return null;
-                return { 
-                    id: object.userData.id, 
-                    type: object.userData.type, 
-                    baseType: object.userData.baseType, 
-                    name: object.userData.name, 
-                    originalName: object.userData.originalName, 
-                    width: object.userData.width, height: object.userData.height, depth: object.userData.depth, 
-                    originalColor: object.userData.originalColor, 
-                    seatingIndex: object.userData.seatingIndex, 
-                    position: object.position.clone(), 
-                    rotationY: object.rotation.y, 
-                    cutLength: object.userData.cutLength, 
-                    widthMultiplier: object.userData.widthMultiplier, 
-                    customCutWidthValue: object.userData.customCutWidthValue,
-                    texturePath: object.userData.texturePath, 
-                    customTextureData: object.userData.customTextureData,
-                    roughness: object.userData.roughness,
-                    metalness: object.userData.metalness
-                };
+                return { id: object.userData.id, type: object.userData.type, baseType: object.userData.baseType, name: object.userData.name, originalName: object.userData.originalName, width: object.userData.width, height: object.userData.height, depth: object.userData.depth, originalColor: object.userData.originalColor, seatingIndex: object.userData.seatingIndex, position: object.position.clone(), rotationY: object.rotation.y, cutLength: object.userData.cutLength, widthMultiplier: object.userData.widthMultiplier, customCutWidthValue: object.userData.customCutWidthValue };
             }
 
             function undoLastAction() {
@@ -2741,50 +1997,7 @@
                         break;
                     case 'delete': if (action.objectData) addElementAtPosition(new THREE.Vector3(action.objectData.position.x, action.objectData.position.y, action.objectData.position.z), action.objectData.rotationY, action.objectData, action.objectData.id, action.objectData.originalColor); break;
                     case 'transform': object = getObjectById(action.objectId); if (object) { object.position.copy(action.oldTransform.position); object.rotation.y = action.oldTransform.rotationY; } break;
-                    case 'color': 
-                        object = getObjectById(action.objectId); 
-                        if (object) { 
-                            object.userData.originalColor = action.oldColor; 
-                            if (!useWhiteElements && (!object.userData.texturePath || object.userData.texturePath === 'none')) {
-                                object.material.color.setHex(action.oldColor);
-                            }
-                            object.material.needsUpdate = true; 
-                        } 
-                        break;
-                    case 'material_update':
-                        object = getObjectById(action.objectId);
-                        if (object) {
-                            object.userData.texturePath = action.oldProps.texturePath;
-                            object.userData.customTextureData = action.oldProps.customTextureData;
-                            object.userData.roughness = action.oldProps.roughness;
-                            object.userData.metalness = action.oldProps.metalness;
-                            object.material.roughness = action.oldProps.roughness;
-                            object.material.metalness = action.oldProps.metalness;
-                            
-                            if (action.oldProps.texturePath && action.oldProps.texturePath !== 'none') {
-                                object.material.color.set(0xffffff);
-                                let textureToLoad = action.oldProps.texturePath === "custom_loaded_texture" ? action.oldProps.customTextureData : textures[action.oldProps.texturePath.split('/')[0]]?.find(t=>t.id === action.oldProps.texturePath)?.path;
-                                if (textureToLoad) {
-                                    textureLoader.load(textureToLoad, (texture) => {
-                                        texture.wrapS = THREE.RepeatWrapping;
-                                        texture.wrapT = THREE.RepeatWrapping;
-                                        const repeatX = Math.max(1, Math.round(object.userData.width / 0.5)); 
-                                        const repeatY = Math.max(1, Math.round(object.userData.height / 0.25));
-                                        texture.repeat.set(repeatX, repeatY);
-                                        object.material.map = texture;
-                                        object.material.needsUpdate = true;
-                                    });
-                                } else {
-                                     object.material.map = null; // Fallback if texture path is invalid
-                                     object.material.color.setHex(action.oldProps.color);
-                                }
-                            } else {
-                                object.material.map = null;
-                                object.material.color.setHex(action.oldProps.color); 
-                            }
-                            object.material.needsUpdate = true;
-                        }
-                        break;
+                    case 'color': object = getObjectById(action.objectId); if (object) { object.userData.originalColor = action.oldColor; if (!useWhiteElements) object.material.color.setHex(action.oldColor); object.material.needsUpdate = true; } break;
                 }
                 redoStack.push(action); updateUndoRedoButtons(); updateElementCounter();
             }
@@ -2795,50 +2008,7 @@
                     case 'add': if (action.redoData) addElementAtPosition(new THREE.Vector3(action.redoData.position.x, action.redoData.position.y, action.redoData.position.z), action.redoData.rotationY, action.redoData, action.redoData.id, action.redoData.originalColor); break;
                     case 'delete': object = getObjectById(action.objectData.id); if (object) { scene.remove(object); const index = objects.indexOf(object); if (index > -1) objects.splice(index, 1); if (object.geometry) object.geometry.dispose(); if (object.material) { if(Array.isArray(object.material)) object.material.forEach(m=>m.dispose()); else object.material.dispose(); } object.traverse(c => { if (c.isLineSegments && c.name === "elementEdges") { if (c.geometry) c.geometry.dispose(); if (c.material) c.material.dispose(); }});} break;
                     case 'transform': object = getObjectById(action.objectId); if (object) { object.position.copy(action.newTransform.position); object.rotation.y = action.newTransform.rotationY; } break;
-                    case 'color': 
-                        object = getObjectById(action.objectId); 
-                        if (object) { 
-                            object.userData.originalColor = action.newColor; 
-                            if (!useWhiteElements && (!object.userData.texturePath || object.userData.texturePath === 'none')) {
-                                object.material.color.setHex(action.newColor);
-                            }
-                            object.material.needsUpdate = true; 
-                        } 
-                        break;
-                    case 'material_update':
-                        object = getObjectById(action.objectId);
-                        if (object) {
-                            object.userData.texturePath = action.newProps.texturePath;
-                            object.userData.customTextureData = action.newProps.customTextureData;
-                            object.userData.roughness = action.newProps.roughness;
-                            object.userData.metalness = action.newProps.metalness;
-                            object.material.roughness = action.newProps.roughness;
-                            object.material.metalness = action.newProps.metalness;
-
-                            if (action.newProps.texturePath && action.newProps.texturePath !== 'none') {
-                                object.material.color.set(0xffffff);
-                                let textureToLoad = action.newProps.texturePath === "custom_loaded_texture" ? action.newProps.customTextureData : textures[action.newProps.texturePath.split('/')[0]]?.find(t=>t.id === action.newProps.texturePath)?.path;
-                                 if (textureToLoad) {
-                                    textureLoader.load(textureToLoad, (texture) => {
-                                        texture.wrapS = THREE.RepeatWrapping;
-                                        texture.wrapT = THREE.RepeatWrapping;
-                                        const repeatX = Math.max(1, Math.round(object.userData.width / 0.5)); 
-                                        const repeatY = Math.max(1, Math.round(object.userData.height / 0.25));
-                                        texture.repeat.set(repeatX, repeatY);
-                                        object.material.map = texture;
-                                        object.material.needsUpdate = true;
-                                    });
-                                } else {
-                                    object.material.map = null;
-                                    object.material.color.setHex(action.newProps.color);
-                                }
-                            } else {
-                                object.material.map = null;
-                                object.material.color.setHex(action.newProps.color); 
-                            }
-                            object.material.needsUpdate = true;
-                        }
-                        break;
+                    case 'color': object = getObjectById(action.objectId); if (object) { object.userData.originalColor = action.newColor; if (!useWhiteElements) object.material.color.setHex(action.newColor); object.material.needsUpdate = true; } break;
                 }
                 undoStack.push(action); updateUndoRedoButtons(); updateElementCounter();
             }
@@ -2854,7 +2024,7 @@
             function deleteObject(objectToDelete) {
                 const target = objectToDelete || selectedObject; if (!target || target === plane || target === ghostElement) return;
                 pushActionToUndoStack({ type: 'delete', objectData: cloneObjectDataForUndo(target) });
-                target.traverse((child) => { if (child.isLineSegments && child.name === "elementEdges") { if (child.geometry) child.geometry.dispose(); if (child.material) { if (Array.isArray(child.material)) child.material.forEach(m => m.dispose()); else child.material.dispose();}}});
+                target.traverse((child) => { if (child.isLineSegments && child.name === "elementEdges") { if (child.geometry) child.geometry.dispose(); if (child.material) { if (Array.isArray(child.material)) child.material.forEach(m => m.dispose()); else child.material.dispose(); }}});
                 scene.remove(target); const index = objects.indexOf(target); if ( index > -1) objects.splice(index, 1);
                 if (target.geometry) target.geometry.dispose(); if (target.material) { if (Array.isArray(target.material)) target.material.forEach(m => m.dispose()); else target.material.dispose(); }
                 if (selectedObject === target) deselectObject(); updateElementCounter();
@@ -2895,31 +2065,7 @@
                 if (data.styleSettings) { useWhiteElements = data.styleSettings.useWhiteElements || false; shadowsEnabled = data.styleSettings.shadowsEnabled !== undefined ? data.styleSettings.shadowsEnabled : true; } else { useWhiteElements = false; shadowsEnabled = true; }
                 renderer.shadowMap.enabled = shadowsEnabled; scene.traverse(c => { if (c.isLight) c.castShadow = shadowsEnabled; if (c.isMesh && c.material) c.material.needsUpdate = true; });
                 toggleShadowsBtn.textContent = shadowsEnabled ? "Désactiver Ombres" : "Activer Ombres";
-                if (data.objects) { 
-                    data.objects.forEach(objData => { 
-                        const props = { 
-                            type: objData.type, baseType: objData.baseType, name: objData.name, originalName: objData.originalName, 
-                            width: objData.width, height: objData.height, depth: objData.depth, 
-                            seatingIndex: objData.seatingIndex, cutLength: objData.cutLength, 
-                            widthMultiplier: objData.widthMultiplier, customCutWidthValue: objData.customCutWidthValue,
-                            texturePath: objData.texturePath || 'none', 
-                            customTextureData: objData.customTextureData, 
-                            roughness: objData.roughness !== undefined ? objData.roughness : defaultRoughness,
-                            metalness: objData.metalness !== undefined ? objData.metalness : defaultMetalness
-                        }; 
-                        const pos = new THREE.Vector3(objData.position.x, objData.position.y, objData.position.z); 
-                        const rotY = objData.rotationY; 
-                        const origSeatIdx = currentSeatingIndex; 
-                        currentSeatingIndex = objData.seatingIndex !== undefined && seatingLevels[objData.seatingIndex] ? objData.seatingIndex : 0; 
-                        if (!seatingLevels[currentSeatingIndex]) currentSeatingIndex = 0; 
-                        const loadedEl = addElementAtPosition(pos, rotY, props, objData.id, objData.originalColor); 
-                        if (loadedEl) { 
-                            loadedEl.castShadow = shadowsEnabled && props.baseType !== 'vide'; 
-                            loadedEl.receiveShadow = shadowsEnabled && props.baseType !== 'vide';
-                        } 
-                        currentSeatingIndex = origSeatIdx; 
-                    }); 
-                }
+                if (data.objects) { data.objects.forEach(objData => { const props = { type: objData.type, baseType: objData.baseType, name: objData.name, originalName: objData.originalName, width: objData.width, height: objData.height, depth: objData.depth, seatingIndex: objData.seatingIndex, cutLength: objData.cutLength, widthMultiplier: objData.widthMultiplier, customCutWidthValue: objData.customCutWidthValue }; const pos = new THREE.Vector3(objData.position.x, objData.position.y, objData.position.z); const rotY = objData.rotationY; const origSeatIdx = currentSeatingIndex; currentSeatingIndex = objData.seatingIndex !== undefined && seatingLevels[objData.seatingIndex] ? objData.seatingIndex : 0; if (!seatingLevels[currentSeatingIndex]) currentSeatingIndex = 0; const loadedEl = addElementAtPosition(pos, rotY, props, objData.id, objData.originalColor); if (loadedEl) { loadedEl.castShadow = shadowsEnabled && props.baseType !== 'vide'; loadedEl.receiveShadow = shadowsEnabled && props.baseType !== 'vide';} currentSeatingIndex = origSeatIdx; }); }
                 updateElementCounter(); if (currentTool === 'add') { removeGhostElement(); createGhostElement(); } setCurrentTool('add'); 
                 if (controls) { camera.position.copy(initialCameraPosition); controls.target.copy(initialCameraLookAt); controls.update(); }
             }
@@ -2931,19 +2077,7 @@
                         operatingMode: document.getElementById('operating-mode').value,
                         projectNotes: document.getElementById('project-notes').value 
                     }, 
-                    objects: objects.map(o => ({ 
-                        id: o.userData.id, type: o.userData.type, baseType: o.userData.baseType, 
-                        name: o.userData.name, originalName: o.userData.originalName, 
-                        width: o.userData.width, height: o.userData.height, depth: o.userData.depth, 
-                        position: { x: o.position.x, y: o.position.y, z: o.position.z }, 
-                        rotationY: o.rotation.y, originalColor: o.userData.originalColor, 
-                        seatingIndex: o.userData.seatingIndex, cutLength: o.userData.cutLength, 
-                        widthMultiplier: o.userData.widthMultiplier, customCutWidthValue: o.userData.customCutWidthValue,
-                        texturePath: o.userData.texturePath, 
-                        customTextureData: o.userData.customTextureData,
-                        roughness: o.userData.roughness,
-                        metalness: o.userData.metalness
-                    })), 
+                    objects: objects.map(o => ({ id: o.userData.id, type: o.userData.type, baseType: o.userData.baseType, name: o.userData.name, originalName: o.userData.originalName, width: o.userData.width, height: o.userData.height, depth: o.userData.depth, position: { x: o.position.x, y: o.position.y, z: o.position.z }, rotationY: o.rotation.y, originalColor: o.userData.originalColor, seatingIndex: o.userData.seatingIndex, cutLength: o.userData.cutLength, widthMultiplier: o.userData.widthMultiplier, customCutWidthValue: o.userData.customCutWidthValue })), 
                     seatingLevels: seatingLevels, 
                     currentSeatingIndex: currentSeatingIndex, 
                     styleSettings: { useWhiteElements: useWhiteElements, shadowsEnabled: shadowsEnabled }
@@ -2958,7 +2092,7 @@
                 const { jsPDF: JSPDF_LIB } = window.jspdf; if (!JSPDF_LIB) { alert("Erreur jsPDF."); return; }
                 const pdf = new JSPDF_LIB({ orientation: 'landscape', unit: 'mm', format: 'a4' });
                 const pdfTitle = document.getElementById('project-title').value; 
-                const designer = document.getElementById('designer-name').value; 
+                const designer = document.getElementById('designer-name').value || "N/A"; 
                 const date = new Date().toLocaleDateString('fr-FR');
                 const originalSceneBackground = scene.background.clone(); 
                 const planeOriginalVisibility = plane.visible;
@@ -2978,14 +2112,16 @@
                 ];
 
                 const m=10, pw=pdf.internal.pageSize.getWidth(), ph=pdf.internal.pageSize.getHeight();
-                let headerHeight = 15; 
-                if (pdfTitle.trim() !== "") headerHeight += 10;
-                if (designer.trim() !== "") headerHeight += 5;
-
-                const footerHeight = 10; 
+                const headerHeight = pdfTitle.trim() !== "" ? 30 : 20;
+                const footerHeight = 15; 
                 const usablePageHeight = ph - headerHeight - footerHeight;
-                const imageMaxHeight = usablePageHeight - 15; 
-                const imageMaxWidth = pw - 2*m;       
+                const imageAreaHeight = usablePageHeight / 2 - m/2 ; 
+                const imageAreaWidth = pw - 2*m; 
+
+                const iw = (imageAreaWidth - m) / 2; 
+                const ih = imageAreaHeight;          
+
+                let vc=0; 
                 
                 const visibleObjects = objects.filter(obj => obj.visible && obj.geometry && obj.userData && !obj.userData.isGhost);
                 const boundingBox = new THREE.Box3();
@@ -3015,10 +2151,7 @@
                             opacity: mat.opacity,
                             transparent: mat.transparent,
                             visible: mat.visible,
-                            userDataOriginalColor: obj.userData.originalColor,
-                            map: mat.map, 
-                            roughness: mat.roughness,
-                            metalness: mat.metalness
+                            userDataOriginalColor: obj.userData.originalColor 
                         });
                         const edges = obj.getObjectByName("elementEdges");
                         if (edges) {
@@ -3035,14 +2168,11 @@
                         const obj = scene.getObjectByProperty('uuid', uuid);
                         if (obj) {
                             if (state.type === 'mesh' && obj.isMesh && obj.material) {
-                                if (state.color && typeof state.color.copy === 'function') { 
+                                if (state.color && state.color.isColor) { 
                                     obj.material.color.copy(state.color);
-                                } else { 
+                                } else {
                                     obj.material.color.setHex(0xcccccc); 
                                 }
-                                obj.material.map = state.map; 
-                                obj.material.roughness = state.roughness;
-                                obj.material.metalness = state.metalness;
                                 obj.material.visible = state.visible;
                                 obj.material.opacity = state.opacity;
                                 obj.material.transparent = state.transparent;
@@ -3057,28 +2187,27 @@
                     scene.background.copy(originalSceneBackground);
                 }
 
-                let vc = 0; 
 
                 for (let i=0; i<views.length; i++) { 
-                    if (i > 0) pdf.addPage(); 
-                    
-                    let currentYHeader = m + 5;
-                    if (pdfTitle.trim() !== "") {
-                        pdf.setFontSize(18);
-                        pdf.setFont(undefined, 'bold');
-                        const titleWidth = pdf.getStringUnitWidth(pdfTitle) * pdf.getFontSize() / pdf.internal.scaleFactor;
-                        pdf.text(pdfTitle, (pw - titleWidth) / 2, currentYHeader);
-                        currentYHeader += 10;
-                        pdf.setFont(undefined, 'normal');
-                    }
-                    pdf.setFontSize(10);
-                    if (designer.trim() !== "") {
-                         pdf.text(`Dessinateur: ${designer}`, m, currentYHeader);
-                         currentYHeader +=5;
-                    }
-                    pdf.text(`Date: ${date}`, m, currentYHeader);
-                    pdf.text(`Page ${i+1}`, pw - m -15, m + 5); 
-                    pdf.text(document.getElementById('watermark').textContent, m, ph - 5, { align: 'left' });
+                    if (vc%2===0&&vc>0)pdf.addPage(); 
+                    if(vc%2===0){
+                        if (pdfTitle.trim() !== "") {
+                            pdf.setFontSize(18);
+                            pdf.setFont(undefined, 'bold');
+                            const titleWidth = pdf.getStringUnitWidth(pdfTitle) * pdf.getFontSize() / pdf.internal.scaleFactor;
+                            pdf.text(pdfTitle, (pw - titleWidth) / 2, m + 5);
+                            pdf.setFont(undefined, 'normal');
+                            pdf.setFontSize(10);
+                            pdf.text(`Dessinateur: ${designer}`, m, m + 12);
+                            pdf.text(`Date: ${date}`, m, m + 17);
+                        } else {
+                             pdf.setFontSize(10);
+                             pdf.text(`Dessinateur: ${designer}`, m, m + 5);
+                             pdf.text(`Date: ${date}`, m, m + 10);
+                        }
+                        pdf.text(`Page ${Math.floor(vc/2)+1}`, pw - m -15, m + 5);
+                        pdf.text(document.getElementById('watermark').textContent, m, ph - 5, { align: 'left' });
+                    } 
                     
                     const view=views[i];
                     let tempCamera;
@@ -3094,10 +2223,10 @@
                             if (obj.isMesh && obj.material && initialObjectStates.has(obj.uuid)) {
                                 const initialState = initialObjectStates.get(obj.uuid);
                                 if (initialState.type === 'mesh') {
-                                    obj.material.color.copy(initialState.color); 
-                                    obj.material.map = initialState.map; 
-                                    obj.material.roughness = initialState.roughness;
-                                    obj.material.metalness = initialState.metalness;
+                                    const colorToUse = initialState.userDataOriginalColor !== undefined ? 
+                                                       initialState.userDataOriginalColor : 
+                                                       (initialState.color && initialState.color.isColor ? initialState.color.getHex() : 0xcccccc);
+                                    obj.material.color.setHex(colorToUse);
                                     obj.material.visible = initialState.visible; 
                                     obj.material.opacity = initialState.opacity;
                                     obj.material.transparent = initialState.transparent;
@@ -3122,7 +2251,7 @@
                         if (camDirection.lengthSq() === 0) camDirection.set(0,0,1); 
                         tempCamera.position.copy(sceneCenter).addScaledVector(camDirection, distance);
                         tempCamera.lookAt(sceneCenter);
-                        tempCamera.aspect = imageMaxWidth / imageMaxHeight; 
+                        tempCamera.aspect = iw / ih;
                         tempCamera.updateProjectionMatrix();
 
                     } else { 
@@ -3132,9 +2261,6 @@
                         objects.forEach(obj => {
                             if (obj.isMesh && obj.material && !obj.userData.isGhost && (obj.userData.baseType === 'brique' || obj.userData.baseType === 'bloc' || obj.userData.baseType === 'linteau')) {
                                 obj.material.color.setHex(0xffffff); 
-                                obj.material.map = null; 
-                                obj.material.roughness = 1.0; 
-                                obj.material.metalness = 0.0;
                                 obj.material.opacity = 1.0;
                                 obj.material.transparent = false;
                                 obj.material.visible = true; 
@@ -3151,8 +2277,8 @@
                         });
                         
                         const scaleMmPerMeter = 100; 
-                        const orthoWidthMeters = imageMaxWidth / scaleMmPerMeter;
-                        const orthoHeightMeters = imageMaxHeight / scaleMmPerMeter;
+                        const orthoWidthMeters = iw / scaleMmPerMeter;
+                        const orthoHeightMeters = ih / scaleMmPerMeter;
 
                         tempCamera = new THREE.OrthographicCamera(
                             -orthoWidthMeters / 2, orthoWidthMeters / 2,
@@ -3169,23 +2295,15 @@
                     
                     renderer.render(scene, tempCamera);
                     const imgData=renderer.domElement.toDataURL('image/png');
+                    const xP=m+(vc%2)*(iw+m);
+                    const yP=headerHeight;
+                    pdf.addImage(imgData,'PNG',xP,yP+8,iw,ih);
                     
-                    let actualImgWidth = imageMaxWidth;
-                    let actualImgHeight = imageMaxWidth / tempCamera.aspect;
-                    if (actualImgHeight > imageMaxHeight) {
-                        actualImgHeight = imageMaxHeight;
-                        actualImgWidth = actualImgHeight * tempCamera.aspect;
-                    }
-                    const xP = (pw - actualImgWidth) / 2;
-                    const yP = headerHeight + m;
-
-                    pdf.addImage(imgData,'PNG', xP, yP, actualImgWidth, actualImgHeight);
-                    
-                    let currentTextY = yP + actualImgHeight + 5; 
+                    let currentTextY = yP + 8 + ih + 5; 
 
                     pdf.setFontSize(9);
                     const viewTitleWidth = pdf.getStringUnitWidth(view.name) * pdf.getFontSize() / pdf.internal.scaleFactor;
-                    const viewTitleX = xP + (actualImgWidth - viewTitleWidth) / 2;
+                    const viewTitleX = xP + (iw - viewTitleWidth) / 2;
                     pdf.text(view.name, viewTitleX, currentTextY);
                     pdf.setDrawColor(0); 
                     pdf.line(viewTitleX, currentTextY + 0.5, viewTitleX + viewTitleWidth, currentTextY + 0.5); 
@@ -3194,19 +2312,19 @@
                     if (!view.isPerspective) {
                         const scaleText = "Échelle: 1/10 (1cm = 10cm)";
                         const scaleTextWidth = pdf.getStringUnitWidth(scaleText) * pdf.getFontSize() / pdf.internal.scaleFactor;
-                        pdf.text(scaleText, xP + (actualImgWidth - scaleTextWidth) / 2, currentTextY); 
+                        pdf.text(scaleText, xP + (iw - scaleTextWidth) / 2, currentTextY); 
                         currentTextY += 4; 
 
                         if (view.name.includes("Face") || view.name.includes("Arrière") || view.name.includes("Gauche") || view.name.includes("Droite")) {
                             const groundWorldY = 0;
                             const groundPoint3D = new THREE.Vector3(0, groundWorldY, 0); 
                             const groundPointNDC = groundPoint3D.clone().project(tempCamera);
-                            const groundLinePdfYInImage = (groundPointNDC.y * -0.5 + 0.5) * actualImgHeight + yP;
+                            const groundLinePdfYInImage = (groundPointNDC.y * -0.5 + 0.5) * ih + yP + 8;
 
-                            if (groundLinePdfYInImage >= yP && groundLinePdfYInImage <= (yP + actualImgHeight)) { 
+                            if (groundLinePdfYInImage >= (yP + 8) && groundLinePdfYInImage <= (yP + 8 + ih)) { 
                                 pdf.setDrawColor(0, 0, 0); 
                                 pdf.setLineWidth(0.3);    
-                                pdf.line(xP, groundLinePdfYInImage, xP + actualImgWidth, groundLinePdfYInImage);
+                                pdf.line(xP, groundLinePdfYInImage, xP + iw, groundLinePdfYInImage);
                                 pdf.setLineWidth(0.2); 
                             }
                         }
@@ -3228,10 +2346,10 @@
                 pdf.setFontSize(10);
                 if (designer.trim() !== "") {
                     pdf.text(`Dessinateur: ${designer}`, m, summaryPageY);
-                    summaryPageY +=5;
+                    summaryPageY += 5;
                 }
                 pdf.text(`Date: ${date}`, m, summaryPageY);
-                pdf.text(`Page ${vc+1}`, pw - m -15, m + 5); // Page number for summary page
+                pdf.text(`Page ${Math.floor(vc/2)+1}`, pw - m -15, m + 5);
                 summaryPageY += 10;
 
 
@@ -3269,7 +2387,7 @@
                            pdf.text(`Dessinateur: ${designer}`, m, summaryPageY); summaryPageY +=5;
                         }
                         pdf.text(`Date: ${date}`, m, summaryPageY); 
-                        pdf.text(`Page ${vc+1 + (summaryPageY > ph -40 ? 1:0) }`, pw - m -15, m + 5); 
+                        pdf.text(`Page ${Math.floor(vc/2)+1 + (summaryPageY > ph -40 ? 1:0) }`, pw - m -15, m + 5); 
                         summaryPageY += 15;
 
                         pdf.setFontSize(14); pdf.setFont(undefined, 'bold');
@@ -3293,11 +2411,11 @@
                              pdf.setFont(undefined, 'normal');
                         }
                         pdf.setFontSize(10);
-                        if (designer.trim() !== "") {
+                         if (designer.trim() !== "") {
                            pdf.text(`Dessinateur: ${designer}`, m, summaryPageY); summaryPageY +=5;
                         }
                         pdf.text(`Date: ${date}`, m, summaryPageY); 
-                        pdf.text(`Page ${vc+1 + (summaryPageY > ph -30 ? 1:0) }`, pw - m -15, m + 5); 
+                        pdf.text(`Page ${Math.floor(vc/2)+1 + (summaryPageY > ph -30 ? 1:0) }`, pw - m -15, m + 5); 
                         summaryPageY += 15;
                     }
                     pdf.setFontSize(14);
@@ -3323,11 +2441,11 @@
                              pdf.setFont(undefined, 'normal');
                         }
                         pdf.setFontSize(10);
-                         if (designer.trim() !== "") {
+                        if (designer.trim() !== "") {
                            pdf.text(`Dessinateur: ${designer}`, m, summaryPageY); summaryPageY +=5;
                         }
                         pdf.text(`Date: ${date}`, m, summaryPageY); 
-                        pdf.text(`Page ${vc+1 + (summaryPageY > ph -30 ? 1:0) }`, pw - m -15, m + 5); 
+                        pdf.text(`Page ${Math.floor(vc/2)+1 + (summaryPageY > ph -30 ? 1:0) }`, pw - m -15, m + 5); 
                         summaryPageY += 15;
                     }
                     pdf.setFontSize(14);
@@ -3368,62 +2486,30 @@
                         brickCustomCutLengthContainer.style.display = 'none';
                     }
                 } else if (selectedObject.userData.baseType === 'bloc') {
-                    if (selectedObject.userData.type.startsWith('bloc_cell_')) {
-                        blockCellCutContainer.style.display = 'inline-flex';
-                        if (selectedObject.userData.cutLength === 'custom_cut' && selectedObject.userData.customCutWidthValue !== undefined) {
-                            blockCellCutSelector.value = 'custom_cut';
-                            blockCellCustomCutLengthInput.value = (selectedObject.userData.customCutWidthValue * 100).toFixed(1);
-                            blockCellCustomCutLengthContainer.style.display = 'inline-flex';
-                        } else if (selectedObject.userData.cutLength) {
-                            blockCellCutSelector.value = selectedObject.userData.cutLength;
-                            blockCellCustomCutLengthContainer.style.display = 'none';
-                        }
-                    } else {
-                        blockCutContainer.style.display = 'inline-flex';
-                         if (selectedObject.userData.cutLength === 'custom_cut' && selectedObject.userData.customCutWidthValue !== undefined) { 
-                            blockCutSelector.value = 'custom_cut';
-                            blockCustomCutLengthInput.value = (selectedObject.userData.customCutWidthValue * 100).toFixed(1);
-                            blockCustomCutLengthContainer.style.display = 'inline-flex';
-                        } else if (selectedObject.userData.cutLength) {
-                            blockCutSelector.value = selectedObject.userData.cutLength;
-                             blockCustomCutLengthContainer.style.display = 'none'; 
-                        }
+                    blockCutContainer.style.display = 'inline-flex';
+                     if (selectedObject.userData.cutLength === 'custom_cut' && selectedObject.userData.customCutWidthValue !== undefined) { 
+                        blockCutSelector.value = 'custom_cut';
+                        blockCustomCutLengthInput.value = (selectedObject.userData.customCutWidthValue * 100).toFixed(1);
+                        blockCustomCutLengthContainer.style.display = 'inline-flex';
+                    } else if (selectedObject.userData.cutLength) {
+                        blockCutSelector.value = selectedObject.userData.cutLength;
+                         blockCustomCutLengthContainer.style.display = 'none'; 
                     }
                 }
                 
                 if (selectedObject.userData.type === 'custom') { customNameInput.value = selectedObject.userData.name.replace(/ \((1\/1|3\/4|1\/2|1\/4|Ailette|Coupe 34|Coupe [0-9.]+cm)\)$/, ''); customWidthInput.value = selectedObject.userData.width; customHeightInput.value = selectedObject.userData.height; customDepthInput.value = selectedObject.userData.depth; } 
                 else if (selectedObject.userData.type === 'vide') { videDepthInput.value = selectedObject.userData.depth * 100; }
                 
-                 // Set texture and material sliders
-                textureCategorySelector.value = selectedObject.userData.texturePath || 'none';
-                roughnessSlider.value = selectedObject.userData.roughness !== undefined ? selectedObject.userData.roughness : defaultRoughness;
-                metalnessSlider.value = selectedObject.userData.metalness !== undefined ? selectedObject.userData.metalness : defaultMetalness;
-                roughnessValueLabel.textContent = parseFloat(roughnessSlider.value).toFixed(2);
-                metalnessValueLabel.textContent = parseFloat(metalnessSlider.value).toFixed(2);
-
                 const oldPos = selectedObject.position.clone(), oldRotY = selectedObject.rotation.y, oldSeatIdx = selectedObject.userData.seatingIndex, origColor = selectedObject.userData.originalColor;
                 const selId = selectedObject.userData.id; scene.remove(selectedObject); const idx = objects.findIndex(o => o.userData.id === selId); if (idx > -1) objects.splice(idx, 1); if (selectedObject.geometry) selectedObject.geometry.dispose(); if (selectedObject.material) selectedObject.material.dispose(); selectedObject.traverse(c => { if (c.isLineSegments && c.name === "elementEdges") { if (c.geometry) c.geometry.dispose(); if (c.material) c.material.dispose(); }}); selectedObject = null; updateElementCounter();
                 setCurrentTool('add'); 
-                if (ghostElement) { const newProps = getElementProperties(); ghostElement.geometry.dispose(); ghostElement.geometry = new THREE.BoxGeometry(newProps.width, newProps.height, newProps.depth); ghostElement.userData = {...newProps, isGhost: true, seatingIndex: oldSeatIdx, originalColor: origColor}; ghostElement.position.copy(oldPos); ghostElement.rotation.y = oldRotY; currentSeatingIndex = oldSeatIdx; const cLevelY = seatingLevels[oldSeatIdx] ? seatingLevels[oldSeatIdx].y : 0; let yAdjust = cLevelY + newProps.height / 2; if(newProps.baseType === 'brique') yAdjust += getSanitizedJointValue('joint-distance'); else if(newProps.baseType === 'bloc') yAdjust += getSanitizedJointValue('block-joint-distance'); ghostElement.position.y = snapToGrid(yAdjust); ghostElement.visible = true; isGhostAwaitingDPadOrConfirmation = true; controls.enabled = true; controls.enableRotate = true; }
+                if (ghostElement) { const newProps = getElementProperties(); ghostElement.geometry.dispose(); ghostElement.geometry = new THREE.BoxGeometry(newProps.width, newProps.height, newProps.depth); ghostElement.userData = {...newProps, isGhost: true, seatingIndex: oldSeatIdx, originalColor: origColor}; ghostElement.position.copy(oldPos); ghostElement.rotation.y = oldRotY; currentSeatingIndex = oldSeatIdx; const cLevelY = seatingLevels[oldSeatIdx] ? seatingLevels[oldSeatIdx].y : 0; let yAdjust = cLevelY + newProps.height / 2; if(newProps.baseType === 'brique') yAdjust += getSanitizedJointValue('joint-distance'); else if(newProps.baseType === 'bloc') yAdjust += getSanitizedJointValue('block-joint-distance'); ghostElement.position.y = snapToGrid(yAdjust); ghostElement.visible = true; isGhostFixed = true; controls.enabled = true; controls.enableRotate = true; }
                 updateHelpBar(); alert("Modifiez propriétés, ajustez avec DPad, confirmez (OK/Entrée).");
             }
             function setElementStyle(isWhite) {
                 useWhiteElements = isWhite;
-                objects.forEach(obj => { 
-                    if (obj.material && obj.userData.originalColor) { 
-                        if (obj.userData.texturePath && obj.userData.texturePath !== 'none') {
-                            obj.material.color.set(0xffffff); // Keep white if texture is applied
-                        } else {
-                            obj.material.color.set(useWhiteElements ? 0xffffff : obj.userData.originalColor);
-                        }
-                        obj.material.needsUpdate = true; 
-                    }
-                });
-                if (selectedObject) { 
-                    const tempSel = selectedObject; 
-                    deselectObject(); // This will restore its original color/texture based on useWhiteElements
-                    selectObject(tempSel); // This will re-apply selection highlight
-                }
+                objects.forEach(obj => { if (obj.material && obj.userData.originalColor) { obj.material.color.set(useWhiteElements ? 0xffffff : obj.userData.originalColor); obj.material.needsUpdate = true; }});
+                if (selectedObject) { const tempSel = selectedObject; deselectObject(); selectObject(tempSel); }
             }
             function toggleAllShadows() {
                 shadowsEnabled = !shadowsEnabled; renderer.shadowMap.enabled = shadowsEnabled;
@@ -3445,106 +2531,13 @@
             function animate() { 
                 requestAnimationFrame(animate); 
                 controls.update(); 
-                if (currentTool === 'measure' && selectedObject) {
-                    updateDimensionLabelPositions();
-                }
-                if (heightTooltip.style.display === 'block' && ghostElement && isGhostAwaitingDPadOrConfirmation && (ghostElement.userData.baseType === 'brique' || ghostElement.userData.baseType === 'bloc') ) {
+                if (heightTooltip.style.display === 'block' && ghostElement && isGhostFixed && (ghostElement.userData.baseType === 'brique' || ghostElement.userData.baseType === 'bloc') ) {
                     updateTooltipPosition(ghostElement);
                 }
                 renderer.render(scene, camera); 
             }
             function updateSeatingSelector() { /* Placeholder */ }
-            
-            function clearDimensionLabelsDOM() {
-                dimensionElements.forEach(labelInfo => {
-                    if (labelInfo.element.parentNode) {
-                        labelInfo.element.parentNode.removeChild(labelInfo.element);
-                    }
-                });
-                dimensionElements = [];
-            }
-
-            function displayDimensionsDOM(object) {
-                clearDimensionLabelsDOM(); 
-
-                const box = new THREE.Box3().setFromObject(object); 
-                const size = box.getSize(new THREE.Vector3());
-                const min = box.min;
-                const max = box.max;
-                const center = box.getCenter(new THREE.Vector3());
-                const labelOffset = 0.05; 
-
-                const widthLabelDiv = document.createElement('div');
-                widthLabelDiv.className = 'dimension-label-3d';
-                widthLabelDiv.textContent = `L: ${(size.x * 100).toFixed(1)} cm`;
-                viewportContainer.appendChild(widthLabelDiv);
-                const widthAnchor = new THREE.Vector3(center.x, min.y - labelOffset, center.z);
-                dimensionElements.push({ element: widthLabelDiv, anchor: widthAnchor, objectId: object.userData.id, type: 'width' });
-
-                const heightLabelDiv = document.createElement('div');
-                heightLabelDiv.className = 'dimension-label-3d';
-                heightLabelDiv.textContent = `H: ${(size.y * 100).toFixed(1)} cm`;
-                viewportContainer.appendChild(heightLabelDiv);
-                const heightAnchor = new THREE.Vector3(min.x - labelOffset, center.y, center.z); 
-                dimensionElements.push({ element: heightLabelDiv, anchor: heightAnchor, objectId: object.userData.id, type: 'height' });
-
-                const depthLabelDiv = document.createElement('div');
-                depthLabelDiv.className = 'dimension-label-3d';
-                depthLabelDiv.textContent = `P: ${(size.z * 100).toFixed(1)} cm`;
-                viewportContainer.appendChild(depthLabelDiv);
-                const depthAnchor = new THREE.Vector3(center.x, center.y, max.z + labelOffset); 
-                dimensionElements.push({ element: depthLabelDiv, anchor: depthAnchor, objectId: object.userData.id, type: 'depth' });
-                
-                updateDimensionLabelPositions(); 
-            }
-
-            function updateDimensionLabelPositions() {
-                dimensionElements.forEach(labelInfo => {
-                    const object = getObjectById(labelInfo.objectId); 
-                    if (object && object.visible && selectedObject && selectedObject.userData.id === labelInfo.objectId && currentTool === 'measure') {
-                        const currentBox = new THREE.Box3().setFromObject(object);
-                        const currentSize = currentBox.getSize(new THREE.Vector3());
-                        const currentMin = currentBox.min;
-                        const currentMax = currentBox.max;
-                        const currentCenter = currentBox.getCenter(new THREE.Vector3());
-                        const labelOffset = 0.05; 
-                        let anchorPoint;
-
-                        if (labelInfo.type === 'width') {
-                            anchorPoint = new THREE.Vector3(currentCenter.x, currentMin.y - labelOffset, currentCenter.z);
-                            labelInfo.element.textContent = `L: ${(currentSize.x * 100).toFixed(1)} cm`;
-                        } else if (labelInfo.type === 'height') {
-                            anchorPoint = new THREE.Vector3(currentMin.x - labelOffset, currentCenter.y, currentCenter.z);
-                            labelInfo.element.textContent = `H: ${(currentSize.y * 100).toFixed(1)} cm`;
-                        } else if (labelInfo.type === 'depth') {
-                            anchorPoint = new THREE.Vector3(currentCenter.x, currentCenter.y, currentMax.z + labelOffset );
-                            labelInfo.element.textContent = `P: ${(currentSize.z * 100).toFixed(1)} cm`;
-                        } 
-                        
-                        if (anchorPoint) { 
-                            const screenPosition = anchorPoint.clone().project(camera);
-                            
-                            if (screenPosition.z > 1) { 
-                                labelInfo.element.style.display = 'none';
-                                return;
-                            }
-
-                            const x = (screenPosition.x * .5 + .5) * viewportContainer.clientWidth;
-                            const y = (screenPosition.y * -.5 + .5) * viewportContainer.clientHeight;
-
-                            labelInfo.element.style.left = `${x}px`;
-                            labelInfo.element.style.top = `${y}px`;
-                            labelInfo.element.style.display = 'block';
-                        } else {
-                             labelInfo.element.style.display = 'none'; 
-                        }
-                    } else {
-                        labelInfo.element.style.display = 'none'; 
-                    }
-                });
-            }
-
-            initThreeJS(); console.log("MurSimulateur3D initialisé.");
+            initThreeJS(); console.log("MurSimulate3D initialisé.");
             function updateElementCounter() {
                 const counts = {}; 
                 objects.forEach(obj => { 
@@ -3553,15 +2546,12 @@
                         let cutLabel = obj.userData.cutLength;
                         if (obj.userData.cutLength === 'custom_cut' && obj.userData.customCutWidthValue !== undefined) {
                             cutLabel = `Coupe ${(obj.userData.customCutWidthValue * 100).toFixed(1)}cm`;
-                        } else if (obj.userData.type.startsWith('bloc_cell_')) {
-                             const blockCellCutOption = Array.from(blockCellCutSelector.options).find(opt => opt.value === obj.userData.cutLength);
-                             if(blockCellCutOption) cutLabel = blockCellCutOption.textContent.split(' (')[0]; 
                         } else if (obj.userData.baseType === 'bloc') { 
                              const blockCutOption = Array.from(blockCutSelector.options).find(opt => opt.value === obj.userData.cutLength);
                              if(blockCutOption) cutLabel = blockCutOption.textContent.split(' (')[1].replace(')','');
                         } else if (obj.userData.baseType === 'brique') {
                             const brickCutOption = Array.from(brickCutSelector.options).find(opt => opt.value === obj.userData.cutLength);
-                            if(brickCutOption && obj.userData.cutLength !== 'custom_cut') cutLabel = brickCutOption.textContent.split(' (')[0]; 
+                            if(brickCutOption && obj.userData.cutLength !== 'custom_cut') cutLabel = brickCutOption.textContent.split(' (')[0]; // e.g. "3/4"
                         }
                         countName += ` (${cutLabel})`;
                     }
