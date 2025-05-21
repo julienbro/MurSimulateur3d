@@ -1901,7 +1901,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const selId = selectedObject.userData.id; scene.remove(selectedObject); const idx = objects.findIndex(o => o.userData.id === selId); if (idx > -1) objects.splice(idx, 1); if (selectedObject.geometry) selectedObject.geometry.dispose(); if (selectedObject.material) selectedObject.material.dispose(); selectedObject.traverse(c => { if (c.isLineSegments && c.name === "elementEdges") { if (c.geometry) c.geometry.dispose(); if (c.material) c.material.dispose(); }}); selectedObject = null; updateElementCounter();
         setCurrentTool('add'); 
         if (ghostElement) { const newProps = getElementProperties(); ghostElement.geometry.dispose(); ghostElement.geometry = new THREE.BoxGeometry(newProps.width, newProps.height, newProps.depth); ghostElement.userData = {...newProps, isGhost: true, seatingIndex: oldSeatIdx, originalColor: origColor, appliedTextureUrl: origTextureUrl}; ghostElement.position.copy(oldPos); ghostElement.rotation.y = oldRotY; currentSeatingIndex = oldSeatIdx; const cLevelY = seatingLevels[oldSeatIdx] ? seatingLevels[oldSeatIdx].y : 0; let yAdjust = cLevelY + newProps.height / 2; if(newProps.baseType === 'brique') yAdjust += getSanitizedJointValue('joint-distance'); else if(newProps.baseType === 'bloc' || newProps.baseType === 'bloc_cell') yAdjust += getSanitizedJointValue('block-joint-distance'); ghostElement.position.y = snapToGrid(yAdjust); ghostElement.visible = true; isGhostFixed = true; controls.enabled = true; controls.enableRotate = true; }
-        updateHelpBar(); alert("Modifiez propriétés, ajustez avec DPad, confirmez (OK/Entrée).");
+        updateHelpBar(); alert("Modifiez propriétés, ajustez avec le D-Pad, confirmez (OK/Entrée).");
     }
     function setElementStyle(isWhite) {
         useWhiteElements = isWhite;
@@ -1967,4 +1967,133 @@ document.addEventListener('DOMContentLoaded', () => {
             row.insertCell().textContent = counts[name];
         }
     }
+
+    function handlePointerInteractionForAdd(event) {
+        if (currentTool !== 'add') {
+            // If not in 'add' mode, you might want to call a different handler
+            // for selection or other interactions, or simply return.
+            // For example: handleSelectionOrOtherInteraction(event);
+            return;
+        }
+
+        // Prevent default for touch events to avoid unwanted browser behavior (like zoom)
+        if (event.type === 'touchend' || event.type === 'touchstart') {
+            event.preventDefault();
+        }
+
+        // For mouse events, only proceed on left click (button 0)
+        if (event.type === 'click' && event.button !== 0) {
+            return;
+        }
+
+        const pointer = new THREE.Vector2();
+        // Ensure threeJsCanvas is defined and refers to your <canvas> or its container
+        if (!threeJsCanvas) {
+            console.error("threeJsCanvas is not defined in handlePointerInteractionForAdd");
+            return;
+        }
+        const rect = threeJsCanvas.getBoundingClientRect();
+        let clientX, clientY;
+
+        if (event.changedTouches && event.changedTouches.length > 0) { // Touch event
+            clientX = event.changedTouches[0].clientX;
+            clientY = event.changedTouches[0].clientY;
+        } else if (event.clientX !== undefined) { // Mouse event
+            clientX = event.clientX;
+            clientY = event.clientY;
+        } else {
+            return; // No valid pointer coordinates
+        }
+
+        // Calculate pointer position in normalized device coordinates (-1 to +1)
+        pointer.x = ((clientX - rect.left) / rect.width) * 2 - 1;
+        pointer.y = -((clientY - rect.top) / rect.height) * 2 + 1;
+
+        // Ensure camera and raycaster are initialized
+        if (!camera || !raycaster) {
+            console.error("Camera or Raycaster not initialized for pointer interaction.");
+            return;
+        }
+        raycaster.setFromCamera(pointer, camera);
+
+        // Define the plane for intersection (e.g., ground plane at y=0)
+        // You might want to make this plane dynamic based on current construction height
+        const planeNormal = new THREE.Vector3(0, 1, 0); // Assuming y-up
+        const placementPlane = new THREE.Plane(planeNormal, 0); // Plane at y=0
+        const intersectionPoint = new THREE.Vector3();
+
+        if (!raycaster.ray.intersectPlane(placementPlane, intersectionPoint)) {
+            // Ray doesn't intersect the plane (e.g., clicking the sky)
+            // You might want to hide the ghostElement here or do nothing
+            // if (ghostElement) ghostElement.visible = false;
+            return;
+        }
+
+        // If ghostElement doesn't exist, create it
+        // The createGhostElement function should handle removing an old ghost if it exists,
+        // or ensure it's properly updated.
+        if (!ghostElement) {
+            createGhostElement(); // This function should define and add the ghost to the scene
+        }
+
+        // Position the ghostElement at the new intersection point
+        if (ghostElement) {
+            ghostElement.position.copy(snapToGrid(intersectionPoint)); // snapToGrid should be defined
+            ghostElement.visible = true; // Make sure it's visible
+
+            // Ensure ghostElement is in the scene
+            // createGhostElement should ideally add it, or check here.
+            if (scene && !scene.getObjectByName("ghost")) {
+                scene.add(ghostElement);
+            }
+            
+            updateHelpBar("Ajustez avec le D-Pad et confirmez (OK D-Pad). Cliquez ailleurs pour déplacer.");
+        } else {
+            console.error("ghostElement is null after attempting to create/retrieve it.");
+        }
+    }
+
+    // Ensure createGhostElement is implemented correctly:
+    // function createGhostElement() {
+    //     if (scene && ghostElement) { // If a ghost already exists, remove it first
+    //         scene.remove(ghostElement);
+    //         // Dispose of geometry/material if necessary to free memory, though for a single ghost it might be overkill
+    //     }
+    //     // Get selected element type and dimensions
+    //     const selectedElementType = document.getElementById('element-type-selector').value;
+    //     const dims = getElementDimensions(selectedElementType); // You need a function to get dimensions
+    //     
+    //     const geometry = new THREE.BoxGeometry(dims.width, dims.height, dims.depth);
+    //     const material = new THREE.MeshStandardMaterial({
+    //         color: 0x00ff00, // A distinct color for the ghost
+    //         transparent: true,
+    //         opacity: 0.5,
+    //         // wireframe: true // Optional: use wireframe for ghost
+    //     });
+    //     ghostElement = new THREE.Mesh(geometry, material);
+    //     ghostElement.name = "ghost"; // Important for getObjectByName
+    //     ghostElement.visible = false; // It will be made visible by handlePointerInteractionForAdd
+    //     if (scene) {
+    //         scene.add(ghostElement);
+    //     } else {
+    //         console.error("Scene not available to add ghostElement");
+    //     }
+    // }
+
+    // Ensure snapToGrid is implemented:
+    // function snapToGrid(position) {
+    //     const gridSize = snapGridSize; // from config.js or defined locally
+    //     position.x = Math.round(position.x / gridSize) * gridSize;
+    //     position.y = Math.round(position.y / gridSize) * gridSize; // Adjust Y snapping as needed
+    //     position.z = Math.round(position.z / gridSize) * gridSize;
+    //     return position;
+    // }
+
+    // Ensure updateHelpBar is implemented:
+    // function updateHelpBar(message) {
+    //     const helpBar = document.getElementById('help-bar');
+    //     if (helpBar) {
+    //         helpBar.textContent = message;
+    //     }
+    // }
 });
