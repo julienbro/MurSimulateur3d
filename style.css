@@ -1,0 +1,685 @@
+/* --- GENERAL STYLES --- */
+body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden; 
+    font-size: 13px; 
+    background-color: #E5E5E5; 
+}
+
+button, select, input[type="text"], input[type="number"] {
+    font-size: inherit;
+    border-radius: 3px; 
+    border: 1px solid #B0B0B0; 
+    padding: 5px 8px;
+    background-color: #F5F5F5; 
+    color: #333333; 
+    margin: 2px;
+}
+button:hover {
+    background-color: #E0E0E0; 
+    border-color: #909090;
+}
+button:disabled {
+    color: #A0A0A0;
+    background-color: #F5F5F5;
+    border-color: #D0D0D0;
+    cursor: not-allowed;
+}
+select {
+    padding: 4px 6px;
+}
+
+/* --- HEADER & MENUS --- */
+header {
+    background-color: #F5F5F5; 
+    color: #333333; 
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    z-index: 1000; 
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    border-bottom: 1px solid #D1D1D1;
+}
+
+#main-menu {
+    display: flex;
+    align-items: center; 
+    background-color: #EAEAEA; 
+    position: relative; /* Added for positioning context */
+}
+
+.menu-item > i, 
+.dropdown-content a > i {
+    margin-right: 8px;
+}
+
+.menu-item {
+    position: relative;
+    padding: 8px 15px; 
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    border-right: 1px solid #D1D1D1;
+}
+.menu-item:hover {
+    background-color: #D5D5D5; 
+}
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #F5F5F5; 
+    min-width: 200px;
+    box-shadow: 0px 4px 8px 0px rgba(0,0,0,0.15);
+    z-index: 1;
+    left: 0;
+    top: 100%;
+    border: 1px solid #C0C0C0;
+    border-top: none;
+}
+.dropdown-content a {
+    color: #333333; 
+    padding: 10px 15px;
+    text-decoration: none;
+    display: block;
+    transition: background-color 0.2s ease;
+}
+.dropdown-content a:hover {
+    background-color: #E0E0E0; 
+}
+.menu-item:hover .dropdown-content {
+    display: block;
+}
+.menu-actions-right {
+    display: flex;
+    align-items: center;
+    padding-right: 10px; 
+    margin-left: auto; /* Added to push it to the right */
+}
+.main-menu-separator {
+    border-left: 1px solid #C0C0C0; 
+    height: 20px; 
+    margin: 0 8px; 
+}
+#main-menu #undo-tool,
+#main-menu #redo-tool {
+    background-color: transparent;
+    border: none;
+    padding: 8px; 
+    color: #333333;
+    cursor: pointer;
+    margin: 0 2px; 
+}
+#main-menu #undo-tool:hover:not(:disabled),
+#main-menu #redo-tool:hover:not(:disabled) {
+    background-color: #D5D5D5; 
+}
+#main-menu #undo-tool:disabled,
+#main-menu #redo-tool:disabled {
+    color: #A0A0A0;
+    cursor: not-allowed;
+}
+#main-menu #undo-tool i,
+#main-menu #redo-tool i {
+    font-size: 1em; 
+}
+
+.app-title-container {
+    /* margin-left: auto; Removed */
+    /* padding-right: 15px; Removed */
+    display: flex;
+    align-items: baseline; /* Aligns text baselines */
+    color: #333333;
+    position: absolute; /* Added for centering */
+    left: 50%; /* Added for centering */
+    top: 50%; /* Added for centering */
+    transform: translate(-50%, -50%); /* Added for centering */
+    pointer-events: none; /* Added to allow clicks to pass through if it overlaps */
+    white-space: nowrap; /* Prevent title from wrapping if menu bar is too narrow */
+}
+
+.app-title-main {
+    font-weight: bold;
+    font-size: 1.1em; /* Slightly larger than default */
+    margin-right: 5px;
+}
+
+.app-title-author {
+    font-size: 0.8em;
+    color: #555555;
+}
+
+
+/* --- TOOLBAR --- */
+#toolbar {
+    display: flex;
+    align-items: center;
+    padding: 5px 10px; 
+    flex-wrap: wrap;
+    background-color: #F0F0F0; 
+}
+#toolbar button, #toolbar select {
+    margin-right: 5px;
+    margin-bottom: 3px; 
+    padding: 6px 10px; 
+    background-color: #EFEFEF;
+    border: 1px solid #BDBDBD;
+    color: #424242;
+}
+#toolbar button i { 
+    margin: 0; 
+}
+#toolbar button:hover:not(:disabled) {
+    background-color: #DADADA;
+    border-color: #A0A0A0;
+}
+#toolbar input[type="number"], #toolbar input[type="text"] {
+    margin-right: 5px;
+    margin-bottom: 3px;
+    padding: 6px;
+    border: 1px solid #BDBDBD;
+    background-color: #fff;
+}
+#toolbar input[type="number"] {
+    width: 65px;
+}
+#toolbar #joint-settings-toolbar input[type="number"] { /* Specific width for joint inputs in toolbar */
+    width: 60px;
+    padding: 5px; /* Adjusted padding for toolbar inputs */
+}
+#toolbar #joint-settings-toolbar label { /* Style for labels in the joint settings toolbar div */
+    margin-left: 5px;
+    margin-right: 5px;
+    color: #424242;
+}
+
+#custom-dims-container input, 
+#vide-depth-container input, 
+#brick-custom-cut-length-container input,
+#block-custom-cut-length-container input {
+    margin-left: 5px;
+}
+#vide-depth-container label, 
+#brick-custom-cut-length-container label,
+#block-custom-cut-length-container label { 
+    margin-left: 8px;
+    color: #424242; 
+}
+#brick-cut-container label, #block-cut-container label { 
+    margin-left: 5px;
+    color: #424242; 
+}
+.toolbar-separator {
+    border-left: 1px solid #BDBDBD; 
+    height: 20px; 
+    margin-left: 5px; 
+    margin-right: 10px;
+}
+.toolbar-export-button-container { /* Nouveau style pour le conteneur du bouton */
+    margin-left: auto;
+    display: flex; /* Pour s'assurer que le bouton à l'intérieur est bien aligné si nécessaire */
+    align-items: center;
+}
+
+#export-print-button {
+    background-color: #4CAF50; /* Green background */
+    color: white;
+    border: 1px solid #388E3C; /* Darker green border */
+    padding: 7px 12px; /* Slightly larger padding */
+    font-weight: bold;
+}
+
+#export-print-button:hover {
+    background-color: #45a049; /* Darker green on hover */
+    border-color: #2e7d32;
+}
+
+
+.tool-active {
+    background-color: #C5E1A5 !important; 
+    color: #333333 !important;
+    border-color: #A5D6A7 !important; 
+}
+ #view-controls button {
+    padding: 4px 8px;
+    font-size: 0.9em;
+}
+
+/* --- HELP BAR --- */
+#help-bar {
+    background-color: #FFFFFF; 
+    color: #555555; 
+    padding: 6px 12px;
+    font-size: 0.8em;
+    text-align: left; 
+    border-bottom: 1px solid #D0D0D0;
+    height: 20px; 
+    line-height: 20px; 
+}
+
+
+/* --- MAIN LAYOUT & SIDEBARS --- */
+main {
+    display: flex;
+    flex-grow: 1; 
+    overflow: hidden; 
+}
+
+#left-sidebar {
+    width: 190px;
+    background-color: #F0F0F0;
+    padding: 5px;
+    flex-shrink: 0;
+    overflow-y: auto;
+    z-index: 900;
+    border-right: 1px solid #D1D1D1;
+}
+
+#right-sidebar {
+    width: 260px; 
+    background-color: #E8E8E8; 
+    padding: 10px; 
+    flex-shrink: 0;
+    overflow-y: auto;
+    z-index: 900;
+    border-left: 1px solid #C0C0C0;
+}
+
+.sidebar-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.tool-button {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 10px;
+    background-color: #EFEFEF;
+    border: 1px solid #BDBDBD;
+    color: #424242;
+    font-size: 13px;
+    cursor: pointer;
+    border-radius: 3px;
+    margin-bottom: 5px;
+    width: calc(100% - 10px); 
+    box-sizing: border-box;
+    justify-content: center; 
+}
+.tool-button:hover:not(:disabled) {
+    background-color: #DADADA;
+    border-color: #A0A0A0;
+}
+.tool-button i { 
+    width: 16px;
+    height: 16px;
+    font-size: 16px; 
+    margin-right: 5px;
+}
+ .tool-button span {
+    text-align: center;
+}
+
+
+.tool-buttons-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 5px;
+    width: 100%; 
+    padding: 0 5px; 
+    box-sizing: border-box;
+}
+.tool-buttons-grid .tool-button {
+    width: auto; 
+    height: 45px; 
+    flex-direction: column; 
+    justify-content: center;
+    align-items: center;
+    padding: 5px;
+    font-size: 0.8em;
+}
+ .tool-buttons-grid .tool-button i {
+    margin-right: 0; 
+    margin-bottom: 3px; 
+    font-size: 1.2em; 
+}
+
+
+.sidebar-content h3 {
+    margin-top: 15px; 
+    font-size: 1.0em; 
+    color: #424242; 
+    border-bottom: 1px solid #BDBDBD; 
+    padding-bottom: 6px;
+    margin-bottom: 10px;
+    font-weight: 600;
+    width: calc(100% - 20px); 
+    text-align: center;
+}
+.sidebar-content label {
+    display: block;
+    margin-top: 8px; 
+    margin-bottom: 2px;
+    font-size: 0.9em;
+    font-weight: normal; 
+    color: #555555; 
+    width: calc(100% - 20px); 
+}
+.sidebar-content input[type="text"],
+.sidebar-content textarea,
+.sidebar-content select,
+.sidebar-content input[type="number"] { 
+    width: calc(100% - 20px); 
+    padding: 6px;
+    margin-bottom: 8px; 
+    border: 1px solid #BDBDBD; 
+    border-radius: 3px;
+    box-sizing: border-box;
+}
+.sidebar-content button { 
+    padding: 8px 12px;
+    background-color: #E0E0E0; 
+    color: #424242;
+    border: 1px solid #B0B0B0;
+    margin-top: 8px;
+    width: calc(100% - 20px); 
+}
+.sidebar-content button:hover {
+    background-color: #D0D0D0; 
+    border-color: #9E9E9E;
+}
+#remove-current-seating {
+    background-color: #EF9A9A; 
+}
+#remove-current-seating:hover {
+    background-color: #E57373; 
+}
+
+/* --- COLOR PALETTE --- */
+#color-palette-container {
+    margin-top: 15px;
+    width: calc(100% - 10px); 
+    padding: 0 5px;
+    box-sizing: border-box;
+}
+.color-palette {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(40px, 1fr)); 
+    gap: 5px; 
+}
+.color-swatch {
+    width: 100%; 
+    padding-bottom: 100%; 
+    position: relative;
+    border: 1px solid #B0B0B0;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: transform 0.1s ease, border-color 0.1s ease;
+    margin: 0; 
+}
+ .color-swatch-inner { 
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: inherit;
+}
+.color-swatch:hover {
+    transform: scale(1.1);
+    border-color: #777;
+}
+.color-swatch.active-color-swatch {
+    border: 2px solid #3498db; 
+    transform: scale(1.05);
+}
+
+/* --- TEXTURE PALETTE --- */
+#texture-palette-container {
+    margin-top: 15px;
+    width: calc(100% - 10px); 
+    padding: 0 5px;
+    box-sizing: border-box;
+}
+.texture-palette {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(40px, 1fr)); 
+    gap: 5px; 
+}
+.texture-swatch {
+    width: 100%; 
+    padding-bottom: 100%; /* Maintain aspect ratio */
+    position: relative;
+    border: 1px solid #B0B0B0;
+    border-radius: 3px;
+    cursor: pointer;
+    background-size: cover;
+    background-position: center;
+    transition: transform 0.1s ease, border-color 0.1s ease;
+    margin: 0; 
+}
+.texture-swatch:hover {
+    transform: scale(1.1);
+    border-color: #777;
+}
+.texture-swatch.active-texture-swatch {
+    border: 2px solid #3498db; /* Same as color swatch active */
+    transform: scale(1.05);
+}
+
+/* --- CUSTOM TEXTURE PALETTE --- */
+.custom-texture-input-container {
+    width: calc(100% - 20px); /* Consistent with other sidebar inputs */
+    margin: 0 auto 10px auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#custom-texture-file-input {
+    width: 0.1px;
+    height: 0.1px;
+    opacity: 0;
+    overflow: hidden;
+    position: absolute;
+    z-index: -1;
+}
+
+.custom-texture-label-button {
+    display: inline-block;
+    padding: 6px 12px;
+    background-color: #EFEFEF;
+    border: 1px solid #BDBDBD;
+    color: #424242;
+    font-size: 0.9em; /* Slightly smaller than main buttons */
+    cursor: pointer;
+    border-radius: 3px;
+    margin-bottom: 5px; /* Space between button and file name */
+    text-align: center;
+    width: 100%; /* Make label button take full width of its container */
+    box-sizing: border-box;
+}
+
+.custom-texture-label-button:hover {
+    background-color: #DADADA;
+    border-color: #A0A0A0;
+}
+
+#custom-texture-file-name-display {
+    display: block; /* Ensures it's on a new line */
+    font-size: 0.8em; /* Smaller font size */
+    color: #555555;
+    margin-top: 2px;
+    text-align: center;
+    width: 100%;
+    word-break: break-all; /* For long file names */
+    line-height: 1.2;
+}
+
+
+#custom-texture-palette-container {
+    margin-top: 5px; /* Reduced margin as input is above */
+    width: calc(100% - 10px); 
+    padding: 0 5px;
+    box-sizing: border-box;
+}
+
+.custom-texture-palette { /* Similar to .texture-palette */
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(40px, 1fr)); 
+    gap: 5px; 
+}
+
+.custom-texture-swatch { /* Similar to .texture-swatch */
+    width: 100%; 
+    padding-bottom: 100%; /* Maintain aspect ratio */
+    position: relative;
+    border: 1px solid #B0B0B0;
+    border-radius: 3px;
+    cursor: pointer;
+    background-size: cover;
+    background-position: center;
+    transition: transform 0.1s ease, border-color 0.1s ease;
+    margin: 0; 
+}
+
+.custom-texture-swatch:hover {
+    transform: scale(1.1);
+    border-color: #777;
+}
+
+.custom-texture-swatch.active-texture-swatch { /* Use same active class for consistency */
+    border: 2px solid #3498db;
+    transform: scale(1.05);
+}
+
+
+/* --- VIEWPORT & CANVAS --- */
+#viewport-container {
+    flex-grow: 1;
+    position: relative; 
+    display: flex; 
+    overflow: hidden; 
+}
+#threejs-canvas { 
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+#watermark {
+    position: absolute;
+    bottom: 10px; 
+    left: 10px;  
+    color: rgba(0, 0, 0, 0.6); 
+    font-size: 0.75em; 
+    pointer-events: none; 
+    text-shadow: 0px 0px 1px rgba(255,255,255,0.5);
+    line-height: 1.3;
+}
+
+/* --- DPAD CONTROLS --- */
+#dpad-controls {
+    position: absolute;
+    bottom: 15px;
+    right: 15px;
+    background-color: rgba(220, 220, 220, 0.75); 
+    padding: 8px;
+    border-radius: 6px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr); 
+    gap: 4px;
+    z-index: 100; 
+    touch-action: none; 
+    border: 1px solid rgba(0,0,0,0.1);
+}
+#dpad-controls button {
+    background-color: #F0F0F0; 
+    color: #555555;
+    border: 1px solid #B0B0B0; 
+    font-size: 1.5em; 
+    width: 45px; 
+    height: 45px;
+    border-radius: 4px;
+}
+#dpad-controls button:hover {
+    background-color: #E0E0E0;
+    border-color: #9E9E9E;
+}
+#dpad-controls button:active {
+    background-color: #D0D0D0; 
+    transform: scale(0.95);
+}
+
+#dpad-confirm    { background-color: #A5D6A7; } 
+#dpad-confirm:hover { background-color: #81C784; } 
+
+#dpad-level-up   { grid-column: 1; grid-row: 1; }
+#dpad-up         { grid-column: 2; grid-row: 1; }
+#dpad-rot-left   { grid-column: 3; grid-row: 1; }
+#dpad-left       { grid-column: 1; grid-row: 2; }
+#dpad-confirm    { grid-column: 2; grid-row: 2; } 
+#dpad-right      { grid-column: 3; grid-row: 2; }
+#dpad-level-down { grid-column: 1; grid-row: 3; }
+#dpad-down       { grid-column: 2; grid-row: 3; }
+#dpad-rot-right  { grid-column: 3; grid-row: 3; }
+
+/* --- ELEMENT COUNTER TABLE --- */
+#element-counter {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+    font-size: 0.9em;
+}
+#element-counter th, #element-counter td {
+    border: 1px solid #D0D0D0; 
+    padding: 6px 8px;
+    text-align: left;
+}
+#element-counter th {
+    background-color: #E8E8E8; 
+    color: #424242; 
+    font-weight: 600;
+}
+#element-counter tr:nth-child(even) {
+    background-color: #F5F5F5; 
+}
+
+/* --- MISC --- */
+.highlighted { 
+    outline: 3px solid #f1c40f; 
+    outline-offset: -1px;
+}
+.crosshair-cursor { cursor: crosshair; }
+.default-cursor { cursor: default; }
+.move-cursor { cursor: move; }
+
+/* --- HEIGHT TOOLTIP --- */
+#height-tooltip {
+    display: none; 
+    position: absolute; 
+    background-color: rgba(0,0,0,0.75); 
+    color: white; 
+    padding: 5px 10px; 
+    border-radius: 4px; 
+    z-index: 1001; 
+    font-size: 0.9em; 
+    pointer-events: none; 
+    transform: translate(-50%, -120%); 
+    white-space: nowrap; 
+}
+
+#toolbar #paint-tool {
+    margin-right: 5px;
+    padding: 6px 10px;
+    background-color: #EFEFEF;
+    border: 1px solid #BDBDBD;
+    color: #424242;
+}
+#toolbar #paint-tool:hover:not(:disabled) {
+    background-color: #DADADA;
+    border-color: #A0A0A0;
+}
