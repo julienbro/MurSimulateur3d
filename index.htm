@@ -88,7 +88,8 @@
             color: #333333; 
             padding: 10px 15px;
             text-decoration: none;
-            display: block;
+            display: flex; /* Changé en flex pour aligner l'icône et le texte */
+            align-items: center; /* Aligner verticalement l'icône et le texte */
             transition: background-color 0.2s ease;
         }
         .dropdown-content a:hover {
@@ -96,6 +97,31 @@
         }
         .menu-item:hover .dropdown-content {
             display: block;
+        }
+        .menu-item > i, /* Style pour les icônes dans les éléments de menu principaux */
+        .dropdown-content a > i { /* Style pour les icônes dans les liens déroulants */
+            margin-right: 8px;
+            width: 16px; /* Assurer une largeur fixe pour l'alignement */
+            text-align: center; /* Centrer l'icône si elle est plus petite */
+        }
+        .app-title-container { /* Nouveau style pour le titre de l'application */
+            display: flex;
+            flex-direction: column; /* Pour empiler "Mur3dSimulator" et "par J.BROHEZ" */
+            align-items: center; /* Centrer horizontalement */
+            justify-content: center; /* Centrer verticalement */
+            text-align: center;
+            margin: 0 auto; /* Centrer le conteneur dans la barre de menu */
+            padding: 0 15px; /* Ajouter un peu d'espacement */
+        }
+        .app-title-main { /* Nouveau style pour "Mur3dSimulator" */
+            font-weight: bold;
+            font-size: 1.1em; /* Légèrement plus grand */
+            color: #333333;
+        }
+        .app-title-subtitle { /* Nouveau style pour "par J.BROHEZ" */
+            font-size: 0.75em; /* Plus petit */
+            color: #555555;
+            margin-top: -2px; /* Ajuster l'espacement vertical */
         }
         .menu-actions-right {
             margin-left: auto; 
@@ -516,41 +542,43 @@
     <header>
         <nav id="main-menu">
             <div class="menu-item">
-                Fichier
+                <i class="fas fa-file-alt"></i>Fichier
                 <div class="dropdown-content">
-                    <a href="#" id="new-file">Nouveau</a>
-                    <a href="#" id="open-file">Ouvrir</a>
-                    <a href="#" id="save-file">Enregistrer</a>
-                    <a href="#" id="export-pdf">Exporter en PDF</a>
+                    <a href="#" id="new-file"><i class="fas fa-plus-square"></i>Nouveau</a>
+                    <a href="#" id="open-file"><i class="fas fa-folder-open"></i>Ouvrir</a>
+                    <a href="#" id="save-file"><i class="fas fa-save"></i>Enregistrer</a>
+                    <a href="#" id="export-pdf"><i class="fas fa-file-pdf"></i>Exporter en PDF</a>
                 </div>
             </div>
             <div class="menu-item">
-                Edition
+                <i class="fas fa-edit"></i>Edition
                 <div class="dropdown-content">
-                    <a href="#" id="undo-action">Annuler (Ctrl+Z)</a>
-                    <a href="#" id="redo-action">Rétablir (Ctrl+Y)</a>
-                    <a href="#" id="edit-selection">Modifier Sélection</a>
+                    <a href="#" id="undo-action"><i class="fas fa-undo-alt"></i>Annuler (Ctrl+Z)</a>
+                    <a href="#" id="redo-action"><i class="fas fa-redo-alt"></i>Rétablir (Ctrl+Y)</a>
+                    <a href="#" id="edit-selection"><i class="fas fa-pencil-alt"></i>Modifier Sélection</a>
                 </div>
             </div>
             <div class="menu-item">
-                Style
+                <i class="fas fa-palette"></i>Style
                 <div class="dropdown-content">
-                    <a href="#" id="style-white">Éléments en Blanc</a>
-                    <a href="#" id="style-color">Éléments en Couleur</a>
-                    <a href="#" id="toggle-shadows">Activer/Désactiver Ombres</a>
+                    <a href="#" id="style-white"><i class="fas fa-square"></i>Éléments en Blanc</a>
+                    <a href="#" id="style-color"><i class="fas fa-fill-drip"></i>Éléments en Couleur</a>
+                    <a href="#" id="toggle-shadows"><i class="fas fa-adjust"></i>Activer/Désactiver Ombres</a>
                 </div>
             </div>
             <div class="menu-item">
-                Aide
+                <i class="fas fa-question-circle"></i>Aide
                 <div class="dropdown-content">
-                    <a href="#" id="about-app">À Propos</a>
-                    <a href="#" id="help-guide">Aide</a>
+                    <a href="#" id="about-app"><i class="fas fa-info-circle"></i>À Propos</a>
+                    <a href="#" id="help-guide"><i class="fas fa-book-open"></i>Aide</a>
                 </div>
             </div>
-            <div class="menu-actions-right">
-                <span class="main-menu-separator"></span>
-                <button id="undo-tool" title="Annuler (Ctrl+Z)" disabled><i class="fas fa-undo"></i></button>
-                <button id="redo-tool" title="Rétablir (Ctrl+Y)" disabled><i class="fas fa-redo"></i></button>
+            <span class="main-menu-separator"></span>
+            <button id="undo-tool" title="Annuler (Ctrl+Z)" disabled><i class="fas fa-undo"></i></button>
+            <button id="redo-tool" title="Rétablir (Ctrl+Y)" disabled><i class="fas fa-redo"></i></button>
+            <div class="app-title-container">
+                <span class="app-title-main">Mur3dSimulator</span>
+                <span class="app-title-subtitle">par J.BROHEZ</span>
             </div>
         </nav>
         <div id="toolbar">
@@ -568,6 +596,17 @@
                     <option value="bloc_b14" data-dims="0.39,0.19,0.14">Bloc B14 (39x19x14)</option>
                     <option value="bloc_b19" data-dims="0.39,0.19,0.19">Bloc B19 (39x19x19)</option>
                     <option value="bloc_b29" data-dims="0.39,0.19,0.29">Bloc B29 (39x19x29)</option>
+                </optgroup>
+                <optgroup label="Blocs Cellulaires">
+                    <option value="bloc_cell_p5" data-dims="0.625,0.25,0.05">Bloc Cell. 62.5x25x5</option>
+                    <option value="bloc_cell_p7" data-dims="0.625,0.25,0.07">Bloc Cell. 62.5x25x7</option>
+                    <option value="bloc_cell_p10" data-dims="0.625,0.25,0.10">Bloc Cell. 62.5x25x10</option>
+                    <option value="bloc_cell_p15" data-dims="0.625,0.25,0.15">Bloc Cell. 62.5x25x15</option>
+                    <option value="bloc_cell_p17_5" data-dims="0.625,0.25,0.175">Bloc Cell. 62.5x25x17.5</option>
+                    <option value="bloc_cell_p20" data-dims="0.625,0.25,0.20">Bloc Cell. 62.5x25x20</option>
+                    <option value="bloc_cell_p24" data-dims="0.625,0.25,0.24">Bloc Cell. 62.5x25x24</option>
+                    <option value="bloc_cell_p30" data-dims="0.625,0.25,0.30">Bloc Cell. 62.5x25x30</option>
+                    <option value="bloc_cell_p36_5" data-dims="0.625,0.25,0.365">Bloc Cell. 62.5x25x36.5</option>
                 </optgroup>
                 <optgroup label="Linteaux">
                     <option value="linteau_l120_14" data-dims="1.20,0.19,0.14">Linteau L120 (120x19x14)</option>
@@ -618,6 +657,17 @@
             <div id="block-custom-cut-length-container" style="display: none; align-items: center; margin-left: 5px;"> 
                 <label for="block-custom-cut-length" style="margin-right:5px;">Long. (cm):</label>
                 <input type="number" id="block-custom-cut-length" value="20" min="1" step="0.1" style="width: 60px;">
+            </div>
+            <div id="bloc-cell-cut-container" style="display: none; align-items: center; margin-left: 10px;">
+                <label for="bloc-cell-cut-selector" style="margin-right:5px;">Coupe Bloc Cell.:</label>
+                <select id="bloc-cell-cut-selector">
+                    <option value="1/1">1/1 (Entier)</option>
+                    <option value="custom_cut">Personnaliser Longueur...</option>
+                </select>
+            </div>
+            <div id="bloc-cell-custom-cut-length-container" style="display: none; align-items: center; margin-left: 5px;">
+                <label for="bloc-cell-custom-cut-length" style="margin-right:5px;">Long. Coupe (cm):</label>
+                <input type="number" id="bloc-cell-custom-cut-length" value="30" min="1" step="0.1" style="width: 60px;">
             </div>
             <div id="custom-dims-container" style="display: none; align-items: center;">
                 <input type="text" id="custom-name" placeholder="Nom" style="width:100px;">
@@ -692,7 +742,7 @@
 
         <div id="viewport-container">
             <div id="threejs-canvas"></div> 
-            <div id="watermark">MurSimulateur3D by J.BROHEZ - Copyright © 2025 - v1.0.2</div>
+            <div id="watermark">MurSimulate3D by J.BROHEZ - Copyright © 2025 - v1.0.2</div>
             <div id="dpad-controls">
                 <button id="dpad-level-up" title="Monter Élément/Assise (PageUp)">⇞</button>
                 <button id="dpad-up" title="Avancer (W ou ↑)">▲</button>
@@ -759,6 +809,7 @@
                 vide: 0xADD8E6,    
                 profil: 0xBDB76B,  
                 custom: 0x98FB98,  
+                bloc_cell: 0xE0E0E0, // Couleur pour bloc cellulaire
                 default: 0xBEBEBE  
             };
             let useWhiteElements = false;
@@ -797,6 +848,12 @@
             const blockCutSelector = document.getElementById('block-cut-selector'); 
             const blockCustomCutLengthContainer = document.getElementById('block-custom-cut-length-container'); 
             const blockCustomCutLengthInput = document.getElementById('block-custom-cut-length'); 
+            
+            const blocCellCutContainer = document.getElementById('bloc-cell-cut-container');
+            const blocCellCutSelector = document.getElementById('bloc-cell-cut-selector');
+            const blocCellCustomCutLengthContainer = document.getElementById('bloc-cell-custom-cut-length-container');
+            const blocCellCustomCutLengthInput = document.getElementById('bloc-cell-custom-cut-length');
+
             const customDimsContainer = document.getElementById('custom-dims-container');
             const customNameInput = document.getElementById('custom-name');
             const customWidthInput = document.getElementById('custom-width');
@@ -999,8 +1056,11 @@
                     
                     brickCutContainer.style.display = baseType === 'brique' ? 'inline-flex' : 'none';
                     blockCutContainer.style.display = baseType === 'bloc' ? 'inline-flex' : 'none';
+                    blocCellCutContainer.style.display = baseType === 'bloc_cell' ? 'inline-flex' : 'none';
+
                     brickCustomCutLengthContainer.style.display = (baseType === 'brique' && brickCutSelector.value === 'custom_cut') ? 'inline-flex' : 'none';
                     blockCustomCutLengthContainer.style.display = (baseType === 'bloc' && blockCutSelector.value === 'custom_cut') ? 'inline-flex' : 'none'; 
+                    blocCellCustomCutLengthContainer.style.display = (baseType === 'bloc_cell' && blocCellCutSelector.value === 'custom_cut') ? 'inline-flex' : 'none';
 
 
                     if (baseType !== 'brique') {
@@ -1010,6 +1070,10 @@
                     if (baseType !== 'bloc') {
                         blockCutSelector.value = '1/1'; 
                         blockCustomCutLengthContainer.style.display = 'none'; 
+                    }
+                    if (baseType !== 'bloc_cell') {
+                        blocCellCutSelector.value = '1/1';
+                        blocCellCustomCutLengthContainer.style.display = 'none';
                     }
 
 
@@ -1048,6 +1112,22 @@
                      if (currentTool === 'add' && ghostElement && ghostElement.userData.baseType === 'bloc' && blockCutSelector.value === 'custom_cut') {
                         removeGhostElement();
                         isGhostFixed = false; 
+                        createGhostElement();
+                    }
+                });
+
+                blocCellCutSelector.addEventListener('change', () => {
+                    blocCellCustomCutLengthContainer.style.display = blocCellCutSelector.value === 'custom_cut' ? 'inline-flex' : 'none';
+                    if (currentTool === 'add' && ghostElement && ghostElement.userData.baseType === 'bloc_cell') {
+                        removeGhostElement();
+                        isGhostFixed = false;
+                        createGhostElement();
+                    }
+                });
+                blocCellCustomCutLengthInput.addEventListener('input', () => {
+                    if (currentTool === 'add' && ghostElement && ghostElement.userData.baseType === 'bloc_cell' && blocCellCutSelector.value === 'custom_cut') {
+                        removeGhostElement();
+                        isGhostFixed = false;
                         createGhostElement();
                     }
                 });
@@ -1096,7 +1176,7 @@
                         updateGhostPositionFromJointInput(ghostElement.userData, 'joint-distance');
                     }
                 });
-                blockJointDistanceInput.addEventListener('input', () => {
+                blockJointDistanceInput.addEventListener('input', () => { 
                      if (ghostElement && ghostElement.userData.baseType === 'bloc') {
                         updateGhostPositionFromJointInput(ghostElement.userData, 'block-joint-distance');
                     }
@@ -1273,32 +1353,50 @@
                         const selectedCutOption = brickCutSelector.options[brickCutSelector.selectedIndex];
                         cutLength = selectedCutOption.value;
                         if (cutLength === 'custom_cut') {
-                            const customLenCm = parseFloat((brickCustomCutLengthInput.value || "0").replace(',', '.'));
-                            customCutWidthValue = isNaN(customLenCm) ? dims[0] : customLenCm / 100; 
-                            dims[0] = customCutWidthValue;
-                            name += ` (Coupe ${(customCutWidthValue * 100).toFixed(1)}cm)`;
+                            customCutWidthValue = parseFloat(brickCustomCutLengthInput.value) / 100;
+                            if (!isNaN(customCutWidthValue) && customCutWidthValue > 0 && customCutWidthValue < dims[0]) {
+                                name += ` (Coupe ${(customCutWidthValue * 100).toFixed(1)}cm)`;
+                                dims[0] = customCutWidthValue;
+                            } else {
+                                cutLength = '1/1'; // Fallback if invalid
+                            }
                         } else {
                             widthMultiplier = parseFloat(selectedCutOption.dataset.multiplier);
-                            dims[0] = dims[0] * widthMultiplier; 
-                            if (cutLength !== '1/1') {
-                                name += ` (${cutLength})`; 
-                            }
+                            dims[0] *= widthMultiplier;
+                            if (cutLength !== '1/1') name += ` (${selectedCutOption.textContent.split(' (')[0]})`;
                         }
                         dims[0] = parseFloat(dims[0].toFixed(4)); 
                     } else if (baseType === 'bloc') { 
                         const selectedBlockCutOption = blockCutSelector.options[blockCutSelector.selectedIndex];
                         cutLength = selectedBlockCutOption.value;
-                         if (cutLength === 'custom_cut') { 
-                            const customLenCm = parseFloat((blockCustomCutLengthInput.value || "0").replace(',', '.'));
-                            customCutWidthValue = isNaN(customLenCm) ? dims[0] : customLenCm / 100;
-                            dims[0] = customCutWidthValue;
-                            name += ` (Coupe ${(customCutWidthValue * 100).toFixed(1)}cm)`;
+                        if (cutLength === 'custom_cut') {
+                            customCutWidthValue = parseFloat(blockCustomCutLengthInput.value) / 100;
+                            if (!isNaN(customCutWidthValue) && customCutWidthValue > 0 && customCutWidthValue < dims[0]) {
+                                name += ` (Coupe ${(customCutWidthValue * 100).toFixed(1)}cm)`;
+                                dims[0] = customCutWidthValue;
+                            } else {
+                                cutLength = '1/1'; // Fallback
+                            }
                         } else {
-                            dims[0] = parseFloat(selectedBlockCutOption.dataset.width); 
-                            if (cutLength !== '1/1') {
-                                 name += ` (${selectedBlockCutOption.textContent.split(' (')[1].replace(')','')})`; 
+                            const cutWidth = parseFloat(selectedBlockCutOption.dataset.width);
+                            if (!isNaN(cutWidth) && cutWidth > 0) {
+                                dims[0] = cutWidth;
+                                if (cutLength !== '1/1') name += ` (${selectedBlockCutOption.textContent.split(' (')[0]})`;
                             }
                         }
+                    } else if (baseType === 'bloc_cell') {
+                        const selectedCellCutOption = blocCellCutSelector.options[blocCellCutSelector.selectedIndex];
+                        cutLength = selectedCellCutOption.value;
+                        if (cutLength === 'custom_cut') {
+                            customCutWidthValue = parseFloat(blocCellCustomCutLengthInput.value) / 100; // en mètres
+                            if (!isNaN(customCutWidthValue) && customCutWidthValue > 0 && customCutWidthValue < dims[0]) {
+                                name += ` (Long. ${(customCutWidthValue * 100).toFixed(1)}cm)`;
+                                dims[0] = customCutWidthValue;
+                            } else {
+                                cutLength = '1/1'; // Fallback si la valeur est invalide
+                            }
+                        }
+                        // Pour '1/1', dims[0] reste la longueur d'origine, name n'est pas modifié pour la coupe.
                     }
                 }
                 return { 
@@ -1310,9 +1408,9 @@
                     height: dims[1], 
                     depth: dims[2],
                     seatingIndex: currentSeatingIndex,
-                    cutLength: (baseType === 'brique' || baseType === 'bloc') ? cutLength : undefined, 
+                    cutLength: (baseType === 'brique' || baseType === 'bloc' || baseType === 'bloc_cell') ? cutLength : undefined, 
                     widthMultiplier: baseType === 'brique' && cutLength !== 'custom_cut' ? widthMultiplier : 1.0,
-                    customCutWidthValue: (baseType === 'brique' || baseType === 'bloc') && cutLength === 'custom_cut' ? customCutWidthValue : undefined
+                    customCutWidthValue: (baseType === 'brique' || baseType === 'bloc' || baseType === 'bloc_cell') && cutLength === 'custom_cut' ? customCutWidthValue : undefined
                 };
             }
 
@@ -1333,14 +1431,14 @@
                 let jointHeightMeters = 0;
                 if (props.baseType === 'brique') {
                     jointHeightMeters = getSanitizedJointValue('joint-distance');
-                } else if (props.baseType === 'bloc') {
+                } else if (props.baseType === 'bloc' || props.baseType === 'bloc_cell') { // Inclure bloc_cell
                     jointHeightMeters = getSanitizedJointValue('block-joint-distance');
                 }
                 
                 const currentLevelY = seatingLevels[currentSeatingIndex] ? seatingLevels[currentSeatingIndex].y : 0;
                 
                 let targetBottomY = currentLevelY;
-                if (props.baseType === 'brique' || props.baseType === 'bloc') { 
+                if (props.baseType === 'brique' || props.baseType === 'bloc' || props.baseType === 'bloc_cell') { 
                     targetBottomY += jointHeightMeters;
                 }
                 const initialGhostCenterY = snapToGrid(targetBottomY) + props.height / 2;
@@ -1436,7 +1534,7 @@
                 let jointHeightMeters = 0;
                 if (elementProps.baseType === 'brique') {
                     jointHeightMeters = getSanitizedJointValue('joint-distance');
-                } else if (elementProps.baseType === 'bloc') {
+                } else if (elementProps.baseType === 'bloc' || elementProps.baseType === 'bloc_cell') { // Inclure bloc_cell
                     jointHeightMeters = getSanitizedJointValue('block-joint-distance');
                 }
                 
@@ -1447,7 +1545,7 @@
                 const currentSeatingLevelY = seatingLevels[seatingIdxForGhost] ? seatingLevels[seatingIdxForGhost].y : 0;
 
                 let targetBottomY = currentSeatingLevelY;
-                if ((elementProps.baseType === 'brique' || elementProps.baseType === 'bloc') && !elementProps.snappedToObjectId) { 
+                if ((elementProps.baseType === 'brique' || elementProps.baseType === 'bloc' || elementProps.baseType === 'bloc_cell') && !elementProps.snappedToObjectId) { // Inclure bloc_cell
                     targetBottomY += jointHeightMeters;
                 }
                 
@@ -1479,13 +1577,13 @@
                 if (target.userData.baseType === 'brique') {
                     jointHeightMeters = getSanitizedJointValue('joint-distance');
                     currentJointCm = parseFloat((jointDistanceInput.value || "0").replace(',', '.'));
-                } else if (target.userData.baseType === 'bloc') {
+                } else if (target.userData.baseType === 'bloc' || target.userData.baseType === 'bloc_cell') { // Inclure bloc_cell
                     jointHeightMeters = getSanitizedJointValue('block-joint-distance');
                     currentJointCm = parseFloat((blockJointDistanceInput.value || "0").replace(',', '.'));
                 }
 
 
-                if ((target.userData.baseType === 'brique' || target.userData.baseType === 'bloc') && (direction === 'up' || direction === 'down')) {
+                if ((target.userData.baseType === 'brique' || target.userData.baseType === 'bloc' || target.userData.baseType === 'bloc_cell') && (direction === 'up' || direction === 'down')) { // Inclure bloc_cell
                     heightAdjustAmount = target.userData.height + jointHeightMeters;
                 }
 
@@ -1510,36 +1608,29 @@
                         const targetSeatingLevelY = seatingLevels[targetSeatingIndex] ? seatingLevels[targetSeatingIndex].y : 0;
                         let basePosY = targetSeatingLevelY + target.userData.height / 2; 
 
-                        if ((target.userData.baseType === 'brique' || target.userData.baseType === 'bloc') && targetSeatingLevelY < snapGridSize && !target.userData.snappedToObjectId) { 
+                        if ((target.userData.baseType === 'brique' || target.userData.baseType === 'bloc' || target.userData.baseType === 'bloc_cell') && targetSeatingLevelY < snapGridSize && !target.userData.snappedToObjectId) { // Inclure bloc_cell
                             basePosY += jointHeightMeters;
                         }
-
+                        
                         if (direction === 'down') {
                              target.position.y = Math.max(basePosY, target.position.y);
                         }
                         updateTargetSeatingAfterVerticalMove(target); 
 
-                        if (target === ghostElement && (target.userData.baseType === 'brique' || target.userData.baseType === 'bloc')) {
-                            let tooltipText = ""; 
-                            const elementHeight = target.userData.height; 
-                            const currentJointForTooltipCm = isNaN(currentJointCm) ? 0 : currentJointCm;
-                            
-                            if (typeof elementHeight === 'number' && !isNaN(elementHeight)) {
-                                const topFaceYAbsolute = target.position.y + elementHeight / 2; 
-                                const currentSeatingLevelYForTooltip = seatingLevels[target.userData.seatingIndex !== undefined ? target.userData.seatingIndex : currentSeatingIndex] ? seatingLevels[target.userData.seatingIndex !== undefined ? target.userData.seatingIndex : currentSeatingIndex].y : 0;
-                                
-                                if (target.userData.snappedToObjectId) { 
-                                    tooltipText = `Haut. ${target.userData.baseType === 'brique' ? 'Brique' : 'Bloc'}: ${(elementHeight * 100).toFixed(1)} cm`;
-                                } else { 
-                                    const distanceFromSeatingLevel = topFaceYAbsolute - currentSeatingLevelYForTooltip;
-                                    tooltipText = `Haut. / Assise: ${(distanceFromSeatingLevel * 100).toFixed(1)} cm (Joint Actuel: ${currentJointForTooltipCm.toFixed(1)} cm)`;
-                                }
+                        if (target === ghostElement && (target.userData.baseType === 'brique' || target.userData.baseType === 'bloc' || target.userData.baseType === 'bloc_cell')) { // Inclure bloc_cell
+                            const elementHeightCm = (target.userData.height * 100).toFixed(1);
+                            const topFaceYAbsolute = target.position.y + target.userData.height / 2;
+                            const currentSeatingLevelYForTooltip = seatingLevels[target.userData.seatingIndex !== undefined ? target.userData.seatingIndex : currentSeatingIndex] ? seatingLevels[target.userData.seatingIndex !== undefined ? target.userData.seatingIndex : currentSeatingIndex].y : 0;
+                            let tooltipText = "";
+                            if (target.userData.snappedToObjectId) {
+                                tooltipText = `Haut. ${target.userData.baseType === 'brique' ? 'Brique' : (target.userData.baseType === 'bloc_cell' ? 'Bl.Cell.' : 'Bloc')}: ${elementHeightCm} cm`;
                             } else {
-                                tooltipText = "Erreur calcul hauteur"; 
+                                const heightAboveSeatingCm = ((topFaceYAbsolute - currentSeatingLevelYForTooltip) * 100).toFixed(1);
+                                tooltipText = `Haut. ${target.userData.baseType === 'brique' ? 'Brique' : (target.userData.baseType === 'bloc_cell' ? 'Bl.Cell.' : 'Bloc')}: ${elementHeightCm} cm (Niv. +${heightAboveSeatingCm} cm)`;
                             }
                             showAndPositionTooltip(target, tooltipText);
                         } else {
-                            if (target === ghostElement) hideHeightTooltip();
+                            hideHeightTooltip();
                         }
                         break;
                 }
@@ -1554,13 +1645,13 @@
                     let jointHeightMeters = 0;
                     if (target.userData.baseType === 'brique') {
                         jointHeightMeters = getSanitizedJointValue('joint-distance');
-                    } else if (target.userData.baseType === 'bloc') {
+                    } else if (target.userData.baseType === 'bloc' || target.userData.baseType === 'bloc_cell') { // Inclure bloc_cell
                         jointHeightMeters = getSanitizedJointValue('block-joint-distance');
                     }
 
                     let ghostBaseY = target.position.y - target.userData.height / 2;
                     
-                    if ((target.userData.baseType === 'brique' || target.userData.baseType === 'bloc') && !target.userData.snappedToObjectId) {
+                    if ((target.userData.baseType === 'brique' || target.userData.baseType === 'bloc' || target.userData.baseType === 'bloc_cell') && !target.userData.snappedToObjectId) { // Inclure bloc_cell
                         ghostBaseY -= jointHeightMeters; 
                     }
 
@@ -1577,8 +1668,8 @@
                          ghostElement.userData.seatingIndex = closestSeatingId;
                          const newSeatingY = seatingLevels[closestSeatingId].y;
                          let targetBottomForSnap = newSeatingY;
-                         if ((target.userData.baseType === 'brique' || target.userData.baseType === 'bloc') && !target.userData.snappedToObjectId) {
-                             targetBottomForSnap += jointHeightMeters;
+                         if ((target.userData.baseType === 'brique' || target.userData.baseType === 'bloc' || target.userData.baseType === 'bloc_cell') && !target.userData.snappedToObjectId) { // Inclure bloc_cell
+                            targetBottomForSnap += jointHeightMeters;
                          }
                          target.position.y = snapToGrid(targetBottomForSnap) + target.userData.height / 2;
                     }
@@ -1676,10 +1767,10 @@
                     if (worldNormal.y > 0.85) { 
                         let jointHeightMeters = 0;
                         if (ghostElement.userData.baseType === 'brique') jointHeightMeters = getSanitizedJointValue('joint-distance');
-                        else if (ghostElement.userData.baseType === 'bloc') jointHeightMeters = getSanitizedJointValue('block-joint-distance');
+                        else if (ghostElement.userData.baseType === 'bloc' || ghostElement.userData.baseType === 'bloc_cell') jointHeightMeters = getSanitizedJointValue('block-joint-distance'); // Inclure bloc_cell
                         
                         let yPositionForGhostBase = intersectedObject.position.y + intersectedObject.userData.height / 2; 
-                        if (ghostElement.userData.baseType === 'brique' || ghostElement.userData.baseType === 'bloc') yPositionForGhostBase += jointHeightMeters; 
+                        if (ghostElement.userData.baseType === 'brique' || ghostElement.userData.baseType === 'bloc' || ghostElement.userData.baseType === 'bloc_cell') yPositionForGhostBase += jointHeightMeters; // Inclure bloc_cell
                         
                         ghostElement.position.y = snapToGrid(yPositionForGhostBase) + ghostElement.userData.height / 2; 
                         ghostElement.position.x = snapToGrid(point.x); 
@@ -1740,10 +1831,10 @@
             }
 
             function showTooltipForFixedGhost() {
-                if (ghostElement && isGhostFixed && (ghostElement.userData.baseType === 'brique' || ghostElement.userData.baseType === 'bloc')) {
+                if (ghostElement && isGhostFixed && (ghostElement.userData.baseType === 'brique' || ghostElement.userData.baseType === 'bloc' || ghostElement.userData.baseType === 'bloc_cell')) { // Inclure bloc_cell
                     let tooltipText = ""; 
                     const elementHeight = ghostElement.userData.height; 
-                    const jointInputId = ghostElement.userData.baseType === 'brique' ? 'joint-distance' : 'block-joint-distance';
+                    const jointInputId = ghostElement.userData.baseType === 'brique' ? 'joint-distance' : 'block-joint-distance'; // bloc_cell utilise block-joint-distance
                     const currentJointCm = parseFloat((document.getElementById(jointInputId).value || "0").replace(',', '.'));
                     
                     if (typeof elementHeight === 'number' && !isNaN(elementHeight)) {
@@ -1751,11 +1842,10 @@
                         const currentSeatingLevelYForTooltip = seatingLevels[ghostElement.userData.seatingIndex !== undefined ? ghostElement.userData.seatingIndex : currentSeatingIndex] ? seatingLevels[ghostElement.userData.seatingIndex !== undefined ? ghostElement.userData.seatingIndex : currentSeatingIndex].y : 0;
                         
                         if (ghostElement.userData.snappedToObjectId) { 
-                            tooltipText = `Haut. ${ghostElement.userData.baseType === 'brique' ? 'Brique' : 'Bloc'}: ${(elementHeight * 100).toFixed(1)} cm`;
-                        } else { 
-                            const distanceFromSeatingLevel = topFaceYAbsolute - currentSeatingLevelYForTooltip;
-                            const jointHeightMeters = getSanitizedJointValue(jointInputId);
-                            tooltipText = `Haut. / Assise: ${(distanceFromSeatingLevel * 100).toFixed(1)} cm (Joint: ${(jointHeightMeters * 100).toFixed(1)} cm)`;
+                            tooltipText = `Haut. ${ghostElement.userData.baseType === 'brique' ? 'Brique' : (ghostElement.userData.baseType === 'bloc_cell' ? 'Bl.Cell.' : 'Bloc')}: ${(elementHeight * 100).toFixed(1)} cm`;
+                        } else {
+                            const heightAboveSeatingCm = ((topFaceYAbsolute - currentSeatingLevelYForTooltip) * 100).toFixed(1);
+                            tooltipText = `Haut. ${ghostElement.userData.baseType === 'brique' ? 'Brique' : (ghostElement.userData.baseType === 'bloc_cell' ? 'Bl.Cell.' : 'Bloc')}: ${(elementHeight * 100).toFixed(1)} cm (Niv. +${heightAboveSeatingCm} cm)`;
                         }
                     } else {
                         tooltipText = "Erreur calcul hauteur"; 
@@ -2065,7 +2155,7 @@
                 if (data.styleSettings) { useWhiteElements = data.styleSettings.useWhiteElements || false; shadowsEnabled = data.styleSettings.shadowsEnabled !== undefined ? data.styleSettings.shadowsEnabled : true; } else { useWhiteElements = false; shadowsEnabled = true; }
                 renderer.shadowMap.enabled = shadowsEnabled; scene.traverse(c => { if (c.isLight) c.castShadow = shadowsEnabled; if (c.isMesh && c.material) c.material.needsUpdate = true; });
                 toggleShadowsBtn.textContent = shadowsEnabled ? "Désactiver Ombres" : "Activer Ombres";
-                if (data.objects) { data.objects.forEach(objData => { const props = { type: objData.type, baseType: objData.baseType, name: objData.name, originalName: objData.originalName, width: objData.width, height: objData.height, depth: objData.depth, seatingIndex: objData.seatingIndex, cutLength: objData.cutLength, widthMultiplier: objData.widthMultiplier, customCutWidthValue: objData.customCutWidthValue }; const pos = new THREE.Vector3(objData.position.x, objData.position.y, objData.position.z); const rotY = objData.rotationY; const origSeatIdx = currentSeatingIndex; currentSeatingIndex = objData.seatingIndex !== undefined && seatingLevels[objData.seatingIndex] ? objData.seatingIndex : 0; if (!seatingLevels[currentSeatingIndex]) currentSeatingIndex = 0; const loadedEl = addElementAtPosition(pos, rotY, props, objData.id, objData.originalColor); if (loadedEl) { loadedEl.castShadow = shadowsEnabled && props.baseType !== 'vide'; loadedEl.receiveShadow = shadowsEnabled && props.baseType !== 'vide';} currentSeatingIndex = origSeatIdx; }); }
+                if (data.objects) { data.objects.forEach(objData => { const props = { type: objData.type, baseType: objData.baseType, name: objData.name, originalName: objData.originalName, width: objData.width, height: objData.height, depth: objData.depth, seatingIndex: objData.seatingIndex, cutLength: objData.cutLength, widthMultiplier: objData.widthMultiplier, customCutWidthValue: objData.customCutWidthValue }; const pos = new THREE.Vector3(objData.position.x, objData.position.y, objData.position.z); const rotY = objData.rotationY; const origSeatIdx = currentSeatingIndex; currentSeatingIndex = objData.seatingIndex !== undefined && seatingLevels[objData.seatingIndex] ? objData.seatingIndex : 0; if (!seatingLevels[currentSeatingIndex] && Object.keys(seatingLevels).length > 0) currentSeatingIndex = 0; const loadedEl = addElementAtPosition(pos, rotY, props, objData.id, objData.originalColor); if (loadedEl) { loadedEl.castShadow = shadowsEnabled && props.baseType !== 'vide'; loadedEl.receiveShadow = shadowsEnabled && props.baseType !== 'vide';} currentSeatingIndex = origSeatIdx; }); }
                 updateElementCounter(); if (currentTool === 'add') { removeGhostElement(); createGhostElement(); } setCurrentTool('add'); 
                 if (controls) { camera.position.copy(initialCameraPosition); controls.target.copy(initialCameraLookAt); controls.update(); }
             }
@@ -2342,13 +2432,14 @@
                     pdf.text(pdfTitle, (pw - titleWidth) / 2, summaryPageY);
                     summaryPageY += 10;
                     pdf.setFont(undefined, 'normal');
-                }
-                pdf.setFontSize(10);
-                if (designer.trim() !== "") {
+                    pdf.setFontSize(10);
                     pdf.text(`Dessinateur: ${designer}`, m, summaryPageY);
-                    summaryPageY += 5;
+                    pdf.text(`Date: ${date}`, m, summaryPageY + 5);
+                } else {
+                     pdf.setFontSize(10);
+                     pdf.text(`Dessinateur: ${designer}`, m, summaryPageY);
+                     pdf.text(`Date: ${date}`, m, summaryPageY + 5);
                 }
-                pdf.text(`Date: ${date}`, m, summaryPageY);
                 pdf.text(`Page ${Math.floor(vc/2)+1}`, pw - m -15, m + 5);
                 summaryPageY += 10;
 
@@ -2477,33 +2568,67 @@
 
                 if (selectedObject.userData.baseType === 'brique') {
                     brickCutContainer.style.display = 'inline-flex';
+                    brickCutSelector.value = selectedObject.userData.cutLength || '1/1';
                     if (selectedObject.userData.cutLength === 'custom_cut' && selectedObject.userData.customCutWidthValue !== undefined) {
-                        brickCutSelector.value = 'custom_cut';
-                        brickCustomCutLengthInput.value = (selectedObject.userData.customCutWidthValue * 100).toFixed(1);
                         brickCustomCutLengthContainer.style.display = 'inline-flex';
-                    } else if (selectedObject.userData.cutLength) {
-                        brickCutSelector.value = selectedObject.userData.cutLength;
+                        brickCustomCutLengthInput.value = (selectedObject.userData.customCutWidthValue * 100).toFixed(1);
+                    } else {
                         brickCustomCutLengthContainer.style.display = 'none';
                     }
                 } else if (selectedObject.userData.baseType === 'bloc') {
                     blockCutContainer.style.display = 'inline-flex';
-                     if (selectedObject.userData.cutLength === 'custom_cut' && selectedObject.userData.customCutWidthValue !== undefined) { 
-                        blockCutSelector.value = 'custom_cut';
-                        blockCustomCutLengthInput.value = (selectedObject.userData.customCutWidthValue * 100).toFixed(1);
+                    blockCutSelector.value = selectedObject.userData.cutLength || '1/1';
+                    if (selectedObject.userData.cutLength === 'custom_cut' && selectedObject.userData.customCutWidthValue !== undefined) {
                         blockCustomCutLengthContainer.style.display = 'inline-flex';
-                    } else if (selectedObject.userData.cutLength) {
-                        blockCutSelector.value = selectedObject.userData.cutLength;
-                         blockCustomCutLengthContainer.style.display = 'none'; 
+                        blockCustomCutLengthInput.value = (selectedObject.userData.customCutWidthValue * 100).toFixed(1);
+                    } else {
+                        blockCustomCutLengthContainer.style.display = 'none';
                     }
+                } else if (selectedObject.userData.baseType === 'bloc_cell') {
+                    blocCellCutContainer.style.display = 'inline-flex';
+                    blocCellCutSelector.value = selectedObject.userData.cutLength || '1/1';
+                    if (selectedObject.userData.cutLength === 'custom_cut' && selectedObject.userData.customCutWidthValue !== undefined) {
+                        blocCellCustomCutLengthContainer.style.display = 'inline-flex';
+                        blocCellCustomCutLengthInput.value = (selectedObject.userData.customCutWidthValue * 100).toFixed(1);
+                    } else {
+                        blocCellCustomCutLengthContainer.style.display = 'none';
+                    }
+                } else {
+                    brickCutContainer.style.display = 'none';
+                    brickCustomCutLengthContainer.style.display = 'none';
+                    blockCutContainer.style.display = 'none';
+                    blockCustomCutLengthContainer.style.display = 'none';
+                    blocCellCutContainer.style.display = 'none';
+                    blocCellCustomCutLengthContainer.style.display = 'none';
                 }
                 
-                if (selectedObject.userData.type === 'custom') { customNameInput.value = selectedObject.userData.name.replace(/ \((1\/1|3\/4|1\/2|1\/4|Ailette|Coupe 34|Coupe [0-9.]+cm)\)$/, ''); customWidthInput.value = selectedObject.userData.width; customHeightInput.value = selectedObject.userData.height; customDepthInput.value = selectedObject.userData.depth; } 
+                if (selectedObject.userData.type === 'custom') { customNameInput.value = selectedObject.userData.name.replace(/ \((1\/1|3\/4|1\/2|1\/4|Ailette|Coupe 34|Coupe [0-9.]+cm|Long. [0-9.]+cm)\)$/, ''); customWidthInput.value = selectedObject.userData.width; customHeightInput.value = selectedObject.userData.height; customDepthInput.value = selectedObject.userData.depth; } 
                 else if (selectedObject.userData.type === 'vide') { videDepthInput.value = selectedObject.userData.depth * 100; }
                 
                 const oldPos = selectedObject.position.clone(), oldRotY = selectedObject.rotation.y, oldSeatIdx = selectedObject.userData.seatingIndex, origColor = selectedObject.userData.originalColor;
                 const selId = selectedObject.userData.id; scene.remove(selectedObject); const idx = objects.findIndex(o => o.userData.id === selId); if (idx > -1) objects.splice(idx, 1); if (selectedObject.geometry) selectedObject.geometry.dispose(); if (selectedObject.material) selectedObject.material.dispose(); selectedObject.traverse(c => { if (c.isLineSegments && c.name === "elementEdges") { if (c.geometry) c.geometry.dispose(); if (c.material) c.material.dispose(); }}); selectedObject = null; updateElementCounter();
                 setCurrentTool('add'); 
-                if (ghostElement) { const newProps = getElementProperties(); ghostElement.geometry.dispose(); ghostElement.geometry = new THREE.BoxGeometry(newProps.width, newProps.height, newProps.depth); ghostElement.userData = {...newProps, isGhost: true, seatingIndex: oldSeatIdx, originalColor: origColor}; ghostElement.position.copy(oldPos); ghostElement.rotation.y = oldRotY; currentSeatingIndex = oldSeatIdx; const cLevelY = seatingLevels[oldSeatIdx] ? seatingLevels[oldSeatIdx].y : 0; let yAdjust = cLevelY + newProps.height / 2; if(newProps.baseType === 'brique') yAdjust += getSanitizedJointValue('joint-distance'); else if(newProps.baseType === 'bloc') yAdjust += getSanitizedJointValue('block-joint-distance'); ghostElement.position.y = snapToGrid(yAdjust); ghostElement.visible = true; isGhostFixed = true; controls.enabled = true; controls.enableRotate = true; }
+                if (ghostElement) {
+                    const newProps = getElementProperties();
+                    ghostElement.geometry.dispose();
+                    ghostElement.geometry = new THREE.BoxGeometry(newProps.width, newProps.height, newProps.depth);
+                    ghostElement.userData = {...newProps, isGhost: true, seatingIndex: oldSeatIdx, originalColor: origColor};
+                    ghostElement.position.copy(oldPos);
+                    ghostElement.rotation.y = oldRotY;
+                    currentSeatingIndex = oldSeatIdx;
+                    const cLevelY = seatingLevels[oldSeatIdx] ? seatingLevels[oldSeatIdx].y : 0;
+                    let yAdjust = cLevelY + newProps.height / 2;
+                    if (newProps.baseType === 'brique') {
+                        yAdjust += getSanitizedJointValue('joint-distance');
+                    } else if (newProps.baseType === 'bloc' || newProps.baseType === 'bloc_cell') { // Inclure bloc_cell
+                        yAdjust += getSanitizedJointValue('block-joint-distance');
+                    }
+                    ghostElement.position.y = snapToGrid(yAdjust);
+                    ghostElement.visible = true;
+                    isGhostFixed = true;
+                    controls.enabled = true;
+                    controls.enableRotate = true;
+                }
                 updateHelpBar(); alert("Modifiez propriétés, ajustez avec DPad, confirmez (OK/Entrée).");
             }
             function setElementStyle(isWhite) {
@@ -2531,7 +2656,7 @@
             function animate() { 
                 requestAnimationFrame(animate); 
                 controls.update(); 
-                if (heightTooltip.style.display === 'block' && ghostElement && isGhostFixed && (ghostElement.userData.baseType === 'brique' || ghostElement.userData.baseType === 'bloc') ) {
+                if (heightTooltip.style.display === 'block' && ghostElement && isGhostFixed && (ghostElement.userData.baseType === 'brique' || ghostElement.userData.baseType === 'bloc' || ghostElement.userData.baseType === 'bloc_cell') ) { // Inclure bloc_cell
                     updateTooltipPosition(ghostElement);
                 }
                 renderer.render(scene, camera); 
@@ -2542,18 +2667,24 @@
                 const counts = {}; 
                 objects.forEach(obj => { 
                     let countName = obj.userData.originalName || obj.userData.name || 'Inconnu';
-                    if ((obj.userData.baseType === 'brique' || obj.userData.baseType === 'bloc') && obj.userData.cutLength && obj.userData.cutLength !== '1/1') {
-                        let cutLabel = obj.userData.cutLength;
-                        if (obj.userData.cutLength === 'custom_cut' && obj.userData.customCutWidthValue !== undefined) {
-                            cutLabel = `Coupe ${(obj.userData.customCutWidthValue * 100).toFixed(1)}cm`;
-                        } else if (obj.userData.baseType === 'bloc') { 
-                             const blockCutOption = Array.from(blockCutSelector.options).find(opt => opt.value === obj.userData.cutLength);
-                             if(blockCutOption) cutLabel = blockCutOption.textContent.split(' (')[1].replace(')','');
-                        } else if (obj.userData.baseType === 'brique') {
-                            const brickCutOption = Array.from(brickCutSelector.options).find(opt => opt.value === obj.userData.cutLength);
-                            if(brickCutOption && obj.userData.cutLength !== 'custom_cut') cutLabel = brickCutOption.textContent.split(' (')[0]; // e.g. "3/4"
+                    if ((obj.userData.baseType === 'brique' || obj.userData.baseType === 'bloc' || obj.userData.baseType === 'bloc_cell') && obj.userData.cutLength && obj.userData.cutLength !== '1/1') { // Inclure bloc_cell
+                        if (obj.userData.cutLength === 'custom_cut' && obj.userData.customCutWidthValue) {
+                            if (obj.userData.baseType === 'bloc_cell') {
+                                countName += ` (Long. ${(obj.userData.customCutWidthValue * 100).toFixed(1)}cm)`;
+                            } else {
+                                countName += ` (Coupe ${(obj.userData.customCutWidthValue * 100).toFixed(1)}cm)`;
+                            }
+                        } else if (obj.userData.cutLength !== 'custom_cut') {
+                            let selector;
+                            if (obj.userData.baseType === 'brique') selector = brickCutSelector;
+                            else if (obj.userData.baseType === 'bloc') selector = blockCutSelector;
+                            // Pas de sélecteur prédéfini pour bloc_cell autre que 1/1 ou custom
+                            
+                            if (selector) {
+                                const opt = Array.from(selector.options).find(o => o.value === obj.userData.cutLength);
+                                if (opt) countName += ` (${opt.textContent.split(' (')[0]})`;
+                            }
                         }
-                        countName += ` (${cutLabel})`;
                     }
                     counts[countName] = (counts[countName] || 0) + 1; 
                 });
