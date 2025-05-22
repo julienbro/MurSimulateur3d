@@ -441,8 +441,8 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             switch (currentTool) {
                 case 'add':
-                    if (isGhostFixed) {
-                        helpText = "Mode AJOUT (Fantôme fixé): Utilisez le DPad pour ajuster, puis OK pour placer. Tapez ailleurs pour repositionner.";
+                    if (isGhostFixed && ghostElement) {
+                        helpText = "Mode AJOUT: Ajustez avec le DPad, OK pour placer. Tapez/Cliquez ailleurs pour repositionner le fantôme.";
                     } else {
                         helpText = "Mode AJOUT: Tapez/Cliquez sur la scène pour positionner le fantôme.";
                     }
@@ -506,15 +506,15 @@ document.addEventListener('DOMContentLoaded', () => {
     function createColorPalette() {
         const paletteDiv = document.createElement('div');
         paletteDiv.className = 'color-palette';
-        colorPalette.forEach(colorHex => {
+        colorPalette.forEach(color => { // Changed from colorHex to color object
             const swatch = document.createElement('div');
             swatch.className = 'color-swatch';
             const swatchInner = document.createElement('div');
             swatchInner.className = 'color-swatch-inner';
-            swatchInner.style.backgroundColor = '#' + colorHex.toString(16).padStart(6, '0');
+            swatchInner.style.backgroundColor = '#' + color.hex.toString(16).padStart(6, '0'); // Use color.hex
             swatch.appendChild(swatchInner);
-            swatch.dataset.color = colorHex; 
-            swatch.title = `Couleur #${colorHex.toString(16).padStart(6, '0').toUpperCase()}`; // Définit l'info-bulle
+            swatch.dataset.color = color.hex; // Use color.hex
+            swatch.title = color.name; // Use color.name for the tooltip
             swatch.addEventListener('click', (event) => {
                 event.stopPropagation(); 
                 if (activeSwatchElement === swatch) { 
@@ -1027,8 +1027,8 @@ document.addEventListener('DOMContentLoaded', () => {
         renderer.setSize(newWidth, newHeight);
     }
 
-    function updateGhostOnIntersection(raycasterInstance) {
-        if (!ghostElement || currentTool !== 'add' || isGhostFixed) return;
+    function updateGhostOnIntersection(raycasterInstance, isInitialPlacement = false) {
+        if (!ghostElement || currentTool !== 'add' || (isGhostFixed && !isInitialPlacement)) return;
 
         let snappedToExistingObjectSurface = false;
         const potentialSnapTargets = objects.filter(o => o !== ghostElement && o.userData && !o.userData.isGhost && o.geometry && o.material && o.visible);
@@ -1148,17 +1148,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 raycaster.setFromCamera(mousePointer, camera);
 
                 if (currentTool === 'add') {
-                    if (ghostElement && !isGhostFixed) {
-                        isGhostFixed = true;
-                        ghostElement.visible = true; 
-                        updateGhostOnIntersection(raycaster); 
+                    if (!ghostElement) {
+                        createGhostElement(); 
+                    }
+                    
+                    if (ghostElement) {
+                        updateGhostOnIntersection(raycaster, true); // Position it at the click, bypassing isGhostFixed check for this call
+                        
+                        isGhostFixed = true; // Now, mark it as ready for D-Pad adjustment.
+                        ghostElement.visible = true; // Ensure it's visible.
+                        
                         controls.enabled = true; 
                         controls.enableRotate = true; 
                         controls.enablePan = true; 
+                        
                         showTooltipForFixedGhost();
-                        updateHelpBar();
-                    } else if (isGhostFixed) {
-                        confirmPlacement();
+                        updateHelpBar(); // Help bar will reflect "Ajustez avec DPad..."
                     }
                 } else {
                     handleTapOrClick(event.clientX, event.clientY);
@@ -1168,7 +1173,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     function onViewportPointerMove(event) {
-        if (currentTool !== 'add' || !ghostElement || isGhostFixed) {
+        if (currentTool !== 'add' || !ghostElement || isGhostFixed) { // isGhostFixed check here is correct for pointer move
             if (controls.enabled && (event.buttons & 1)) { 
                 // Let OrbitControls handle
             }
@@ -1179,7 +1184,7 @@ document.addEventListener('DOMContentLoaded', () => {
             mousePointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
             mousePointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
             raycaster.setFromCamera(mousePointer, camera);
-            updateGhostOnIntersection(raycaster);
+            updateGhostOnIntersection(raycaster); // Default isInitialPlacement is false
             if(ghostElement) ghostElement.visible = true;
         }
     }
@@ -1234,31 +1239,42 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (event.changedTouches.length === 1) {
             const touch = event.changedTouches[0];
-            if (currentTool === 'add' && ghostElement && !isGhostFixed) {
-                if (!isDraggingWithTouch && touchDuration < TAP_DURATION_THRESHOLD) { // TAP to fix ghost
-                    isGhostFixed = true;
+
+            if (currentTool === 'add') {
+                if (!isDraggingWithTouch && touchDuration < TAP_DURATION_THRESHOLD) { // TAP
+                    if (!ghostElement) {
+                        createGhostElement();
+                    }
+                    if (ghostElement) {
+                        const rect = viewportContainer.getBoundingClientRect();
+                        mousePointer.x = ((touch.clientX - rect.left) / rect.width) * 2 - 1;
+                        mousePointer.y = -((touch.clientY - rect.top) / rect.height) * 2 + 1;
+                        raycaster.setFromCamera(mousePointer, camera);
+                        
+                        updateGhostOnIntersection(raycaster, true); // Position it, bypassing isGhostFixed check for this call
+                        
+                        isGhostFixed = true; // Now, mark as fixed for D-Pad
+                        ghostElement.visible = true;
+
+                        controls.enabled = true; controls.enableRotate = true; controls.enablePan = true;
+                        showTooltipForFixedGhost();
+                        updateHelpBar();
+                    }
+                } else if (isDraggingWithTouch && ghostElement) { // DRAGGED ghost to position
+                    // Ghost was already positioned by onViewportTouchMove which calls updateGhostOnIntersection
+                    // with isGhostFixed = false. So, just mark it as fixed here.
+                    isGhostFixed = true; 
                     ghostElement.visible = true;
-                    const rect = viewportContainer.getBoundingClientRect();
-                    mousePointer.x = ((touch.clientX - rect.left) / rect.width) * 2 - 1;
-                    mousePointer.y = -((touch.clientY - rect.top) / rect.height) * 2 + 1;
-                    raycaster.setFromCamera(mousePointer, camera);
-                    updateGhostOnIntersection(raycaster);
                     controls.enabled = true; controls.enableRotate = true; controls.enablePan = true;
                     showTooltipForFixedGhost();
                     updateHelpBar();
-                } else if (isDraggingWithTouch) { // DRAGGED ghost to position
-                    isGhostFixed = true; // Ghost is now fixed after drag
-                    ghostElement.visible = true;
-                    controls.enabled = true; controls.enableRotate = true; controls.enablePan = true;
-                    showTooltipForFixedGhost();
-                    updateHelpBar();
-                } else { // Long press without significant drag, or was a camera drag
+                } else { 
                      controls.enabled = true; controls.enableRotate = true; controls.enablePan = true;
                 }
-            } else if (!isDraggingWithTouch && touchDuration < TAP_DURATION_THRESHOLD) {
+            } else if (!isDraggingWithTouch && touchDuration < TAP_DURATION_THRESHOLD) { // Not in 'add' tool, regular tap
                 handleTapOrClick(touch.clientX, touch.clientY);
                  controls.enabled = true; controls.enableRotate = true; controls.enablePan = true;
-            } else { 
+            } else { // Not a tap, or not in 'add' tool and was a drag
                 controls.enabled = true; controls.enableRotate = true; controls.enablePan = true;
             }
         }
@@ -1309,7 +1325,7 @@ document.addEventListener('DOMContentLoaded', () => {
             case 'd': if (event.shiftKey && !isCtrlOrMeta) { setCurrentTool('duplicate'); } else { dpadAction = false; } break; 
             case 'r': if (!isCtrlOrMeta) setCurrentTool('rotate'); else dpadAction = false; break; 
             case 'delete': case 'backspace': if (selectedObject) deleteObject(selectedObject); else setCurrentTool('delete'); break;
-            case 'enter': 
+            case 'enter':
                 if ((currentTool === 'add' && ghostElement && ghostElement.visible && isGhostFixed) || ((currentTool === 'move' || currentTool === 'rotate') && selectedObject)) {
                     confirmPlacement();
                 }
@@ -1360,7 +1376,7 @@ document.addEventListener('DOMContentLoaded', () => {
         switch (action.type) {
             case 'add':
                 object = getObjectById(action.objectId);
-                if (object) { action.redoData = cloneObjectDataForUndo(object); scene.remove(object); const index = objects.indexOf(object); if (index > -1) objects.splice(index, 1); if (object.geometry) object.geometry.dispose(); if (object.material) { if(Array.isArray(object.material)) object.material.forEach(m=>m.dispose()); else object.material.dispose(); } object.traverse(c => { if (c.isLineSegments && c.name === "elementEdges") { if (c.geometry) c.geometry.dispose(); if (c.material) c.material.dispose(); }}); }
+                if (object) { action.redoData = cloneObjectDataForUndo(object); scene.remove(object); const index = objects.indexOf(object); if (index > -1) objects.splice(index, 1); if (object.geometry) object.geometry.dispose(); if (object.material) { if(Array.isArray(object.material)) object.material.forEach(m=>m.dispose()); else object.material.dispose(); } object.traverse(c => { if ( c.isLineSegments && c.name === "elementEdges") { if (c.geometry) c.geometry.dispose(); if (c.material) c.material.dispose(); }}); }
                 break;
             case 'delete': 
                 if (action.objectData) {
@@ -1901,7 +1917,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const selId = selectedObject.userData.id; scene.remove(selectedObject); const idx = objects.findIndex(o => o.userData.id === selId); if (idx > -1) objects.splice(idx, 1); if (selectedObject.geometry) selectedObject.geometry.dispose(); if (selectedObject.material) selectedObject.material.dispose(); selectedObject.traverse(c => { if (c.isLineSegments && c.name === "elementEdges") { if (c.geometry) c.geometry.dispose(); if (c.material) c.material.dispose(); }}); selectedObject = null; updateElementCounter();
         setCurrentTool('add'); 
         if (ghostElement) { const newProps = getElementProperties(); ghostElement.geometry.dispose(); ghostElement.geometry = new THREE.BoxGeometry(newProps.width, newProps.height, newProps.depth); ghostElement.userData = {...newProps, isGhost: true, seatingIndex: oldSeatIdx, originalColor: origColor, appliedTextureUrl: origTextureUrl}; ghostElement.position.copy(oldPos); ghostElement.rotation.y = oldRotY; currentSeatingIndex = oldSeatIdx; const cLevelY = seatingLevels[oldSeatIdx] ? seatingLevels[oldSeatIdx].y : 0; let yAdjust = cLevelY + newProps.height / 2; if(newProps.baseType === 'brique') yAdjust += getSanitizedJointValue('joint-distance'); else if(newProps.baseType === 'bloc' || newProps.baseType === 'bloc_cell') yAdjust += getSanitizedJointValue('block-joint-distance'); ghostElement.position.y = snapToGrid(yAdjust); ghostElement.visible = true; isGhostFixed = true; controls.enabled = true; controls.enableRotate = true; }
-        updateHelpBar(); alert("Modifiez propriétés, ajustez avec le D-Pad, confirmez (OK/Entrée).");
+        updateHelpBar(); alert("Modifiez propriétés, ajustez avec le DPad, confirmez (OK/Entrée).");
     }
     function setElementStyle(isWhite) {
         useWhiteElements = isWhite;
@@ -2047,7 +2063,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 scene.add(ghostElement);
             }
             
-            updateHelpBar("Ajustez avec le D-Pad et confirmez (OK D-Pad). Cliquez ailleurs pour déplacer.");
+            updateHelpBar("Ajustez avec le DPad et confirmez (OK D-Pad). Cliquez ailleurs pour déplacer.");
         } else {
             console.error("ghostElement is null after attempting to create/retrieve it.");
         }

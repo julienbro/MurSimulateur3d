@@ -16,9 +16,18 @@ export const elementColors = {
 };
 
 export const colorPalette = [
-    0xCC0000, 0xD2B48C, 0x8B4513, 0x2F4F4F, 0x000000, 
-    0xD3D3D3, 0xA9A9A9, 0x696969, 0xF5F5DC, 0xFFFFE0, 
-    0x90EE90, 0xFFFFFF  
+    { hex: 0xCC0000, name: "Rouge foncé" },
+    { hex: 0xD2B48C, name: "Fauve (Tan)" },
+    { hex: 0x8B4513, name: "Brun" },
+    { hex: 0x2F4F4F, name: "Gris ardoise foncé" },
+    { hex: 0x000000, name: "Noir" },
+    { hex: 0xD3D3D3, name: "Gris clair" },
+    { hex: 0xA9A9A9, name: "Gris foncé" },
+    { hex: 0x696969, name: "Gris terne" },
+    { hex: 0xF5F5DC, name: "Beige" },
+    { hex: 0xFFFFE0, name: "Jaune clair" },
+    { hex: 0x90EE90, name: "Vert clair" },
+    { hex: 0xFFFFFF, name: "Blanc" }
 ];
 
 export const texturePaletteURLs = [
