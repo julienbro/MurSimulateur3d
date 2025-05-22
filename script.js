@@ -386,16 +386,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('undo-action').addEventListener('click', undoLastAction); 
         document.getElementById('redo-action').addEventListener('click', redoLastAction); 
 
-        dpad.up.addEventListener('click', (event) => { event.stopPropagation(); moveGhostOrSelected('forward', event); });
-        dpad.down.addEventListener('click', (event) => { event.stopPropagation(); moveGhostOrSelected('backward', event); });
-        dpad.left.addEventListener('click', (event) => { event.stopPropagation(); moveGhostOrSelected('left', event); });
-        dpad.right.addEventListener('click', (event) => { event.stopPropagation(); moveGhostOrSelected('right', event); });
-        dpad.confirm.addEventListener('click', (event) => { event.stopPropagation(); confirmPlacement(); }); 
-        dpad.rotLeft.addEventListener('click', (event) => { event.stopPropagation(); rotateGhostOrSelected('left', event); });
-        dpad.rotRight.addEventListener('click', (event) => { event.stopPropagation(); rotateGhostOrSelected('right', event); });
-        dpad.levelUp.addEventListener('click', (event) => { event.stopPropagation(); moveGhostOrSelected('up', event); });
-        dpad.levelDown.addEventListener('click', (event) => { event.stopPropagation(); moveGhostOrSelected('down', event); });
-
         newFileBtn.addEventListener('click', handleNewFile);
         openFileBtn.addEventListener('click', handleOpenFile);
         saveFileBtn.addEventListener('click', handleSaveFile);
@@ -1380,7 +1370,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 break;
             case 'transform': object = getObjectById(action.objectId); if (object) { object.position.copy(action.oldTransform.position); object.rotation.y = action.oldTransform.rotationY; } break;
-            case 'color': 
+                                            
+                                            
+                                            
+                                             case 'color': 
                 object = getObjectById(action.objectId); 
                 if (object) { 
                     object.userData.originalColor = action.oldColor; 
@@ -1411,6 +1404,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 break;
         }
+
+       
+
         redoStack.push(action); updateUndoRedoButtons(); updateElementCounter();
     }
     function redoLastAction() {
@@ -2105,4 +2101,109 @@ document.addEventListener('DOMContentLoaded', () => {
     //         helpBar.textContent = message;
     //     }
     // }
+
+    const dpadControls = document.getElementById('dpad-controls');
+    if (dpadControls) {
+        ['touchstart', 'touchmove', 'touchend', 'touchcancel', 'pointerdown', 'pointerup'].forEach(evt =>
+            dpadControls.addEventListener(evt, function(e) {
+                e.stopPropagation();
+                e.preventDefault();
+            }, { passive: false })
+        );
+        // Empêche aussi la propagation sur les boutons enfants
+        Array.from(dpadControls.querySelectorAll('button')).forEach(btn => {
+            ['touchstart', 'touchmove', 'touchend', 'touchcancel', 'pointerdown', 'pointerup'].forEach(evt =>
+                btn.addEventListener(evt, function(e) {
+                    e.stopPropagation();
+                    e.preventDefault();
+                }, { passive: false })
+            );
+        });
+    }
+
+    // --- DPAD TEST MOBILE ---
+    function createTestMobileDpad() {
+        if (document.getElementById('dpad-test-mobile')) return;
+        const dpad = document.createElement('div');
+        dpad.id = 'dpad-test-mobile';
+
+        // Ligne du haut : Monter, Haut, Rotation gauche
+        const rowUp = document.createElement('div');
+        rowUp.className = 'dpad-row';
+        const btnLevelUp = document.createElement('button');
+        btnLevelUp.innerHTML = '⇞';
+        btnLevelUp.title = 'Monter';
+        const btnUp = document.createElement('button');
+        btnUp.innerHTML = '▲';
+        btnUp.title = 'Haut';
+        const btnRotLeft = document.createElement('button');
+        btnRotLeft.innerHTML = '↺';
+        btnRotLeft.title = 'Rotation gauche';
+        rowUp.appendChild(btnLevelUp);
+        rowUp.appendChild(btnUp);
+        rowUp.appendChild(btnRotLeft);
+
+        // Ligne du milieu : Gauche, OK (Check stylé), Droite
+        const rowMid = document.createElement('div');
+        rowMid.className = 'dpad-row';
+        const btnLeft = document.createElement('button');
+        btnLeft.innerHTML = '◀';
+        btnLeft.title = 'Gauche';
+        const btnOk = document.createElement('button');
+        // Utilisation d'un SVG pour un check stylé
+        btnOk.innerHTML = `<svg width="36" height="36" viewBox="0 0 36 36" style="vertical-align:middle;">
+            <polyline points="10,19 16,25 26,13" style="fill:none;stroke:#2ecc40;stroke-width:5;stroke-linecap:round;stroke-linejoin:round"/>
+        </svg>`;
+        btnOk.title = 'Valider';
+        const btnRight = document.createElement('button');
+        btnRight.innerHTML = '▶';
+        btnRight.title = 'Droite';
+        rowMid.appendChild(btnLeft);
+        rowMid.appendChild(btnOk);
+        rowMid.appendChild(btnRight);
+
+        // Ligne du bas : Descendre, Bas, Rotation droite
+        const rowDown = document.createElement('div');
+        rowDown.className = 'dpad-row';
+        const btnLevelDown = document.createElement('button');
+        btnLevelDown.innerHTML = '⇟';
+        btnLevelDown.title = 'Descendre';
+        const btnDown = document.createElement('button');
+        btnDown.innerHTML = '▼';
+        btnDown.title = 'Bas';
+        const btnRotRight = document.createElement('button');
+        btnRotRight.innerHTML = '↻';
+        btnRotRight.title = 'Rotation droite';
+        rowDown.appendChild(btnLevelDown);
+        rowDown.appendChild(btnDown);
+        rowDown.appendChild(btnRotRight);
+
+        dpad.appendChild(rowUp);
+        dpad.appendChild(rowMid);
+        dpad.appendChild(rowDown);
+
+        [
+            [btnUp, () => moveGhostOrSelected('forward')],
+            [btnDown, () => moveGhostOrSelected('backward')],
+            [btnLeft, () => moveGhostOrSelected('left')],
+            [btnRight, () => moveGhostOrSelected('right')],
+            [btnOk, () => confirmPlacement()],
+            [btnLevelUp, () => moveGhostOrSelected('up')],
+            [btnLevelDown, () => moveGhostOrSelected('down')],
+            [btnRotLeft, () => rotateGhostOrSelected('left')],
+            [btnRotRight, () => rotateGhostOrSelected('right')]
+        ].forEach(([btn, handler]) => {
+            ['click', 'touchstart'].forEach(evt =>
+                btn.addEventListener(evt, function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handler();
+                }, { passive: false })
+            );
+        });
+
+        document.body.appendChild(dpad);
+    }
+
+    createTestMobileDpad();
 });
