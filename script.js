@@ -1,3 +1,14 @@
+import { 
+    initialCameraPosition, 
+    initialCameraLookAt, 
+    snapGridSize, 
+    TAP_DURATION_THRESHOLD, 
+    DRAG_MOVEMENT_THRESHOLD, 
+    elementColors, 
+    colorPalette, // Ensure this is imported
+    texturePaletteURLs 
+} from './config.js';
+
 document.addEventListener('DOMContentLoaded', () => {
     // --- THREE.JS SETUP ---
     let scene, camera, renderer, controls, raycaster, mousePointer; 
@@ -5,35 +16,17 @@ document.addEventListener('DOMContentLoaded', () => {
     let objects = []; 
     let ghostElement = null; 
     let selectedObject = null;
-    const initialCameraPosition = new THREE.Vector3(0.5, 0.4, 0.8);
-    const initialCameraLookAt = new THREE.Vector3(0, 0.3, 0);
     let initialPerspectiveFOV;
 
 
     // --- APPLICATION STATE ---
     let currentTool = 'add'; 
-    const snapGridSize = 0.01; 
     let isGhostFixed = false; 
 
-    const elementColors = { 
-        brique: 0xCD5C5C,  
-        bloc: 0x87CEEB,    
-        linteau: 0x778899, 
-        isolant: 0xFFE4B5, 
-        vide: 0xADD8E6,    
-        profil: 0xBDB76B,  
-        custom: 0x98FB98,  
-        default: 0xBEBEBE  
-    };
     let useWhiteElements = false;
     let shadowsEnabled = true; 
 
     // --- COLOR PALETTE ---
-     const colorPalette = [
-        0xCC0000, 0xD2B48C, 0x8B4513, 0x2F4F4F, 0x000000, 
-        0xD3D3D3, 0xA9A9A9, 0x696969, 0xF5F5DC, 0xFFFFE0, 
-        0x90EE90, 0xFFFFFF  
-    ];
     let currentActiveColor = null; 
     let activeSwatchElement = null; 
 
@@ -506,15 +499,15 @@ document.addEventListener('DOMContentLoaded', () => {
     function createColorPalette() {
         const paletteDiv = document.createElement('div');
         paletteDiv.className = 'color-palette';
-        colorPalette.forEach(color => { // Changed from colorHex to color object
+        colorPalette.forEach(color => { // color is an object like {hex: 0xff0000, name: "Red"}
             const swatch = document.createElement('div');
             swatch.className = 'color-swatch';
             const swatchInner = document.createElement('div');
             swatchInner.className = 'color-swatch-inner';
-            swatchInner.style.backgroundColor = '#' + color.hex.toString(16).padStart(6, '0'); // Use color.hex
+            swatchInner.style.backgroundColor = '#' + color.hex.toString(16).padStart(6, '0');
             swatch.appendChild(swatchInner);
-            swatch.dataset.color = color.hex; // Use color.hex
-            swatch.title = color.name; // Use color.name for the tooltip
+            swatch.dataset.color = color.hex; 
+            swatch.title = color.name; // Set the tooltip to the color name
             swatch.addEventListener('click', (event) => {
                 event.stopPropagation(); 
                 if (activeSwatchElement === swatch) { 

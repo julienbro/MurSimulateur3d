@@ -17,7 +17,7 @@ export const elementColors = {
 
 export const colorPalette = [
     { hex: 0xCC0000, name: "Rouge foncé" },
-    { hex: 0xD2B48C, name: "Fauve (Tan)" },
+    { hex: 0xD2B48C, name: "Brun clair" },
     { hex: 0x8B4513, name: "Brun" },
     { hex: 0x2F4F4F, name: "Gris ardoise foncé" },
     { hex: 0x000000, name: "Noir" },
