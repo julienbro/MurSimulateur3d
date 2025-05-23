@@ -5,11 +5,28 @@ import {
     TAP_DURATION_THRESHOLD, 
     DRAG_MOVEMENT_THRESHOLD, 
     elementColors, 
-    colorPalette, // Ensure this is imported
-    texturePaletteURLs 
+    // colorPalette, // Now used by uiUtils
+    // texturePaletteURLs // Now used by uiUtils
 } from './config.js';
+import { 
+    domElements, 
+    cacheDomElements, 
+    updateCursorStyle, 
+    updateHelpBar, 
+    updateActiveToolButton,
+    updateTooltipPosition as uiUpdateTooltipPosition, // Renamed to avoid conflict if a local one exists
+    showAndPositionTooltip as uiShowAndPositionTooltip,
+    hideHeightTooltip as uiHideHeightTooltip,
+    createColorPalette as uiCreateColorPalette,
+    createTexturePalette as uiCreateTexturePalette,
+    updateUndoRedoButtonsUI,
+    updateElementCounterUI
+} from './uiUtils.js';
+// Import other modules like threeSetup, elementManager, utils as they are created/used
 
 document.addEventListener('DOMContentLoaded', () => {
+    cacheDomElements(); // Cache all DOM elements first
+
     // --- THREE.JS SETUP ---
     let scene, camera, renderer, controls, raycaster, mousePointer; 
     let plane; 
@@ -31,17 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let activeSwatchElement = null; 
 
     // --- TEXTURE STATE ---
-    const texturePaletteURLs = [
-        'https://julienbro.github.io/MurSimulateur3d/textures/brique_brune_1.png',
-        'https://julienbro.github.io/MurSimulateur3d/textures/brique_rouge_1.png',
-        'https://julienbro.github.io/MurSimulateur3d/textures/brique_claire_1.png',
-        'https://julienbro.github.io/MurSimulateur3d/textures/brique_beige_1.png',
-        'https://julienbro.github.io/MurSimulateur3d/textures/brique_grise_1.png',
-        'https://julienbro.github.io/MurSimulateur3d/textures/brique_grise_2.png',
-        'https://julienbro.github.io/MurSimulateur3d/textures/beton_1.png',
-        'https://julienbro.github.io/MurSimulateur3d/textures/bois_pin_1.png',
-        'https://julienbro.github.io/MurSimulateur3d/textures/fer_rouille_1.png'
-    ];
+    // texturePaletteURLs are in config.js, uiUtils.js will use it directly
     let textureLoader;
     const loadedTextures = {}; // Cache for THREE.Texture objects
     let currentActiveTextureUrl = null;
@@ -50,90 +57,24 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- UNDO/REDO ---
     const undoStack = [];
     const redoStack = [];
-    let undoBtn, redoBtn; 
+    // undoBtn, redoBtn are now in domElements
 
     // --- TOUCH STATE VARIABLES ---
     let touchStartTime, touchStartPoint = { x: 0, y: 0 };
     let isDraggingWithTouch = false; // True if touch has moved beyond threshold
-    const TAP_DURATION_THRESHOLD = 250; // Milliseconds
-    const DRAG_MOVEMENT_THRESHOLD = 10; // Pixels
+    // TAP_DURATION_THRESHOLD, DRAG_MOVEMENT_THRESHOLD are in config.js
 
 
-    // --- DOM ELEMENTS ---
-    const canvasContainer = document.getElementById('threejs-canvas'); 
-    const viewportContainer = document.getElementById('viewport-container'); 
-    const elementTypeSelector = document.getElementById('element-type-selector');
-    const brickCutContainer = document.getElementById('brick-cut-container'); 
-    const brickCutSelector = document.getElementById('brick-cut-selector'); 
-    const brickCustomCutLengthContainer = document.getElementById('brick-custom-cut-length-container'); 
-    const brickCustomCutLengthInput = document.getElementById('brick-custom-cut-length'); 
-    const blockCutContainer = document.getElementById('block-cut-container'); 
-    const blockCutSelector = document.getElementById('block-cut-selector'); 
-    const blockCustomCutLengthContainer = document.getElementById('block-custom-cut-length-container'); 
-    const blockCustomCutLengthInput = document.getElementById('block-custom-cut-length'); 
-    const customDimsContainer = document.getElementById('custom-dims-container');
-    const customNameInput = document.getElementById('custom-name');
-    const customWidthInput = document.getElementById('custom-width');
-    const customHeightInput = document.getElementById('custom-height');
-    const customDepthInput = document.getElementById('custom-depth');
-    const videDepthContainer = document.getElementById('vide-depth-container');
-    const videDepthInput = document.getElementById('vide-depth');
-    const helpBar = document.getElementById('help-bar');
-    const colorPaletteContainer = document.getElementById('color-palette-container');
-    const texturePaletteContainer = document.getElementById('texture-palette-container');
-    const jointDistanceInput = document.getElementById('joint-distance');
-    const blockJointDistanceInput = document.getElementById('block-joint-distance'); 
-    const heightTooltip = document.getElementById('height-tooltip'); 
+    // --- DOM ELEMENTS (Most are now accessed via domElements object after cacheDomElements()) ---
+    // const canvasContainer = document.getElementById('threejs-canvas'); // Example: Now domElements.canvasContainer
+    // ... remove all individual const declarations for DOM elements ...
+    // const helpBar = document.getElementById('help-bar'); // Now domElements.helpBar
+    // const heightTooltip = document.getElementById('height-tooltip'); // Now domElements.heightTooltip
+    // const toolButtons = { ... }; // Now domElements.toolButtons
+    // const viewButtons = { ... }; // Now domElements.viewButtons
+    // const dpad = { ... }; // Now domElements.dpad
 
-
-    const toolButtons = {
-        select: document.getElementById('select-tool'),
-        add: document.getElementById('add-tool'),
-        move: document.getElementById('move-tool'),
-        duplicate: document.getElementById('duplicate-tool'),
-        rotate: document.getElementById('rotate-tool'),
-        delete: document.getElementById('delete-tool')
-    };
-
-    const viewButtons = {
-        "3d": document.getElementById('view-3d'),
-        top: document.getElementById('view-top'),
-        front: document.getElementById('view-front'),
-        back: document.getElementById('view-back'),
-        left: document.getElementById('view-left'),
-        right: document.getElementById('view-right'),
-    };
-
-    const dpad = {
-        up: document.getElementById('dpad-up'),
-        down: document.getElementById('dpad-down'),
-        left: document.getElementById('dpad-left'),
-        right: document.getElementById('dpad-right'),
-        confirm: document.getElementById('dpad-confirm'),
-        rotLeft: document.getElementById('dpad-rot-left'),
-        rotRight: document.getElementById('dpad-rot-right'),
-        levelUp: document.getElementById('dpad-level-up'),
-        levelDown: document.getElementById('dpad-level-down')
-    };
-
-    const elementCounterTableBody = document.getElementById('element-counter').getElementsByTagName('tbody')[0];
-    
-    const leftSidebar = document.getElementById('left-sidebar');
-    const rightSidebar = document.getElementById('right-sidebar');
-
-    const newFileBtn = document.getElementById('new-file');
-    const openFileBtn = document.getElementById('open-file');
-    const saveFileBtn = document.getElementById('save-file');
-    const exportPdfBtn = document.getElementById('export-pdf');
-    const exportPrintButton = document.getElementById('export-print-button'); 
-    const editSelectionBtn = document.getElementById('edit-selection'); 
-    const styleWhiteBtn = document.getElementById('style-white');
-    const styleColorBtn = document.getElementById('style-color');
-    const toggleShadowsBtn = document.getElementById('toggle-shadows');
-    const aboutAppBtn = document.getElementById('about-app');
-    const helpGuideBtn = document.getElementById('help-guide');
-
-    exportPrintButton.addEventListener('click', handleExportPDF); 
+    domElements.exportPrintButton.addEventListener('click', handleExportPDF); 
 
     let currentSeatingIndex = 0;
     let seatingLevels = { 0: { y: 0, name: "Assise 0 (Niveau 0.00m)" } };
@@ -152,16 +93,16 @@ document.addEventListener('DOMContentLoaded', () => {
         scene = new THREE.Scene();
         scene.background = new THREE.Color(0xADD8E6); 
 
-        camera = new THREE.PerspectiveCamera(50, viewportContainer.clientWidth / viewportContainer.clientHeight, 0.1, 1000);
+        camera = new THREE.PerspectiveCamera(50, domElements.viewportContainer.clientWidth / domElements.viewportContainer.clientHeight, 0.1, 1000);
         initialPerspectiveFOV = camera.fov;
         camera.position.copy(initialCameraPosition);
         camera.lookAt(initialCameraLookAt);
 
         renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true }); 
-        renderer.setSize(viewportContainer.clientWidth, viewportContainer.clientHeight);
+        renderer.setSize(domElements.viewportContainer.clientWidth, domElements.viewportContainer.clientHeight);
         renderer.shadowMap.enabled = shadowsEnabled; 
         renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-        canvasContainer.appendChild(renderer.domElement); 
+        domElements.canvasContainer.appendChild(renderer.domElement); 
 
         controls = new THREE.OrbitControls(camera, renderer.domElement);
         controls.mouseButtons = { LEFT: THREE.MOUSE.PAN, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.ROTATE };
@@ -206,87 +147,64 @@ document.addEventListener('DOMContentLoaded', () => {
 
         window.addEventListener('resize', onWindowResize, false);
         // Mouse events
-        viewportContainer.addEventListener('pointerdown', onViewportPointerDown, false); 
-        viewportContainer.addEventListener('pointermove', onViewportPointerMove, false);
+        domElements.viewportContainer.addEventListener('pointerdown', onViewportPointerDown, false); 
+        domElements.viewportContainer.addEventListener('pointermove', onViewportPointerMove, false);
         // Touch events
-        viewportContainer.addEventListener('touchstart', onViewportTouchStart, { passive: false });
-        viewportContainer.addEventListener('touchmove', onViewportTouchMove, { passive: false });
-        viewportContainer.addEventListener('touchend', onViewportTouchEnd, { passive: false });
-        viewportContainer.addEventListener('touchcancel', onViewportTouchEnd, { passive: false }); // Handle cancel as end
+        domElements.viewportContainer.addEventListener('touchstart', onViewportTouchStart, { passive: false });
+        domElements.viewportContainer.addEventListener('touchmove', onViewportTouchMove, { passive: false });
+        domElements.viewportContainer.addEventListener('touchend', onViewportTouchEnd, { passive: false });
+        domElements.viewportContainer.addEventListener('touchcancel', onViewportTouchEnd, { passive: false }); // Handle cancel as end
 
 
         document.addEventListener('keydown', onDocumentKeyDown, false);
 
         setupUIEventListeners();
-        createColorPalette(); 
-        createTexturePalette();
-        updateActiveToolButton(); 
-        updateCursorStyle();
-        updateHelpBar(); 
-        updateUndoRedoButtons();
+        // createColorPalette(); // Now called via uiUtils
+        // createTexturePalette(); // Now called via uiUtils
+        uiCreateColorPalette(handleColorSelect);
+        uiCreateTexturePalette(handleTextureSelect, handleCustomTextureAdded);
+
+        setupDpadControlsInteractions(); 
+        updateActiveToolButton(currentTool); 
+        updateCursorStyle(currentTool, currentActiveColor, currentActiveTextureUrl);
+        updateHelpBar(currentTool, isGhostFixed, selectedObject, currentActiveColor, currentActiveTextureUrl); 
+        updateUndoRedoButtons(); // This will become updateUndoRedoButtonsUI
         updateSeatingSelector();
         
         setCurrentTool('add'); 
         animate();
     }
 
-    // --- TOOLTIP FUNCTIONS ---
-    function updateTooltipPosition(element) {
-        if (!element || !heightTooltip || !camera || !renderer || heightTooltip.style.display === 'none') return;
-
-        const position = new THREE.Vector3();
-        element.getWorldPosition(position); 
-        position.y += element.userData.height / 2 + 0.05; 
-
-        const vector = position.project(camera);
-
-        const x = (vector.x * 0.5 + 0.5) * renderer.domElement.clientWidth;
-        const y = (vector.y * -0.5 + 0.5) * renderer.domElement.clientHeight;
-
-        heightTooltip.style.left = `${x}px`;
-        heightTooltip.style.top = `${y}px`;
-    }
-    
-    function showAndPositionTooltip(targetElement, text) {
-        if (heightTooltip) {
-            heightTooltip.textContent = text;
-            heightTooltip.style.display = 'block';
-            updateTooltipPosition(targetElement); 
-        }
-    }
-
-    function hideHeightTooltip() {
-        if (heightTooltip) {
-            heightTooltip.style.display = 'none';
-        }
-    }
+    // --- TOOLTIP FUNCTIONS (now in uiUtils.js, called as uiShowAndPositionTooltip, etc.) ---
+    // function updateTooltipPosition(element) { ... } // Moved
+    // function showAndPositionTooltip(targetElement, text) { ... } // Moved
+    // function hideHeightTooltip() { ... } // Moved
 
 
     function setupUIEventListeners() {
-        undoBtn = document.getElementById('undo-tool');
-        redoBtn = document.getElementById('redo-tool');
+        // undoBtn and redoBtn are now domElements.undoBtn and domElements.redoBtn
+        // No need to re-assign them here if cacheDomElements did its job.
 
-
-        elementTypeSelector.addEventListener('change', () => {
-            const selectedOption = elementTypeSelector.options[elementTypeSelector.selectedIndex];
+        domElements.elementTypeSelector.addEventListener('change', () => {
+            const selectedOption = domElements.elementTypeSelector.options[domElements.elementTypeSelector.selectedIndex];
             const baseType = selectedOption.value.split('_')[0];
 
-            customDimsContainer.style.display = elementTypeSelector.value === 'custom' ? 'inline-flex' : 'none';
-            videDepthContainer.style.display = elementTypeSelector.value === 'vide' ? 'inline-flex' : 'none';
+            domElements.customDimsContainer.style.display = domElements.elementTypeSelector.value === 'custom' ? 'inline-flex' : 'none';
+            domElements.videDepthContainer.style.display = domElements.elementTypeSelector.value === 'vide' ? 'inline-flex' : 'none';
             
-            brickCutContainer.style.display = baseType === 'brique' ? 'inline-flex' : 'none';
-            blockCutContainer.style.display = baseType === 'bloc' ? 'inline-flex' : 'none';
-            brickCustomCutLengthContainer.style.display = (baseType === 'brique' && brickCutSelector.value === 'custom_cut') ? 'inline-flex' : 'none';
-            blockCustomCutLengthContainer.style.display = (baseType === 'bloc' && blockCutSelector.value === 'custom_cut') ? 'inline-flex' : 'none'; 
+            domElements.brickCutContainer.style.display = baseType === 'brique' ? 'inline-flex' : 'none';
+            domElements.blockCutContainer.style.display = baseType === 'bloc' ? 'inline-flex' : 'none';
+            domElements.brickCustomCutLengthContainer.style.display = (baseType === 'brique' && domElements.brickCutSelector.value === 'custom_cut') ? 'inline-flex' : 'none';
+            domElements.blockCustomCutLengthContainer.style.display = (baseType === 'bloc' && domElements.blockCutSelector.value === 'custom_cut') ? 'inline-flex' : 'none'; 
 
 
             if (baseType !== 'brique') {
-                brickCutSelector.value = '1/1'; 
-                brickCustomCutLengthContainer.style.display = 'none';
+                domElements.brickCutSelector.value = '1/1'; 
+                domElements.brickCustomCutLengthContainer.style.display = 'none';
             }
             if (baseType !== 'bloc') {
-                blockCutSelector.value = '1/1'; 
-                blockCustomCutLengthContainer.style.display = 'none'; 
+                domElements.blockCutSelector.value = '1/1'; 
+                domElements.blockCustomCutLengthContainer.style.display = 'none'; 
             }
 
 
@@ -297,41 +215,41 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        brickCutSelector.addEventListener('change', () => {
-            brickCustomCutLengthContainer.style.display = brickCutSelector.value === 'custom_cut' ? 'inline-flex' : 'none';
+        domElements.brickCutSelector.addEventListener('change', () => {
+            domElements.brickCustomCutLengthContainer.style.display = domElements.brickCutSelector.value === 'custom_cut' ? 'inline-flex' : 'none';
             if (currentTool === 'add' && ghostElement && ghostElement.userData.baseType === 'brique') {
                 removeGhostElement();
                 isGhostFixed = false; 
                 createGhostElement();
             }
         });
-        brickCustomCutLengthInput.addEventListener('input', () => {
-             if (currentTool === 'add' && ghostElement && ghostElement.userData.baseType === 'brique' && brickCutSelector.value === 'custom_cut') {
+        domElements.brickCustomCutLengthInput.addEventListener('input', () => {
+             if (currentTool === 'add' && ghostElement && ghostElement.userData.baseType === 'brique' && domElements.brickCutSelector.value === 'custom_cut') {
                 removeGhostElement();
                 isGhostFixed = false; 
                 createGhostElement();
             }
         });
 
-        blockCutSelector.addEventListener('change', () => { 
-            blockCustomCutLengthContainer.style.display = blockCutSelector.value === 'custom_cut' ? 'inline-flex' : 'none'; 
+        domElements.blockCutSelector.addEventListener('change', () => { 
+            domElements.blockCustomCutLengthContainer.style.display = domElements.blockCutSelector.value === 'custom_cut' ? 'inline-flex' : 'none'; 
             if (currentTool === 'add' && ghostElement && ghostElement.userData.baseType === 'bloc') {
                 removeGhostElement();
                 isGhostFixed = false;
                 createGhostElement();
             }
         });
-        blockCustomCutLengthInput.addEventListener('input', () => { 
-             if (currentTool === 'add' && ghostElement && ghostElement.userData.baseType === 'bloc' && blockCutSelector.value === 'custom_cut') {
+        domElements.blockCustomCutLengthInput.addEventListener('input', () => { 
+             if (currentTool === 'add' && ghostElement && ghostElement.userData.baseType === 'bloc' && domElements.blockCutSelector.value === 'custom_cut') {
                 removeGhostElement();
                 isGhostFixed = false; 
                 createGhostElement();
             }
         });
 
-        videDepthInput.addEventListener('change', () => {
+        domElements.videDepthInput.addEventListener('change', () => {
             if (ghostElement && ghostElement.userData.type === 'vide') {
-                const newDepth = parseFloat(videDepthInput.value) / 100; 
+                const newDepth = parseFloat(domElements.videDepthInput.value) / 100; 
                 const oldHeight = ghostElement.userData.height;
                 const oldWidth = ghostElement.userData.width;
                 ghostElement.geometry.dispose(); 
@@ -354,91 +272,57 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (isGhostFixed) {
                     const tooltipText = `Haut. ${props.baseType === 'brique' ? 'Brique' : 'Bloc'}: ${(props.height * 100).toFixed(1)} cm, Joint: ${(jointHeightMeters * 100).toFixed(1)} cm, Niveau: ${(ghostElement.position.y + props.height / 2).toFixed(2)} m`;
-                    showAndPositionTooltip(ghostElement, tooltipText);
+                    uiShowAndPositionTooltip(ghostElement, tooltipText, camera, renderer);
                 } else {
-                    hideHeightTooltip();
+                    uiHideHeightTooltip();
                 }
             }
         }
 
-        jointDistanceInput.addEventListener('input', () => {
+        domElements.jointDistanceInput.addEventListener('input', () => {
             if (ghostElement && ghostElement.userData.baseType === 'brique') {
                 updateGhostPositionFromJointInput(ghostElement.userData, 'joint-distance');
             }
         });
-        blockJointDistanceInput.addEventListener('input', () => {
+        domElements.blockJointDistanceInput.addEventListener('input', () => {
              if (ghostElement && ghostElement.userData.baseType === 'bloc') {
                 updateGhostPositionFromJointInput(ghostElement.userData, 'block-joint-distance');
             }
         });
 
 
-        Object.keys(toolButtons).forEach(toolName => {
-            toolButtons[toolName].addEventListener('click', () => setCurrentTool(toolName));
+        Object.keys(domElements.toolButtons).forEach(toolName => {
+            if(domElements.toolButtons[toolName]) { // Check if button exists
+                domElements.toolButtons[toolName].addEventListener('click', () => setCurrentTool(toolName));
+            }
         });
 
-        Object.keys(viewButtons).forEach(viewName => {
-            viewButtons[viewName].addEventListener('click', () => setView(viewName));
+        Object.keys(domElements.viewButtons).forEach(viewName => {
+            if(domElements.viewButtons[viewName]) { // Check if button exists
+                domElements.viewButtons[viewName].addEventListener('click', () => setView(viewName));
+            }
         });
         
-        undoBtn.addEventListener('click', undoLastAction);
-        redoBtn.addEventListener('click', redoLastAction);
-        document.getElementById('undo-action').addEventListener('click', undoLastAction); 
-        document.getElementById('redo-action').addEventListener('click', redoLastAction); 
+        if(domElements.undoBtn) domElements.undoBtn.addEventListener('click', undoLastAction);
+        if(domElements.redoBtn) domElements.redoBtn.addEventListener('click', redoLastAction);
+        if(domElements.undoActionLink) domElements.undoActionLink.addEventListener('click', undoLastAction); 
+        if(domElements.redoActionLink) domElements.redoActionLink.addEventListener('click', redoLastAction); 
 
-        newFileBtn.addEventListener('click', handleNewFile);
-        openFileBtn.addEventListener('click', handleOpenFile);
-        saveFileBtn.addEventListener('click', handleSaveFile);
-        exportPdfBtn.addEventListener('click', handleExportPDF);
-        exportPrintButton.addEventListener('click', handleExportPDF); 
-        editSelectionBtn.addEventListener('click', handleEditSelection); 
-        styleWhiteBtn.addEventListener('click', () => setElementStyle(true));
-        styleColorBtn.addEventListener('click', () => setElementStyle(false));
-        toggleShadowsBtn.addEventListener('click', toggleAllShadows);
-        aboutAppBtn.addEventListener('click', () => alert('MurSimulate3D\nVersion 1.0.2\nDéveloppé par J.BROHEZ avec Three.js.\nCopyright © 2025 J.BROHEZ\n\nDimensions des éléments: Longueur x Hauteur x Profondeur (Épaisseur du mur)'));
-        helpGuideBtn.addEventListener('click', () => alert('Aide :\n- Barre d\'outils : Sélectionner un outil puis interagir.\n- Ajout : Cliquer sur la grille/objet pour fixer la position initiale du fantôme, ajuster avec le DPad, confirmer avec OK.\n- DPad : Flèches pour déplacer, ↺/↻ pour rotation, ⇞/⇟ pour monter/descendre. Maintenir Maj pour un pas plus grand.\n- Sélection : Cliquer sur un objet pour le sélectionner. Si une couleur est active (palette), elle sera appliquée.\n- Navigation : Clic gauche/droit + glisser = Orbite | Clic milieu + glisser = Pan | Molette = Zoom.\n- Raccourcis : S (Select), A (Add), M (Move), Maj+D (Duplicate), R (Rotate), Suppr (Delete), Entrée (Confirm DPad), Ctrl+Z (Annuler), Ctrl+Y (Rétablir).\n Ctrl+S (Sauvegarder), Ctrl+O (Ouvrir).\n- Barres latérales : Cliquer sur < ou > pour les replier/déplier.'));
+        if(domElements.newFileBtn) domElements.newFileBtn.addEventListener('click', handleNewFile);
+        if(domElements.openFileBtn) domElements.openFileBtn.addEventListener('click', handleOpenFile);
+        if(domElements.saveFileBtn) domElements.saveFileBtn.addEventListener('click', handleSaveFile);
+        if(domElements.exportPdfBtn) domElements.exportPdfBtn.addEventListener('click', handleExportPDF);
+        // domElements.exportPrintButton is already assigned above
+        if(domElements.editSelectionBtn) domElements.editSelectionBtn.addEventListener('click', handleEditSelection); 
+        if(domElements.styleWhiteBtn) domElements.styleWhiteBtn.addEventListener('click', () => setElementStyle(true));
+        if(domElements.styleColorBtn) domElements.styleColorBtn.addEventListener('click', () => setElementStyle(false));
+        if(domElements.toggleShadowsBtn) domElements.toggleShadowsBtn.addEventListener('click', toggleAllShadows);
+        if(domElements.aboutAppBtn) domElements.aboutAppBtn.addEventListener('click', () => alert('MurSimulate3D\nVersion 1.0.2\nDéveloppé par J.BROHEZ avec Three.js.\nCopyright © 2025 J.BROHEZ\n\nDimensions des éléments: Longueur x Hauteur x Profondeur (Épaisseur du mur)'));
+        if(domElements.helpGuideBtn) domElements.helpGuideBtn.addEventListener('click', () => alert('Aide :\n- Barre d\'outils : Sélectionner un outil puis interagir.\n- Ajout : Cliquer sur la grille/objet pour fixer la position initiale du fantôme, ajuster avec le DPad, confirmer avec OK.\n- DPad : Flèches pour déplacer, ↺/↻ pour rotation, ⇞/⇟ pour monter/descendre. Maintenir Maj pour un pas plus grand.\n- Sélection : Cliquer sur un objet pour le sélectionner. Si une couleur est active (palette), elle sera appliquée.\n- Navigation : Clic gauche/droit + glisser = Orbite | Clic milieu + glisser = Pan | Molette = Zoom.\n- Raccourcis : S (Select), A (Add), M (Move), Maj+D (Duplicate), R (Rotate), Suppr (Delete), Entrée (Confirm DPad), Ctrl+Z (Annuler), Ctrl+Y (Rétablir).\n Ctrl+S (Sauvegarder), Ctrl+O (Ouvrir).\n- Barres latérales : Cliquer sur < ou > pour les replier/déplier.'));
     }
     
-    function updateCursorStyle() {
-        viewportContainer.classList.remove('crosshair-cursor', 'default-cursor', 'move-cursor');
-        if (currentTool === 'select' && currentActiveColor !== null) {
-            viewportContainer.style.cursor = 'copy'; 
-        } else if (currentTool === 'select' && currentActiveTextureUrl !== null) {
-            viewportContainer.style.cursor = 'crosshair'; 
-        } else {
-            viewportContainer.style.cursor = ''; 
-            switch (currentTool) {
-                case 'add': case 'select': viewportContainer.classList.add('crosshair-cursor'); break;
-                case 'move': viewportContainer.classList.add('move-cursor'); break;
-                default: viewportContainer.classList.add('default-cursor'); break;
-            }
-        }
-    }
-    
-    function updateHelpBar() {
-        let helpText = "Navigation: Clic Gauche/Droit + Glisser = Orbite | Clic Milieu + Glisser = Pan | Molette = Zoom.";
-         if (currentActiveColor !== null && currentTool === 'select') {
-            helpText = "Mode PEINTURE: Cliquez sur un élément pour appliquer la couleur. Désactivez la couleur (palette/Échap) pour sélectionner.";
-        } else if (currentActiveTextureUrl !== null && currentTool === 'select') {
-            helpText = "Mode TEXTURE: Cliquez sur un élément pour appliquer la texture. Désactivez la texture (palette/Échap) pour sélectionner.";
-        } else {
-            switch (currentTool) {
-                case 'add':
-                    if (isGhostFixed && ghostElement) {
-                        helpText = "Mode AJOUT: Ajustez avec le DPad, OK pour placer. Tapez/Cliquez ailleurs pour repositionner le fantôme.";
-                    } else {
-                        helpText = "Mode AJOUT: Tapez/Cliquez sur la scène pour positionner le fantôme.";
-                    }
-                    break;
-                case 'select': helpText = "Mode SÉLECTION: Cliquez sur un élément pour le sélectionner. Choisissez une couleur/texture dans la palette pour appliquer."; break;
-                case 'move': helpText = selectedObject ? "Mode DÉPLACER: Utilisez le DPad pour déplacer. Confirmez avec 'OK'." : "Mode DÉPLACER: Cliquez sur un élément pour le sélectionner."; break;
-                case 'rotate': helpText = selectedObject ? "Mode PIVOTER: Utilisez le DPad (↺, ↻). Confirmez avec 'OK'." : "Mode PIVOTER: Cliquez sur un élément pour le sélectionner."; break;
-                case 'duplicate': helpText = "Mode DUPLIQUER: Cliquez sur un élément pour le dupliquer."; break;
-                case 'delete': helpText = "Mode SUPPRIMER: Cliquez sur un élément pour le supprimer."; break;
-            }
-        }
-        helpBar.textContent = helpText;
-    }
+    // function updateCursorStyle() { ... } // Moved to uiUtils.js
+    // function updateHelpBar() { ... } // Moved to uiUtils.js
 
     function setCurrentTool(tool) {
         if ((currentTool === 'move' || currentTool === 'rotate') && selectedObject && selectedObject.userData.undoInitialTransform) {
@@ -449,7 +333,7 @@ document.addEventListener('DOMContentLoaded', () => {
             delete selectedObject.userData.undoInitialTransform;
         }
         currentTool = tool;
-        updateActiveToolButton();
+        updateActiveToolButton(currentTool); // Uses uiUtils version
         if (tool !== 'select' && currentActiveColor !== null) { 
             if (activeSwatchElement) activeSwatchElement.classList.remove('active-color-swatch');
             currentActiveColor = null; activeSwatchElement = null;
@@ -458,11 +342,12 @@ document.addEventListener('DOMContentLoaded', () => {
             if (activeTextureSwatchElement) activeTextureSwatchElement.classList.remove('active-texture-swatch');
             currentActiveTextureUrl = null; activeTextureSwatchElement = null;
         }
-        updateCursorStyle(); updateHelpBar(); 
+        updateCursorStyle(currentTool, currentActiveColor, currentActiveTextureUrl); // Uses uiUtils version
+        updateHelpBar(currentTool, isGhostFixed, selectedObject, currentActiveColor, currentActiveTextureUrl); // Uses uiUtils version
         if (tool === 'add' || tool === 'select') deselectObject(); 
 
         if (tool !== 'add' || (tool === 'add' && !isGhostFixed)) { 
-            hideHeightTooltip();
+            uiHideHeightTooltip();
         }
 
         if (tool === 'add') {
@@ -481,136 +366,61 @@ document.addEventListener('DOMContentLoaded', () => {
         if (controls) controls.update(); 
     }
 
-    function updateActiveToolButton() {
-        Object.values(toolButtons).forEach(btn => btn.classList.remove('tool-active'));
-        if (toolButtons[currentTool]) toolButtons[currentTool].classList.add('tool-active');
+    // function updateActiveToolButton() { ... } // Moved to uiUtils.js
+
+    // --- PALETTE CALLBACKS ---
+    function handleColorSelect(colorHex, swatchElement) {
+        if (activeSwatchElement === swatchElement) {
+            currentActiveColor = null;
+            if (activeSwatchElement) activeSwatchElement.classList.remove('active-color-swatch');
+            activeSwatchElement = null;
+        } else {
+            if (activeSwatchElement) activeSwatchElement.classList.remove('active-color-swatch');
+            currentActiveColor = colorHex;
+            activeSwatchElement = swatchElement;
+            if (activeSwatchElement) activeSwatchElement.classList.add('active-color-swatch');
+
+            if (activeTextureSwatchElement) activeTextureSwatchElement.classList.remove('active-texture-swatch');
+            currentActiveTextureUrl = null; activeTextureSwatchElement = null;
+            setCurrentTool('select');
+        }
+        updateCursorStyle(currentTool, currentActiveColor, currentActiveTextureUrl);
+        updateHelpBar(currentTool, isGhostFixed, selectedObject, currentActiveColor, currentActiveTextureUrl);
     }
 
-    function createColorPalette() {
-        const paletteDiv = document.createElement('div');
-        paletteDiv.className = 'color-palette';
-        colorPalette.forEach(color => { // color is an object like {hex: 0xff0000, name: "Red"}
-            const swatch = document.createElement('div');
-            swatch.className = 'color-swatch';
-            const swatchInner = document.createElement('div');
-            swatchInner.className = 'color-swatch-inner';
-            swatchInner.style.backgroundColor = '#' + color.hex.toString(16).padStart(6, '0');
-            swatch.appendChild(swatchInner);
-            swatch.dataset.color = color.hex; 
-            swatch.title = color.name; // Set the tooltip to the color name
-            swatch.addEventListener('click', (event) => {
-                event.stopPropagation(); 
-                if (activeSwatchElement === swatch) { 
-                    currentActiveColor = null; activeSwatchElement.classList.remove('active-color-swatch'); activeSwatchElement = null;
-                } else {
-                    if (activeSwatchElement) activeSwatchElement.classList.remove('active-color-swatch');
-                    currentActiveColor = parseInt(swatch.dataset.color);
-                    activeSwatchElement = swatch;
-                    activeSwatchElement.classList.add('active-color-swatch');
-                    
-                    if (activeTextureSwatchElement) activeTextureSwatchElement.classList.remove('active-texture-swatch');
-                    currentActiveTextureUrl = null; activeTextureSwatchElement = null;
-                    setCurrentTool('select'); 
-                }
-                updateCursorStyle(); updateHelpBar();
-            });
-            paletteDiv.appendChild(swatch);
-        });
-        colorPaletteContainer.appendChild(paletteDiv);
+    function handleTextureSelect(textureUrl, swatchElement, isCustom) {
+        if (activeTextureSwatchElement === swatchElement) {
+            currentActiveTextureUrl = null;
+            if (activeTextureSwatchElement) activeTextureSwatchElement.classList.remove('active-texture-swatch');
+            activeTextureSwatchElement = null;
+        } else {
+            if (activeTextureSwatchElement) activeTextureSwatchElement.classList.remove('active-texture-swatch');
+            currentActiveTextureUrl = textureUrl;
+            activeTextureSwatchElement = swatchElement;
+            if (activeTextureSwatchElement) activeTextureSwatchElement.classList.add('active-texture-swatch');
+
+            if (activeSwatchElement) activeSwatchElement.classList.remove('active-color-swatch');
+            currentActiveColor = null; activeSwatchElement = null;
+            setCurrentTool('select');
+        }
+        updateCursorStyle(currentTool, currentActiveColor, currentActiveTextureUrl);
+        updateHelpBar(currentTool, isGhostFixed, selectedObject, currentActiveColor, currentActiveTextureUrl);
+    }
+    
+    function handleCustomTextureAdded(textureUrl, swatchElement) {
+        // This callback is mostly for potential future use if script.js needs to react
+        // specifically when a *new* custom texture is added, beyond just selecting it.
+        // For now, the selection logic is handled by handleTextureSelect.
+        console.log("Custom texture added and selected:", textureUrl);
     }
 
-    function createTexturePalette() {
-        const paletteDiv = document.createElement('div');
-        paletteDiv.className = 'texture-palette';
-        texturePaletteURLs.forEach(textureUrl => {
-            const swatch = document.createElement('div');
-            swatch.className = 'texture-swatch';
-            swatch.style.backgroundImage = `url(${textureUrl})`;
-            swatch.dataset.textureUrl = textureUrl;
 
-            // Extrait le nom du fichier de l'URL (ex: "brique_brune_1")
-            let textureName = '';
-            try {
-                const fileNameWithExtension = textureUrl.substring(textureUrl.lastIndexOf('/') + 1);
-                textureName = fileNameWithExtension.substring(0, fileNameWithExtension.lastIndexOf('.'));
-                
-                // Supprime "_1" s'il est à la fin du nom de la texture
-                if (textureName.endsWith('_1')) {
-                    textureName = textureName.substring(0, textureName.length - 2);
-                }
-                
-                textureName = textureName.replace(/_/g, ' '); // Remplace les underscores par des espaces pour une meilleure lisibilité
-            } catch (e) {
-                console.warn("Impossible d'extraire le nom de la texture pour l'URL:", textureUrl);
-                textureName = 'Texture'; // Nom par défaut en cas d'erreur
-            }
-            
-            swatch.title = textureName;
-
-            swatch.addEventListener('click', (event) => {
-                event.stopPropagation();
-                if (activeTextureSwatchElement === swatch) {
-                    currentActiveTextureUrl = null;
-                    if (activeTextureSwatchElement) activeTextureSwatchElement.classList.remove('active-texture-swatch');
-                    activeTextureSwatchElement = null;
-                } else {
-                    if (activeTextureSwatchElement) activeTextureSwatchElement.classList.remove('active-texture-swatch');
-                    currentActiveTextureUrl = swatch.dataset.textureUrl;
-                    activeTextureSwatchElement = swatch;
-                    activeTextureSwatchElement.classList.add('active-texture-swatch');
-                    
-                    if (activeSwatchElement) activeSwatchElement.classList.remove('active-color-swatch');
-                    currentActiveColor = null; activeSwatchElement = null;
-                    setCurrentTool('select'); 
-                }
-                updateCursorStyle(); updateHelpBar();
-            });
-            paletteDiv.appendChild(swatch);
-        });
-        texturePaletteContainer.appendChild(paletteDiv);
-    }
-
-    const customTextureInput = document.getElementById('custom-texture-file-input');
-    const customTextureFileNameDisplay = document.getElementById('custom-texture-file-name-display');
-    const customTexturePaletteContainer = document.getElementById('custom-texture-palette-container');
-
-    if (customTextureInput) { // Ensure the element exists
-        customTextureInput.addEventListener('change', () => {
-            const file = customTextureInput.files[0];
-            if (!file) return;
-            customTextureFileNameDisplay.textContent = file.name;
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                const textureUrl = event.target.result;
-                const swatch = document.createElement('div');
-                swatch.className = 'custom-texture-swatch';
-                swatch.style.backgroundImage = `url(${textureUrl})`;
-                swatch.dataset.textureUrl = textureUrl;
-
-                // Add click event to select the texture
-                swatch.addEventListener('click', (event) => {
-                    event.stopPropagation();
-                    if (activeTextureSwatchElement) activeTextureSwatchElement.classList.remove('active-texture-swatch');
-                    if (activeSwatchElement) activeSwatchElement.classList.remove('active-color-swatch');
-                    currentActiveColor = null; activeSwatchElement = null;
-                    currentActiveTextureUrl = swatch.dataset.textureUrl;
-                    activeTextureSwatchElement = swatch;
-                    swatch.classList.add('active-texture-swatch');
-                    setCurrentTool('select');
-                    updateCursorStyle();
-                    updateHelpBar();
-                });
-
-                // Append the swatch to the custom texture palette container
-                customTexturePaletteContainer.appendChild(swatch);
-            };
-            reader.readAsDataURL(file);
-        });
-    }
+    // function createColorPalette() { ... } // Moved to uiUtils.js
+    // function createTexturePalette() { ... } // Moved to uiUtils.js
 
     // --- HELPER FUNCTIONS ---
     function getElementProperties() {
-        const selectedOption = elementTypeSelector.options[elementTypeSelector.selectedIndex];
+        const selectedOption = domElements.elementTypeSelector.options[domElements.elementTypeSelector.selectedIndex];
         const typeKey = selectedOption.value; 
         const baseType = typeKey.split('_')[0]; 
         let dims, name, originalName; 
@@ -619,10 +429,10 @@ document.addEventListener('DOMContentLoaded', () => {
         let customCutWidthValue = null;
 
         if (typeKey === 'custom') {
-            name = customNameInput.value.trim() || 'Perso';
-            const w = parseFloat(customWidthInput.value) || 0.2;
-            const h = parseFloat(customHeightInput.value) || 0.1;
-            const d = parseFloat(customDepthInput.value) || 0.1;
+            name = domElements.customNameInput.value.trim() || 'Perso';
+            const w = parseFloat(domElements.customWidthInput.value) || 0.2;
+            const h = parseFloat(domElements.customHeightInput.value) || 0.1;
+            const d = parseFloat(domElements.customDepthInput.value) || 0.1;
             dims = [w, h, d];
             originalName = name; 
         } else {
@@ -630,14 +440,14 @@ document.addEventListener('DOMContentLoaded', () => {
             name = originalName;
             dims = selectedOption.dataset.dims.split(',').map(Number);
             if (typeKey === 'vide') {
-                dims[2] = parseFloat(videDepthInput.value) / 100; 
+                dims[2] = parseFloat(domElements.videDepthInput.value) / 100; 
             }
 
             if (baseType === 'brique') {
-                const selectedCutOption = brickCutSelector.options[brickCutSelector.selectedIndex];
+                const selectedCutOption = domElements.brickCutSelector.options[domElements.brickCutSelector.selectedIndex];
                 cutLength = selectedCutOption.value;
                 if (cutLength === 'custom_cut') {
-                    customCutWidthValue = parseFloat(brickCustomCutLengthInput.value) / 100;
+                    customCutWidthValue = parseFloat(domElements.brickCustomCutLengthInput.value) / 100;
                     if (isNaN(customCutWidthValue) || customCutWidthValue <= 0) customCutWidthValue = dims[0]; // Default to full if invalid
                     dims[0] = customCutWidthValue;
                     name += ` (Coupe ${(customCutWidthValue * 100).toFixed(1)}cm)`;
@@ -648,10 +458,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 dims[0] = parseFloat(dims[0].toFixed(4)); 
             } else if (baseType === 'bloc') { 
-                const selectedBlockCutOption = blockCutSelector.options[blockCutSelector.selectedIndex];
+                const selectedBlockCutOption = domElements.blockCutSelector.options[domElements.blockCutSelector.selectedIndex];
                 cutLength = selectedBlockCutOption.value;
                 if (cutLength === 'custom_cut') {
-                    customCutWidthValue = parseFloat(blockCustomCutLengthInput.value) / 100;
+                    customCutWidthValue = parseFloat(domElements.blockCustomCutLengthInput.value) / 100;
                     if (isNaN(customCutWidthValue) || customCutWidthValue <= 0) customCutWidthValue = dims[0];
                     dims[0] = customCutWidthValue;
                     name += ` (Long. ${(customCutWidthValue * 100).toFixed(1)}cm)`;
@@ -709,7 +519,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         ghostElement.visible = (currentTool === 'add' && !isGhostFixed);
         scene.add(ghostElement);
-        if (!isGhostFixed) hideHeightTooltip(); 
+        if (!isGhostFixed) uiHideHeightTooltip(); 
     }
 
     function removeGhostElement() {
@@ -720,7 +530,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ghostElement = null;
         }
         isGhostFixed = false; 
-        hideHeightTooltip(); 
+        uiHideHeightTooltip(); 
     }
 
     function addElementAtPosition(position, rotationY, propsFromGhost, elementId = null, originalColorOverride = null) {
@@ -760,7 +570,7 @@ document.addEventListener('DOMContentLoaded', () => {
         element.add(lineSegments); 
         objects.push(element);
         scene.add(element);
-        updateElementCounter();
+        updateElementCounter(); // This will become updateElementCounterUI(objects)
         return element;
     }
 
@@ -790,8 +600,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             deselectObject(); setCurrentTool('select'); 
         }
-        hideHeightTooltip(); 
-        updateHelpBar();
+        uiHideHeightTooltip(); 
+        updateHelpBar(currentTool, isGhostFixed, selectedObject, currentActiveColor, currentActiveTextureUrl);
     }
 
     function snapToGrid(value) { return Math.round(value / snapGridSize) * snapGridSize; }
@@ -825,7 +635,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const target = (currentTool === 'add' && ghostElement && isGhostFixed) ? ghostElement : 
                                ((currentTool === 'move' || currentTool === 'rotate') && selectedObject) ? selectedObject : null;
         if (!target) {
-            hideHeightTooltip();
+            uiHideHeightTooltip();
             return;
         }
         if (selectedObject && !target.userData.undoInitialTransform && (currentTool === 'move' || currentTool === 'rotate')) {
@@ -836,16 +646,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const useShift = currentEvent ? currentEvent.shiftKey : false;
         const moveAmount = snapGridSize * (useShift ? 10 : 5); 
         let heightAdjustAmount = snapGridSize * (useShift ? 5 : 2); 
-        
+        const baseHeightAdjust = 0.01; // Smallest increment for up/down movement to avoid jitter
+
         let jointHeightMeters = 0;
         let currentJointCm = 0;
 
         if (target.userData.baseType === 'brique') {
             jointHeightMeters = getSanitizedJointValue('joint-distance');
-            currentJointCm = parseFloat((jointDistanceInput.value || "0").replace(',', '.'));
+            currentJointCm = parseFloat((domElements.jointDistanceInput.value || "0").replace(',', '.'));
         } else if (target.userData.baseType === 'bloc') {
             jointHeightMeters = getSanitizedJointValue('block-joint-distance');
-            currentJointCm = parseFloat((blockJointDistanceInput.value || "0").replace(',', '.'));
+            currentJointCm = parseFloat((domElements.blockJointDistanceInput.value || "0").replace(',', '.'));
         }
 
 
@@ -863,7 +674,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (direction === 'backward') target.position.z += moveAmount;
                 if (direction === 'left') target.position.x -= moveAmount;
                 if (direction === 'right') target.position.x += moveAmount;
-                if (target === ghostElement) hideHeightTooltip(); 
+                if (target === ghostElement) uiHideHeightTooltip(); 
                 break;
             case 'up': 
             case 'down':
@@ -887,16 +698,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (target === ghostElement && (target.userData.baseType === 'brique' || target.userData.baseType === 'bloc')) {
                     const tooltipText = `Haut. ${target.userData.baseType === 'brique' ? 'Brique' : 'Bloc'}: ${(target.userData.height * 100).toFixed(1)} cm, Joint: ${(currentJointCm).toFixed(1)} cm, Niveau: ${(target.position.y + target.userData.height / 2).toFixed(2)} m`;
-                    showAndPositionTooltip(target, tooltipText);
+                    uiShowAndPositionTooltip(target, tooltipText, camera, renderer);
                 } else {
-                    hideHeightTooltip();
+                    uiHideHeightTooltip();
                 }
                 break;
         }
         target.position.x = snapToGrid(target.position.x);
         target.position.z = snapToGrid(target.position.z);
         target.position.y = parseFloat(target.position.y.toFixed(5)); 
-        updateHelpBar();
+        updateHelpBar(currentTool, isGhostFixed, selectedObject, currentActiveColor, currentActiveTextureUrl);
     }
 
     function updateTargetSeatingAfterVerticalMove(target) {
@@ -946,7 +757,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const useShift = currentEvent ? currentEvent.shiftKey : false;
         const rotAmount = Math.PI / (useShift ? 18 : 36); 
         target.rotation.y += (direction === 'left' ? rotAmount : -rotAmount);
-        if (target === ghostElement) hideHeightTooltip(); 
+        if (target === ghostElement) uiHideHeightTooltip(); 
     }
 
     function selectObject(object) {
@@ -973,7 +784,8 @@ document.addEventListener('DOMContentLoaded', () => {
             selectedObject = null; 
             if (currentTool !== 'add') controls.enabled = true;
         }
-        if(controls) controls.update(); updateHelpBar();
+        if(controls) controls.update(); 
+        updateHelpBar(currentTool, isGhostFixed, selectedObject, currentActiveColor, currentActiveTextureUrl);
     }
 
     function deselectObject() {
@@ -1000,12 +812,12 @@ document.addEventListener('DOMContentLoaded', () => {
             if(controls) controls.update();
         }
         if (currentTool !== 'add') isGhostFixed = false; 
-        hideHeightTooltip(); 
-        updateHelpBar();
+        uiHideHeightTooltip(); 
+        updateHelpBar(currentTool, isGhostFixed, selectedObject, currentActiveColor, currentActiveTextureUrl);
     }
 
     function onWindowResize() {
-        const newWidth = viewportContainer.clientWidth, newHeight = viewportContainer.clientHeight;
+        const newWidth = domElements.viewportContainer.clientWidth, newHeight = domElements.viewportContainer.clientHeight;
         camera.aspect = newWidth / newHeight; camera.updateProjectionMatrix();
         renderer.setSize(newWidth, newHeight);
     }
@@ -1053,11 +865,11 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
         if (ghostElement.material.needsUpdate !== undefined) ghostElement.material.needsUpdate = true;
-        hideHeightTooltip();
+        uiHideHeightTooltip();
     }
 
     function handleTapOrClick(screenX, screenY) {
-        const rect = viewportContainer.getBoundingClientRect();
+        const rect = domElements.viewportContainer.getBoundingClientRect();
         mousePointer.x = ((screenX - rect.left) / rect.width) * 2 - 1;
         mousePointer.y = -((screenY - rect.top) / rect.height) * 2 + 1;
         raycaster.setFromCamera(mousePointer, camera);
@@ -1071,12 +883,14 @@ document.addEventListener('DOMContentLoaded', () => {
                         applyTextureToObject(clickedObject, currentActiveTextureUrl);
                         if (activeTextureSwatchElement) activeTextureSwatchElement.classList.remove('active-texture-swatch');
                         currentActiveTextureUrl = null; activeTextureSwatchElement = null;
-                        updateCursorStyle(); updateHelpBar();
+                        updateCursorStyle(currentTool, currentActiveColor, currentActiveTextureUrl); 
+                        updateHelpBar(currentTool, isGhostFixed, selectedObject, currentActiveColor, currentActiveTextureUrl);
                     } else if (currentActiveColor !== null) {
                         applyColorToObject(clickedObject, currentActiveColor);
-                        if (activeSwatchElement) activeSwatchElement.classList.remove('active-color-swatch');
+                        if (activeSwatchElement) activeSwatchElement.classList.remove('active-color-swatch'); // Corrected this line
                         currentActiveColor = null; activeSwatchElement = null;
-                        updateCursorStyle(); updateHelpBar();
+                        updateCursorStyle(currentTool, currentActiveColor, currentActiveTextureUrl); 
+                        updateHelpBar(currentTool, isGhostFixed, selectedObject, currentActiveColor, currentActiveTextureUrl);
                     } else {
                         selectObject(clickedObject);
                     }
@@ -1114,18 +928,18 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 tooltipText = "Erreur calcul hauteur"; 
             }
-            showAndPositionTooltip(ghostElement, tooltipText);
+            uiShowAndPositionTooltip(ghostElement, tooltipText, camera, renderer);
         }
     }
 
 
     function onViewportPointerDown(event) {
-        const dpadContainer = document.getElementById('dpad-controls');
+        const dpadContainer = domElements.dpadControlsContainer; // Use cached element
         if (dpadContainer && dpadContainer.contains(event.target)) return; 
         
         if (event.pointerType === 'mouse' || event.pointerType === undefined) {
             if (event.button === 0) { // Left click
-                const rect = viewportContainer.getBoundingClientRect();
+                const rect = domElements.viewportContainer.getBoundingClientRect();
                 mousePointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
                 mousePointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
                 raycaster.setFromCamera(mousePointer, camera);
@@ -1146,8 +960,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         controls.enablePan = true; 
                         
                         showTooltipForFixedGhost();
-                        updateHelpBar(); // Help bar will reflect "Ajustez avec DPad..."
-                    }
+                        updateHelpBar(currentTool, isGhostFixed, selectedObject, currentActiveColor, currentActiveTextureUrl);                    }
                 } else {
                     handleTapOrClick(event.clientX, event.clientY);
                 }
@@ -1163,7 +976,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         if (event.pointerType === 'mouse' || event.pointerType === undefined) {
-            const rect = viewportContainer.getBoundingClientRect();
+            const rect = domElements.viewportContainer.getBoundingClientRect();
             mousePointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
             mousePointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
             raycaster.setFromCamera(mousePointer, camera);
@@ -1202,7 +1015,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             if (currentTool === 'add' && ghostElement && !isGhostFixed && !controls.enabled) {
-                const rect = viewportContainer.getBoundingClientRect();
+                const rect = domElements.viewportContainer.getBoundingClientRect();
                 mousePointer.x = ((touch.clientX - rect.left) / rect.width) * 2 - 1;
                 mousePointer.y = -((touch.clientY - rect.top) / rect.height) * 2 + 1;
                 raycaster.setFromCamera(mousePointer, camera);
@@ -1229,7 +1042,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         createGhostElement();
                     }
                     if (ghostElement) {
-                        const rect = viewportContainer.getBoundingClientRect();
+                        const rect = domElements.viewportContainer.getBoundingClientRect();
                         mousePointer.x = ((touch.clientX - rect.left) / rect.width) * 2 - 1;
                         mousePointer.y = -((touch.clientY - rect.top) / rect.height) * 2 + 1;
                         raycaster.setFromCamera(mousePointer, camera);
@@ -1241,7 +1054,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                         controls.enabled = true; controls.enableRotate = true; controls.enablePan = true;
                         showTooltipForFixedGhost();
-                        updateHelpBar();
+                        updateHelpBar(currentTool, isGhostFixed, selectedObject, currentActiveColor, currentActiveTextureUrl);
                     }
                 } else if (isDraggingWithTouch && ghostElement) { // DRAGGED ghost to position
                     // Ghost was already positioned by onViewportTouchMove which calls updateGhostOnIntersection
@@ -1250,7 +1063,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     ghostElement.visible = true;
                     controls.enabled = true; controls.enableRotate = true; controls.enablePan = true;
                     showTooltipForFixedGhost();
-                    updateHelpBar();
+                    updateHelpBar(currentTool, isGhostFixed, selectedObject, currentActiveColor, currentActiveTextureUrl);
                 } else { 
                      controls.enabled = true; controls.enableRotate = true; controls.enablePan = true;
                 }
@@ -1284,7 +1097,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function onDocumentKeyDown(event) {
         if (document.activeElement && ( document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA' || document.activeElement.tagName === 'SELECT')) {
             if (event.key === 'Escape') {
-                hideHeightTooltip(); 
+                uiHideHeightTooltip(); 
                 document.activeElement.blur(); 
                 if (currentActiveColor) {
                     if(activeSwatchElement) activeSwatchElement.classList.remove('active-color-swatch');
@@ -1294,7 +1107,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     if(activeTextureSwatchElement) activeTextureSwatchElement.classList.remove('active-texture-swatch');
                     currentActiveTextureUrl = null; activeTextureSwatchElement = null;
                 }
-                updateCursorStyle(); updateHelpBar();
+                updateCursorStyle(currentTool, currentActiveColor, currentActiveTextureUrl); 
+                updateHelpBar(currentTool, isGhostFixed, selectedObject, currentActiveColor, currentActiveTextureUrl);
             }
             return;
         }
@@ -1314,16 +1128,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 break;
             case 'escape':
-                hideHeightTooltip(); 
-                if (currentActiveColor !== null) { if (activeSwatchElement) activeSwatchElement.classList.remove('active-color-swatch'); currentActiveColor = null; activeSwatchElement = null; updateCursorStyle(); updateHelpBar(); } 
-                else if (currentActiveTextureUrl !== null) { if (activeTextureSwatchElement) activeTextureSwatchElement.classList.remove('active-texture-swatch'); currentActiveTextureUrl = null; activeTextureSwatchElement = null; updateCursorStyle(); updateHelpBar(); }
-                else if (currentTool === 'add' && ghostElement) {
-                    if (isGhostFixed) {
-                        isGhostFixed = false; removeGhostElement(); createGhostElement(); if(ghostElement) ghostElement.visible = true;
-                        controls.enabled = false; controls.enableRotate = false; controls.enablePan = false;
-                    }
-                } 
-                else if (selectedObject) deselectObject();
+                uiHideHeightTooltip(); 
+                if (currentActiveColor !== null) { if (activeSwatchElement) activeSwatchElement.classList.remove('active-color-swatch'); currentActiveColor = null; activeSwatchElement = null; updateCursorStyle(currentTool, currentActiveColor, currentActiveTextureUrl); updateHelpBar(currentTool, isGhostFixed, selectedObject, currentActiveColor, currentActiveTextureUrl); } 
+                else if (currentActiveTextureUrl !== null) { if (activeTextureSwatchElement) activeTextureSwatchElement.classList.remove('active-texture-swatch'); currentActiveTextureUrl = null; activeTextureSwatchElement = null; updateCursorStyle(currentTool, currentActiveColor, currentActiveTextureUrl); updateHelpBar(currentTool, isGhostFixed, selectedObject, currentActiveColor, currentActiveTextureUrl); }
+                else if (currentTool === 'add' && ghostElement) { isGhostFixed = false; ghostElement.visible = true; controls.enabled = false; controls.enableRotate = false; controls.enablePan = false; updateHelpBar(currentTool, isGhostFixed, selectedObject, currentActiveColor, currentActiveTextureUrl); } 
+                else if (selectedObject) { deselectObject(); }
                 break;
             case 'w': case 'arrowup': moveGhostOrSelected('forward', event); break;
             case 'x': case 'arrowdown': moveGhostOrSelected('backward', event); break; 
@@ -1340,12 +1149,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function pushActionToUndoStack(action) {
-        undoStack.push(action); redoStack.length = 0; updateUndoRedoButtons();
+        undoStack.push(action); redoStack.length = 0; 
+        updateUndoRedoButtons(); // This will become updateUndoRedoButtonsUI
     }
     function updateUndoRedoButtons() {
-        undoBtn.disabled = undoStack.length === 0; redoBtn.disabled = redoStack.length === 0;
-        document.getElementById('undo-action').style.color = undoStack.length === 0 ? '#A0A0A0' : '#333333';
-        document.getElementById('redo-action').style.color = redoStack.length === 0 ? '#A0A0A0' : '#333333';
+        updateUndoRedoButtonsUI(undoStack.length, redoStack.length);
     }
     function getObjectById(id) { return objects.find(obj => obj.userData.id === id); }
     function cloneObjectDataForUndo(object) {
@@ -1371,8 +1179,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 break;
             case 'transform': object = getObjectById(action.objectId); if (object) { object.position.copy(action.oldTransform.position); object.rotation.y = action.oldTransform.rotationY; } break;
                                             
-                                            
-                                            
+
                                              case 'color': 
                 object = getObjectById(action.objectId); 
                 if (object) { 
@@ -1405,9 +1212,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 break;
         }
 
-       
-
-        redoStack.push(action); updateUndoRedoButtons(); updateElementCounter();
+        redoStack.push(action); 
+        updateUndoRedoButtons(); // This will become updateUndoRedoButtonsUI
+        updateElementCounter(); // This will become updateElementCounterUI(objects)
     }
     function redoLastAction() {
         if (redoStack.length === 0) return;
@@ -1441,7 +1248,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 break;
         }
-        undoStack.push(action); updateUndoRedoButtons(); updateElementCounter();
+        undoStack.push(action); 
+        updateUndoRedoButtons(); // This will become updateUndoRedoButtonsUI
+        updateElementCounter(); // This will become updateElementCounterUI(objects)
     }
 
     function applyColorToObject(object, colorHex, addToUndo = true) {
@@ -1517,16 +1326,21 @@ document.addEventListener('DOMContentLoaded', () => {
         target.traverse((child) => { if (child.isLineSegments && child.name === "elementEdges") { if (child.geometry) child.geometry.dispose(); if (child.material) { if (Array.isArray(child.material)) child.material.forEach(m => m.dispose()); else child.material.dispose(); }}});
         scene.remove(target); const index = objects.indexOf(target); if ( index > -1) objects.splice(index, 1);
         if (target.geometry) target.geometry.dispose(); if (target.material) { if (Array.isArray(target.material)) target.material.forEach(m => m.dispose()); else target.material.dispose(); }
-        if (selectedObject === target) deselectObject(); updateElementCounter();
+        if (selectedObject === target) deselectObject(); 
+        updateElementCounter(); // This will become updateElementCounterUI(objects)
     }
 
     function handleNewFile() {
         if (!confirm("Créer un nouveau fichier ? Les modifications non sauvegardées seront perdues.")) return;
-        while(objects.length > 0) { let o = objects[0]; o.traverse((c) => { if (c.isLineSegments && c.name === "elementEdges") { if (c.geometry) c.geometry.dispose(); if (c.material) c.material.dispose(); }}); scene.remove(o); if (o.geometry) o.geometry.dispose(); if (o.material) { if(Array.isArray(o.material)) o.material.forEach(m=>m.dispose()); else o.material.dispose(); } objects.shift(); }
+        while(objects.length > 0) { let o = objects[0]; o.traverse((c => { if (c.isLineSegments && c.name === "elementEdges") { if (c.geometry) c.geometry.dispose(); if (c.material) c.material.dispose(); }})); scene.remove(o); if (o.geometry) o.geometry.dispose(); if (o.material) { if(Array.isArray(o.material)) o.material.forEach(m=>m.dispose()); else o.material.dispose(); } objects.shift(); }
         if (selectedObject) deselectObject();
-        undoStack.length = 0; redoStack.length = 0; updateUndoRedoButtons();
+        undoStack.length = 0; redoStack.length = 0; 
+        updateUndoRedoButtons(); // This will become updateUndoRedoButtonsUI
         seatingLevels = { 0: { y: 0, name: "Assise 0 (Niveau 0.00m)" } }; currentSeatingIndex = 0; updateSeatingSelector();
-        updateElementCounter(); ['project-title', 'designer-name', 'operating-mode', 'project-notes'].forEach(id => document.getElementById(id).value = '');
+        updateElementCounter(); // This will become updateElementCounterUI(objects)
+        [domElements.projectTitleInput, domElements.designerNameInput, domElements.operatingModeInput, domElements.projectNotesInput].forEach(input => {
+            if (input) input.value = ''; // Check if input exists
+        });
         if (currentTool === 'add') { removeGhostElement(); createGhostElement(); }
         setCurrentTool('add'); 
         if (controls) { camera.position.copy(initialCameraPosition); controls.target.copy(initialCameraLookAt); controls.update(); }
@@ -1540,13 +1354,16 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!confirm("Charger va remplacer la scène. Continuer ?")) return;
         while(objects.length > 0) { let o = objects[0]; o.traverse((c) => { if (c.isLineSegments && c.name === "elementEdges") { if (c.geometry) c.geometry.dispose(); if (c.material) c.material.dispose(); }}); scene.remove(o); if (o.geometry) o.geometry.dispose(); if (o.material) { if(Array.isArray(o.material)) o.material.forEach(m=>m.dispose()); else o.material.dispose(); } objects.shift(); }
         if (selectedObject) deselectObject();
-        undoStack.length = 0; redoStack.length = 0; updateUndoRedoButtons();
-        ['project-title', 'designer-name', 'operating-mode', 'project-notes'].forEach(id => document.getElementById(id).value = '');
+        undoStack.length = 0; redoStack.length = 0; 
+        updateUndoRedoButtons(); // This will become updateUndoRedoButtonsUI
+        [domElements.projectTitleInput, domElements.designerNameInput, domElements.operatingModeInput, domElements.projectNotesInput].forEach(input => {
+            if (input) input.value = ''; // Check if input exists
+        });
         if (data.metadata) { 
-            document.getElementById('project-title').value = data.metadata.projectTitle || ''; 
-            document.getElementById('designer-name').value = data.metadata.designerName || ''; 
-            document.getElementById('operating-mode').value = data.metadata.operatingMode || ''; 
-            document.getElementById('project-notes').value = data.metadata.projectNotes || '';
+            if(domElements.projectTitleInput) domElements.projectTitleInput.value = data.metadata.projectTitle || ''; 
+            if(domElements.designerNameInput) domElements.designerNameInput.value = data.metadata.designerName || ''; 
+            if(domElements.operatingModeInput) domElements.operatingModeInput.value = data.metadata.operatingMode || ''; 
+            if(domElements.projectNotesInput) domElements.projectNotesInput.value = data.metadata.projectNotes || '';
         }
         seatingLevels = (data.seatingLevels && Object.keys(data.seatingLevels).length > 0) ? data.seatingLevels : { 0: { y: 0, name: "Assise 0 (Niveau 0.00m)" } };
         currentSeatingIndex = data.currentSeatingIndex !== undefined && seatingLevels[data.currentSeatingIndex] ? data.currentSeatingIndex : 0;
@@ -1554,18 +1371,19 @@ document.addEventListener('DOMContentLoaded', () => {
         updateSeatingSelector(); 
         if (data.styleSettings) { useWhiteElements = data.styleSettings.useWhiteElements || false; shadowsEnabled = data.styleSettings.shadowsEnabled !== undefined ? data.styleSettings.shadowsEnabled : true; } else { useWhiteElements = false; shadowsEnabled = true; }
         renderer.shadowMap.enabled = shadowsEnabled; scene.traverse(c => { if (c.isLight) c.castShadow = shadowsEnabled; if (c.isMesh && c.material) c.material.needsUpdate = true; });
-        toggleShadowsBtn.textContent = shadowsEnabled ? "Désactiver Ombres" : "Activer Ombres";
-        if (data.objects) { data.objects.forEach(objData => { const props = { type: objData.type, baseType: objData.baseType, name: objData.name, originalName: objData.originalName, width: objData.width, height: objData.height, depth: objData.depth, seatingIndex: objData.seatingIndex, cutLength: objData.cutLength, widthMultiplier: objData.widthMultiplier, customCutWidthValue: objData.customCutWidthValue, appliedTextureUrl: objData.appliedTextureUrl }; const pos = new THREE.Vector3(objData.position.x, objData.position.y, objData.position.z); const rotY = objData.rotationY; const origSeatIdx = currentSeatingIndex; currentSeatingIndex = objData.seatingIndex !== undefined && seatingLevels[objData.seatingIndex] ? objData.seatingIndex : 0; if (!seatingLevels[currentSeatingIndex]) currentSeatingIndex = 0; const loadedEl = addElementAtPosition(pos, rotY, props, objData.id, objData.originalColor); if (loadedEl) { loadedEl.castShadow = shadowsEnabled && props.baseType !== 'vide'; loadedEl.receiveShadow = shadowsEnabled && props.baseType !== 'vide'; if (objData.appliedTextureUrl) { applyTextureToObject(loadedEl, objData.appliedTextureUrl, false); } else if (objData.originalColor !== (elementColors[objData.baseType] || elementColors.default) ) { applyColorToObject(loadedEl, objData.originalColor, false); } } currentSeatingIndex = origSeatIdx; }); }
-        updateElementCounter(); if (currentTool === 'add') { removeGhostElement(); createGhostElement(); } setCurrentTool('add'); 
+        if(domElements.toggleShadowsBtn) domElements.toggleShadowsBtn.textContent = shadowsEnabled ? "Désactiver Ombres" : "Activer Ombres";
+        if (data.objects) { data.objects.forEach(objData => { const props = { type: objData.type, baseType: objData.baseType, name: objData.name, originalName: objData.originalName, width: objData.width, height: objData.height, depth: objData.depth, seatingIndex: objData.seatingIndex, cutLength: objData.cutLength, widthMultiplier: objData.widthMultiplier, customCutWidthValue: objData.customCutWidthValue, appliedTextureUrl: objData.appliedTextureUrl }; const pos = new THREE.Vector3(objData.position.x, objData.position.y, objData.position.z); const rotY = objData.rotationY; const origSeatIdx = currentSeatingIndex; currentSeatingIndex = objData.seatingIndex !== undefined && seatingLevels[objData.seatingIndex] ? objData.seatingIndex : 0; if (!seatingLevels[currentSeatingIndex]) currentSeatingIndex = 0; const loadedEl = addElementAtPosition(pos, rotY, props, objData.id, objData.originalColor); if (loadedEl) { loadedEl.castShadow = shadowsEnabled && props.baseType !== 'vide'; loadedEl.receiveShadow = shadowsEnabled && props.baseType !== 'vide'; if (objData.appliedTextureUrl) { applyTextureToObject(loadedEl, objData.appliedTextureUrl, false); } else if (objData.originalColor !== (elementColors[objData.baseType] || elementColors.default) && !useWhiteElements ) { applyColorToObject(loadedEl, objData.originalColor, false); } } currentSeatingIndex = origSeatIdx; }); }
+        updateElementCounter(); // This will become updateElementCounterUI(objects)
+        if (currentTool === 'add') { removeGhostElement(); createGhostElement(); } setCurrentTool('add'); 
         if (controls) { camera.position.copy(initialCameraPosition); controls.target.copy(initialCameraLookAt); controls.update(); }
     }
     function handleSaveFile() {
         const sceneData = { 
             metadata: { 
-                projectTitle: document.getElementById('project-title').value, 
-                designerName: document.getElementById('designer-name').value, 
-                operatingMode: document.getElementById('operating-mode').value,
-                projectNotes: document.getElementById('project-notes').value 
+                projectTitle: domElements.projectTitleInput ? domElements.projectTitleInput.value : '', 
+                designerName: domElements.designerNameInput ? domElements.designerNameInput.value : '', 
+                operatingMode: domElements.operatingModeInput ? domElements.operatingModeInput.value : '',
+                projectNotes: domElements.projectNotesInput ? domElements.projectNotesInput.value : '' 
             }, 
             objects: objects.map(o => ({ id: o.userData.id, type: o.userData.type, baseType: o.userData.baseType, name: o.userData.name, originalName: o.userData.originalName, width: o.userData.width, height: o.userData.height, depth: o.userData.depth, position: { x: o.position.x, y: o.position.y, z: o.position.z }, rotationY: o.rotation.y, originalColor: o.userData.originalColor, seatingIndex: o.userData.seatingIndex, cutLength: o.userData.cutLength, widthMultiplier: o.userData.widthMultiplier, customCutWidthValue: o.userData.customCutWidthValue, appliedTextureUrl: o.userData.appliedTextureUrl })), 
             seatingLevels: seatingLevels, 
@@ -1581,8 +1399,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (typeof jsPDF === 'undefined' && typeof window.jspdf.jsPDF === 'undefined') { alert("jsPDF non chargée."); return; }
         const { jsPDF: JSPDF_LIB } = window.jspdf; if (!JSPDF_LIB) { alert("Erreur jsPDF."); return; }
         const pdf = new JSPDF_LIB({ orientation: 'landscape', unit: 'mm', format: 'a4' });
-        const pdfTitle = document.getElementById('project-title').value; 
-        const designer = document.getElementById('designer-name').value || "N/A"; 
+        const pdfTitle = domElements.projectTitleInput ? domElements.projectTitleInput.value : ''; 
+        const designer = (domElements.designerNameInput ? domElements.designerNameInput.value : '') || "N/A"; 
         const date = new Date().toLocaleDateString('fr-FR');
         const originalSceneBackground = scene.background.clone(); 
         const planeOriginalVisibility = plane.visible;
@@ -1591,7 +1409,6 @@ document.addEventListener('DOMContentLoaded', () => {
         ['GridHelper', 'DirectionalLightHelper', 'CameraHelper'].forEach(n => { const o = scene.getObjectByName(n); if(o) o.visible = false; });
         const ghostVis = ghostElement ? ghostElement.visible : false; if (ghostElement) ghostElement.visible = false;
         const selObj = selectedObject; deselectObject(); renderer.setPixelRatio(window.devicePixelRatio * 1.5); 
-        
         const views = [ 
             { name: "Perspective", isPerspective: true, pos: initialCameraPosition.toArray() }, 
             { name: "Vue de Face", isPerspective: false, up: [0,1,0], viewDir: new THREE.Vector3(0,0,1) }, 
@@ -1612,7 +1429,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const ih = imageAreaHeight;          
 
         let vc=0; 
-        
         const visibleObjects = objects.filter(obj => obj.visible && obj.geometry && obj.userData && !obj.userData.isGhost);
         const boundingBox = new THREE.Box3();
         
@@ -1690,7 +1506,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     pdf.text(`Date: ${date}`, m, m + 10);
                 }
                 pdf.text(`Page ${Math.floor(vc/2)+1}`, pw - m -15, m + 5);
-                pdf.text(document.getElementById('watermark').textContent, m, ph - 5, { align: 'left' });
+                const watermarkEl = document.getElementById('watermark'); // Watermark might not be in domElements
+                if (watermarkEl) pdf.text(watermarkEl.textContent, m, ph - 5, { align: 'left' });
             } 
             
             const view=views[i];
@@ -1795,44 +1612,16 @@ document.addEventListener('DOMContentLoaded', () => {
             summaryPageY += 5;
         }
         pdf.text(`Date: ${date}`, m, summaryPageY);
-        pdf.text(`Page ${Math.floor(vc/2)+1}`, pw - m -15, m + 5);
+        pdf.text(`Page ${Math.floor(vc / 2) + 1}`, pw - m - 15, m + 5);
         summaryPageY += 10;
 
-
-        pdf.setFontSize(14);
-        pdf.setFont(undefined, 'bold');
-        pdf.text("Métré des matériaux", m, summaryPageY);
-        summaryPageY += 7;
-        pdf.setFontSize(10);
-        pdf.setFont(undefined, 'normal');
-        
-        let tableX = m;
-        pdf.setFontSize(8);
-        pdf.text("Type", tableX, summaryPageY);
-        pdf.text("Quantité", tableX + 70, summaryPageY); 
-        summaryPageY += 5;
-        pdf.setLineWidth(0.2);
-        pdf.line(tableX, summaryPageY - 4, tableX + 90, summaryPageY - 4); 
-
-        for (let i = 0; i < elementCounterTableBody.rows.length; i++) {
-            const row = elementCounterTableBody.rows[i];
-            pdf.text(row.cells[0].textContent, tableX, summaryPageY);
-            pdf.text(row.cells[1].textContent, tableX + 70, summaryPageY);
-            summaryPageY += 5;
-            if (summaryPageY > ph - 40) {
-                pdf.addPage(); 
-                summaryPageY = m + 10; 
-                pdf.text(`Page ${Math.floor(vc/2)+1 + Math.ceil((i+1)/elementCounterTableBody.rows.length)}`, pw - m -15, m + 5); // Update page number
-            }
-        }
-        summaryPageY += 10; 
-        
-        const operatingModeText = document.getElementById('operating-mode').value;
+        // Add "Mode opératoire" section
+        const operatingModeText = domElements.operatingModeInput ? domElements.operatingModeInput.value : '';
         if (operatingModeText.trim() !== "") {
-            if (summaryPageY > ph - 30 - (pdf.splitTextToSize(operatingModeText, pw - 2*m).length * 4)) {
-                pdf.addPage(); 
-                summaryPageY = m + 10; 
-                pdf.text(`Page ${pdf.internal.getNumberOfPages()}`, pw - m -15, m + 5);
+            if (summaryPageY > ph - 30 - (pdf.splitTextToSize(operatingModeText, pw - 2 * m).length * 4)) {
+                pdf.addPage();
+                summaryPageY = m + 10;
+                pdf.text(`Page ${pdf.internal.getNumberOfPages()}`, pw - m - 15, m + 5);
             }
             pdf.setFontSize(14);
             pdf.setFont(undefined, 'bold');
@@ -1840,17 +1629,18 @@ document.addEventListener('DOMContentLoaded', () => {
             summaryPageY += 7;
             pdf.setFontSize(10);
             pdf.setFont(undefined, 'normal');
-            const splitOperatingMode = pdf.splitTextToSize(operatingModeText, pw - 2*m);
+            const splitOperatingMode = pdf.splitTextToSize(operatingModeText, pw - 2 * m);
             pdf.text(splitOperatingMode, m, summaryPageY);
-            summaryPageY += (splitOperatingMode.length * 4) + 5; 
+            summaryPageY += (splitOperatingMode.length * 4) + 5;
         }
 
-        const notesText = document.getElementById('project-notes').value;
+        // Add "Notes" section directly below "Mode opératoire"
+        const notesText = domElements.projectNotesInput ? domElements.projectNotesInput.value : '';
         if (notesText.trim() !== "") {
-            if (summaryPageY > ph - 30 - (pdf.splitTextToSize(notesText, pw - 2*m).length * 4)) {
-                pdf.addPage(); 
-                summaryPageY = m + 10; 
-                pdf.text(`Page ${pdf.internal.getNumberOfPages()}`, pw - m -15, m + 5);
+            if (summaryPageY > ph - 30 - (pdf.splitTextToSize(notesText, pw - 2 * m).length * 4)) {
+                pdf.addPage();
+                summaryPageY = m + 10;
+                pdf.text(`Page ${pdf.internal.getNumberOfPages()}`, pw - m - 15, m + 5);
             }
             pdf.setFontSize(14);
             pdf.setFont(undefined, 'bold');
@@ -1858,12 +1648,9 @@ document.addEventListener('DOMContentLoaded', () => {
             summaryPageY += 7;
             pdf.setFontSize(10);
             pdf.setFont(undefined, 'normal');
-            const splitNotes = pdf.splitTextToSize(notesText, pw - 2*m);
+            const splitNotes = pdf.splitTextToSize(notesText, pw - 2 * m);
             pdf.text(splitNotes, m, summaryPageY);
         }
-
-        pdf.text(document.getElementById('watermark').textContent, m, ph - 5, { align: 'left' });
-
 
         // Restore original materials and scene state
         restoreAllToInitialStateForPDF();
@@ -1876,37 +1663,38 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     function handleEditSelection() {
         if (!selectedObject) { alert("Aucun élément sélectionné."); return; }
-        elementTypeSelector.value = selectedObject.userData.type; 
-        elementTypeSelector.dispatchEvent(new Event('change')); 
+        domElements.elementTypeSelector.value = selectedObject.userData.type; 
+        domElements.elementTypeSelector.dispatchEvent(new Event('change')); 
 
         if (selectedObject.userData.baseType === 'brique') {
-            brickCutContainer.style.display = 'inline-flex';
-            brickCutSelector.value = selectedObject.userData.cutLength || '1/1';
+            domElements.brickCutContainer.style.display = 'inline-flex';
+            domElements.brickCutSelector.value = selectedObject.userData.cutLength || '1/1';
             if (selectedObject.userData.cutLength === 'custom_cut' && selectedObject.userData.customCutWidthValue !== undefined) {
-                brickCustomCutLengthInput.value = selectedObject.userData.customCutWidthValue * 100;
-                brickCustomCutLengthContainer.style.display = 'inline-flex';
+                domElements.brickCustomCutLengthInput.value = selectedObject.userData.customCutWidthValue * 100;
+                domElements.brickCustomCutLengthContainer.style.display = 'inline-flex';
             } else if (selectedObject.userData.cutLength) {
-                brickCustomCutLengthContainer.style.display = 'none';
+                domElements.brickCustomCutLengthContainer.style.display = 'none';
             }
         } else if (selectedObject.userData.baseType === 'bloc') {
-            blockCutContainer.style.display = 'inline-flex';
-            blockCutSelector.value = selectedObject.userData.cutLength || '1/1';
+            domElements.blockCutContainer.style.display = 'inline-flex';
+            domElements.blockCutSelector.value = selectedObject.userData.cutLength || '1/1';
             if (selectedObject.userData.cutLength === 'custom_cut' && selectedObject.userData.customCutWidthValue !== undefined) {
-                blockCustomCutLengthInput.value = selectedObject.userData.customCutWidthValue * 100;
-                blockCustomCutLengthContainer.style.display = 'inline-flex';
+                domElements.blockCustomCutLengthInput.value = selectedObject.userData.customCutWidthValue * 100;
+                domElements.blockCustomCutLengthContainer.style.display = 'inline-flex';
             } else if (selectedObject.userData.cutLength) {
-                blockCustomCutLengthContainer.style.display = 'none';
+                domElements.blockCustomCutLengthContainer.style.display = 'none';
             }
         }
         
-        if (selectedObject.userData.type === 'custom') { customNameInput.value = selectedObject.userData.name.replace(/ \((1\/1|3\/4|1\/2|1\/4|Ailette|Coupe 34|Coupe [0-9.]+cm)\)$/, ''); customWidthInput.value = selectedObject.userData.width; customHeightInput.value = selectedObject.userData.height; customDepthInput.value = selectedObject.userData.depth; } 
-        else if (selectedObject.userData.type === 'vide') { videDepthInput.value = selectedObject.userData.depth * 100; }
+        if (selectedObject.userData.type === 'custom') { domElements.customNameInput.value = selectedObject.userData.name.replace(/ \((1\/1|3\/4|1\/2|1\/4|Ailette|Coupe 34|Coupe [0-9.]+cm)\)$/, ''); domElements.customWidthInput.value = selectedObject.userData.width; domElements.customHeightInput.value = selectedObject.userData.height; domElements.customDepthInput.value = selectedObject.userData.depth; } 
+        else if (selectedObject.userData.type === 'vide') { domElements.videDepthInput.value = selectedObject.userData.depth * 100; }
         
         const oldPos = selectedObject.position.clone(), oldRotY = selectedObject.rotation.y, oldSeatIdx = selectedObject.userData.seatingIndex, origColor = selectedObject.userData.originalColor, origTextureUrl = selectedObject.userData.appliedTextureUrl; 
-        const selId = selectedObject.userData.id; scene.remove(selectedObject); const idx = objects.findIndex(o => o.userData.id === selId); if (idx > -1) objects.splice(idx, 1); if (selectedObject.geometry) selectedObject.geometry.dispose(); if (selectedObject.material) selectedObject.material.dispose(); selectedObject.traverse(c => { if (c.isLineSegments && c.name === "elementEdges") { if (c.geometry) c.geometry.dispose(); if (c.material) c.material.dispose(); }}); selectedObject = null; updateElementCounter();
+        const selId = selectedObject.userData.id; scene.remove(selectedObject); const idx = objects.findIndex(o => o.userData.id === selId); if (idx > -1) objects.splice(idx, 1); if (selectedObject.geometry) selectedObject.geometry.dispose(); if (selectedObject.material) selectedObject.material.dispose(); selectedObject.traverse(c => { if (c.isLineSegments && c.name === "elementEdges") { if (c.geometry) c.geometry.dispose(); if (c.material) c.material.dispose(); }}); selectedObject = null; 
+        updateElementCounter(); // This will become updateElementCounterUI(objects)
         setCurrentTool('add'); 
         if (ghostElement) { const newProps = getElementProperties(); ghostElement.geometry.dispose(); ghostElement.geometry = new THREE.BoxGeometry(newProps.width, newProps.height, newProps.depth); ghostElement.userData = {...newProps, isGhost: true, seatingIndex: oldSeatIdx, originalColor: origColor, appliedTextureUrl: origTextureUrl}; ghostElement.position.copy(oldPos); ghostElement.rotation.y = oldRotY; currentSeatingIndex = oldSeatIdx; const cLevelY = seatingLevels[oldSeatIdx] ? seatingLevels[oldSeatIdx].y : 0; let yAdjust = cLevelY + newProps.height / 2; if(newProps.baseType === 'brique') yAdjust += getSanitizedJointValue('joint-distance'); else if(newProps.baseType === 'bloc' || newProps.baseType === 'bloc_cell') yAdjust += getSanitizedJointValue('block-joint-distance'); ghostElement.position.y = snapToGrid(yAdjust); ghostElement.visible = true; isGhostFixed = true; controls.enabled = true; controls.enableRotate = true; }
-        updateHelpBar(); alert("Modifiez propriétés, ajustez avec le DPad, confirmez (OK/Entrée).");
+        updateHelpBar(currentTool, isGhostFixed, selectedObject, currentActiveColor, currentActiveTextureUrl); alert("Modifiez propriétés, ajustez avec le DPad, confirmez (OK/Entrée).");
     }
     function setElementStyle(isWhite) {
         useWhiteElements = isWhite;
@@ -1925,7 +1713,8 @@ document.addEventListener('DOMContentLoaded', () => {
     function toggleAllShadows() {
         shadowsEnabled = !shadowsEnabled; renderer.shadowMap.enabled = shadowsEnabled;
         scene.traverse(c => { if (c.isLight && c.castShadow !== undefined) c.castShadow = shadowsEnabled; if (c.isMesh && c !== plane && c !== ghostElement) { c.castShadow = shadowsEnabled && c.userData.baseType !== 'vide'; c.receiveShadow = shadowsEnabled && c.userData.baseType !== 'vide'; if (c.material) c.material.needsUpdate = true; }});
-        if (plane.material) plane.material.needsUpdate = true; toggleShadowsBtn.textContent = shadowsEnabled ? "Désactiver Ombres" : "Activer Ombres";
+        if (plane.material) plane.material.needsUpdate = true; 
+        if(domElements.toggleShadowsBtn) domElements.toggleShadowsBtn.textContent = shadowsEnabled ? "Désactiver Ombres" : "Activer Ombres";
     }
     function setView(viewType) {
         const dist=5, center=new THREE.Vector3(0,0.5,0); controls.enabled=true; controls.enableRotate=true; camera.fov=initialPerspectiveFOV; camera.up.set(0,1,0);
@@ -1942,183 +1731,43 @@ document.addEventListener('DOMContentLoaded', () => {
     function animate() { 
         requestAnimationFrame(animate); 
         controls.update(); 
-        if (heightTooltip.style.display === 'block' && ghostElement && isGhostFixed && (ghostElement.userData.baseType === 'brique' || ghostElement.userData.baseType === 'bloc') ) {
-            updateTooltipPosition(ghostElement);
+        if (domElements.heightTooltip.style.display === 'block' && ghostElement && isGhostFixed && (ghostElement.userData.baseType === 'brique' || ghostElement.userData.baseType === 'bloc') ) {
+            uiUpdateTooltipPosition(ghostElement, camera, renderer);
         }
         renderer.render(scene, camera); 
     }
-    function updateSeatingSelector() { /* Placeholder */ }
+    function updateSeatingSelector() { /* Placeholder - to be implemented or moved if complex state needed */ }
     initThreeJS(); console.log("MurSimulate3D initialisé.");
+    
     function updateElementCounter() {
-        const counts = {}; 
-        objects.forEach(obj => { 
-            let countName = obj.userData.originalName || obj.userData.name || 'Inconnu';
-            if ((obj.userData.baseType === 'brique' || obj.userData.baseType === 'bloc') && obj.userData.cutLength && obj.userData.cutLength !== '1/1') {
-                if (obj.userData.cutLength === 'custom_cut' && obj.userData.customCutWidthValue) {
-                    countName += ` (Long. ${(obj.userData.customCutWidthValue * 100).toFixed(1)}cm)`;
-                } else if (obj.userData.cutLength !== 'custom_cut') {
-                    const selectorId = obj.userData.baseType === 'brique' ? 'brick-cut-selector' : 'block-cut-selector';
-                    const cutSelector = document.getElementById(selectorId);
-                    const selectedCutOption = Array.from(cutSelector.options).find(opt => opt.value === obj.userData.cutLength);
-                    if (selectedCutOption) countName += ` (${selectedCutOption.textContent.replace('1/1 (Entière)', '').replace('1/1 (Entier - 39cm)', '').trim()})`;
-                }
-            }
-            counts[countName] = (counts[countName] || 0) + 1; 
-        });
-        elementCounterTableBody.innerHTML = ''; 
-        for (const name in counts) { 
-            const row = elementCounterTableBody.insertRow(); 
-            row.insertCell().textContent = name; 
-            row.insertCell().textContent = counts[name];
-        }
+        updateElementCounterUI(objects);
     }
 
-    function handlePointerInteractionForAdd(event) {
-        if (currentTool !== 'add') {
-            // If not in 'add' mode, you might want to call a different handler
-            // for selection or other interactions, or simply return.
-            // For example: handleSelectionOrOtherInteraction(event);
-            return;
-        }
-
-        // Prevent default for touch events to avoid unwanted browser behavior (like zoom)
-        if (event.type === 'touchend' || event.type === 'touchstart') {
-            event.preventDefault();
-        }
-
-        // For mouse events, only proceed on left click (button 0)
-        if (event.type === 'click' && event.button !== 0) {
-            return;
-        }
-
-        const pointer = new THREE.Vector2();
-        // Ensure threeJsCanvas is defined and refers to your <canvas> or its container
-        if (!threeJsCanvas) {
-            console.error("threeJsCanvas is not defined in handlePointerInteractionForAdd");
-            return;
-        }
-        const rect = threeJsCanvas.getBoundingClientRect();
-        let clientX, clientY;
-
-        if (event.changedTouches && event.changedTouches.length > 0) { // Touch event
-            clientX = event.changedTouches[0].clientX;
-            clientY = event.changedTouches[0].clientY;
-        } else if (event.clientX !== undefined) { // Mouse event
-            clientX = event.clientX;
-            clientY = event.clientY;
-        } else {
-            return; // No valid pointer coordinates
-        }
-
-        // Calculate pointer position in normalized device coordinates (-1 to +1)
-        pointer.x = ((clientX - rect.left) / rect.width) * 2 - 1;
-        pointer.y = -((clientY - rect.top) / rect.height) * 2 + 1;
-
-        // Ensure camera and raycaster are initialized
-        if (!camera || !raycaster) {
-            console.error("Camera or Raycaster not initialized for pointer interaction.");
-            return;
-        }
-        raycaster.setFromCamera(pointer, camera);
-
-        // Define the plane for intersection (e.g., ground plane at y=0)
-        // You might want to make this plane dynamic based on current construction height
-        const planeNormal = new THREE.Vector3(0, 1, 0); // Assuming y-up
-        const placementPlane = new THREE.Plane(planeNormal, 0); // Plane at y=0
-        const intersectionPoint = new THREE.Vector3();
-
-        if (!raycaster.ray.intersectPlane(placementPlane, intersectionPoint)) {
-            // Ray doesn't intersect the plane (e.g., clicking the sky)
-            // You might want to hide the ghostElement here or do nothing
-            // if (ghostElement) ghostElement.visible = false;
-            return;
-        }
-
-        // If ghostElement doesn't exist, create it
-        // The createGhostElement function should handle removing an old ghost if it exists,
-        // or ensure it's properly updated.
-        if (!ghostElement) {
-            createGhostElement(); // This function should define and add the ghost to the scene
-        }
-
-        // Position the ghostElement at the new intersection point
-        if (ghostElement) {
-            ghostElement.position.copy(snapToGrid(intersectionPoint)); // snapToGrid should be defined
-            ghostElement.visible = true; // Make sure it's visible
-
-            // Ensure ghostElement is in the scene
-            // createGhostElement should ideally add it, or check here.
-            if (scene && !scene.getObjectByName("ghost")) {
-                scene.add(ghostElement);
-            }
-            
-            updateHelpBar("Ajustez avec le DPad et confirmez (OK D-Pad). Cliquez ailleurs pour déplacer.");
-        } else {
-            console.error("ghostElement is null after attempting to create/retrieve it.");
-        }
-    }
-
-    // Ensure createGhostElement is implemented correctly:
-    // function createGhostElement() {
-    //     if (scene && ghostElement) { // If a ghost already exists, remove it first
-    //         scene.remove(ghostElement);
-    //         // Dispose of geometry/material if necessary to free memory, though for a single ghost it might be overkill
-    //     }
-    //     // Get selected element type and dimensions
-    //     const selectedElementType = document.getElementById('element-type-selector').value;
-    //     const dims = getElementDimensions(selectedElementType); // You need a function to get dimensions
-    //     
-    //     const geometry = new THREE.BoxGeometry(dims.width, dims.height, dims.depth);
-    //     const material = new THREE.MeshStandardMaterial({
-    //         color: 0x00ff00, // A distinct color for the ghost
-    //         transparent: true,
-    //         opacity: 0.5,
-    //         // wireframe: true // Optional: use wireframe for ghost
-    //     });
-    //     ghostElement = new THREE.Mesh(geometry, material);
-    //     ghostElement.name = "ghost"; // Important for getObjectByName
-    //     ghostElement.visible = false; // It will be made visible by handlePointerInteractionForAdd
-    //     if (scene) {
-    //         scene.add(ghostElement);
-    //     } else {
-    //         console.error("Scene not available to add ghostElement");
-    //     }
-    // }
-
-    // Ensure snapToGrid is implemented:
-    // function snapToGrid(position) {
-    //     const gridSize = snapGridSize; // from config.js or defined locally
-    //     position.x = Math.round(position.x / gridSize) * gridSize;
-    //     position.y = Math.round(position.y / gridSize) * gridSize; // Adjust Y snapping as needed
-    //     position.z = Math.round(position.z / gridSize) * gridSize;
-    //     return position;
-    // }
-
-    // Ensure updateHelpBar is implemented:
-    // function updateHelpBar(message) {
-    //     const helpBar = document.getElementById('help-bar');
-    //     if (helpBar) {
-    //         helpBar.textContent = message;
-    //     }
-    // }
-
-    const dpadControls = document.getElementById('dpad-controls');
-    if (dpadControls) {
-        ['touchstart', 'touchmove', 'touchend', 'touchcancel', 'pointerdown', 'pointerup'].forEach(evt =>
-            dpadControls.addEventListener(evt, function(e) {
-                e.stopPropagation();
-                e.preventDefault();
-            }, { passive: false })
-        );
-        // Empêche aussi la propagation sur les boutons enfants
-        Array.from(dpadControls.querySelectorAll('button')).forEach(btn => {
+    function setupDpadControlsInteractions() {
+        const dpadControls = domElements.dpadControlsContainer; // Use cached element
+        if (dpadControls) {
             ['touchstart', 'touchmove', 'touchend', 'touchcancel', 'pointerdown', 'pointerup'].forEach(evt =>
-                btn.addEventListener(evt, function(e) {
+                dpadControls.addEventListener(evt, function(e) {
                     e.stopPropagation();
-                    e.preventDefault();
-                }, { passive: false })
+                    // e.preventDefault(); // Removing preventDefault from the container itself, only on buttons
+                }, { passive: true }) // Set container to passive true if not preventing default
             );
-        });
+            // Prevent default and stop propagation on button children specifically
+            Array.from(dpadControls.querySelectorAll('button')).forEach(btn => {
+                ['touchstart', 'pointerdown'].forEach(evt => // Only for start events to prevent double actions if click is also handled
+                    btn.addEventListener(evt, function(e) {
+                        e.stopPropagation();
+                        e.preventDefault(); // Prevent default on buttons to stop unwanted browser actions like zoom/scroll on tap
+                    }, { passive: false })
+                );
+                // Allow touchend/pointerup to propagate if needed, or handle similarly if issues arise
+                 ['touchmove', 'touchend', 'touchcancel', 'pointerup'].forEach(evt =>
+                    btn.addEventListener(evt, function(e) {
+                        e.stopPropagation();
+                    }) // Removed preventDefault for these on buttons unless specific issues arise
+                );
+            });
+        }
     }
 
     // --- DPAD TEST MOBILE ---

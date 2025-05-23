@@ -4,15 +4,19 @@ export const snapGridSize = 0.01;
 export const TAP_DURATION_THRESHOLD = 250; // Milliseconds
 export const DRAG_MOVEMENT_THRESHOLD = 10; // Pixels
 
-export const elementColors = { 
-    brique: 0xCD5C5C,  
-    bloc: 0x87CEEB,    
-    linteau: 0x778899, 
-    isolant: 0xFFE4B5, 
-    vide: 0xADD8E6,    
-    profil: 0xBDB76B,  
-    custom: 0x98FB98,  
-    default: 0xBEBEBE  
+export const elementColors = {
+    brique: 0xCC4B37, // Rouge brique
+    bloc: 0xA0A0A0,   // Gris béton (pour blocs creux)
+    bloc_cell: 0xE0E0E0, // Gris clair pour cellulaire
+    bloc_cell_assise: 0xD0D0D0, // Gris un peu plus foncé pour assise cellulaire
+    bloc_terre_cuite: 0xD2691E, // Couleur terre cuite (chocolate/sienna)
+    linteau: 0x808080, // Gris foncé pour linteau
+    isolant: 0xFFE4B5, // Moccasin (jaune-orangé clair) pour isolant
+    profil: 0x696969,  // DimGray pour profil
+    poteau: 0x707070,  // Gris plus foncé pour poteau (gardé au cas où, même si poteaux retirés de la liste)
+    custom: 0x00BCD4,  // Cyan pour personnalisé
+    vide: 0xADD8E6,    // Bleu clair pour vide (sera transparent)
+    default: 0xBEBEBE // Gris par défaut
 };
 
 export const colorPalette = [

@@ -58,37 +58,59 @@
         <div id="toolbar">
             <select id="element-type-selector" style="margin-right: 15px;">
                 <optgroup label="Briques">
-                    <option value="brique_m50" data-dims="0.19,0.05,0.09">Brique M50 (19x5x9)</option>
-                    <option value="brique_m57" data-dims="0.19,0.057,0.09">Brique M57 (19x5.7x9)</option>
-                    <option value="brique_m65" data-dims="0.19,0.065,0.09">Brique M65 (19x6.5x9)</option>
-                    <option value="brique_m90" data-dims="0.19,0.09,0.09">Brique M90 (19x9x9)</option>
-                    <option value="brique_wf" data-dims="0.21,0.05,0.10">Brique WF (21x5x10)</option>
-                    <option value="brique_wfd" data-dims="0.21,0.065,0.10">Brique WFD (21x6.5x10)</option>
+                    <option value="brique_m50" data-dims="0.19,0.05,0.09" data-basetype="brique">Brique M50 (19x5x9 cm)</option>
+                    <option value="brique_m57" data-dims="0.19,0.057,0.09" data-basetype="brique">Brique M57 (19x5.7x9 cm)</option>
+                    <option value="brique_m65" data-dims="0.19,0.065,0.09" data-basetype="brique">Brique M65 (19x6.5x9 cm)</option>
+                    <option value="brique_m90" data-dims="0.19,0.09,0.09" data-basetype="brique">Brique M90 (19x9x9 cm)</option>
+                    <option value="brique_wf" data-dims="0.21,0.05,0.10" data-basetype="brique">Brique WF (21x5x10 cm)</option>
+                    <option value="brique_wfd" data-dims="0.21,0.065,0.10" data-basetype="brique">Brique WFD (21x6.5x10 cm)</option>
                 </optgroup>
-                <optgroup label="Blocs">
-                    <option value="bloc_b9" data-dims="0.39,0.19,0.09">Bloc B9 (39x19x9)</option>
-                    <option value="bloc_b14" data-dims="0.39,0.19,0.14">Bloc B14 (39x19x14)</option>
-                    <option value="bloc_b19" data-dims="0.39,0.19,0.19">Bloc B19 (39x19x19)</option>
-                    <option value="bloc_b29" data-dims="0.39,0.19,0.29">Bloc B29 (39x19x29)</option>
+                <optgroup label="Blocs Creux">
+                    <option value="bloc_creux_b9" data-dims="0.39,0.19,0.09" data-basetype="bloc">Bloc creux B9 (39x19x9 cm)</option>
+                    <option value="bloc_creux_b14" data-dims="0.39,0.19,0.14" data-basetype="bloc">Bloc creux B14 (39x19x14 cm)</option>
+                    <option value="bloc_creux_b19" data-dims="0.39,0.19,0.19" data-basetype="bloc">Bloc creux B19 (39x19x19 cm)</option>
+                    <option value="bloc_creux_b29" data-dims="0.39,0.19,0.29" data-basetype="bloc">Bloc creux B29 (39x19x29 cm)</option>
+                </optgroup>
+                <optgroup label="Blocs Béton Cellulaire">
+                    <option value="bloc_cell_60_25_5" data-dims="0.60,0.25,0.05" data-basetype="bloc_cell">Bloc beton cell.(60x25x5)</option>
+                    <option value="bloc_cell_60_25_7" data-dims="0.60,0.25,0.07" data-basetype="bloc_cell">Bloc beton cell.(60x25x7)</option>
+                    <option value="bloc_cell_60_25_10" data-dims="0.60,0.25,0.10" data-basetype="bloc_cell">Bloc beton cell.(60x25x10)</option>
+                    <option value="bloc_cell_60_25_15" data-dims="0.60,0.25,0.15" data-basetype="bloc_cell">Bloc beton cell.(60x25x15)</option>
+                    <option value="bloc_cell_60_25_17_5" data-dims="0.60,0.25,0.175" data-basetype="bloc_cell">Bloc beton cell.(60x25x17.5)</option>
+                    <option value="bloc_cell_60_25_20" data-dims="0.60,0.25,0.20" data-basetype="bloc_cell">Bloc beton cell.(60x25x20)</option>
+                    <option value="bloc_cell_60_25_24" data-dims="0.60,0.25,0.24" data-basetype="bloc_cell">Bloc beton cell.(60x25x24)</option>
+                    <option value="bloc_cell_60_25_30" data-dims="0.60,0.25,0.30" data-basetype="bloc_cell">Bloc beton cell.(60x25x30)</option>
+                    <option value="bloc_cell_60_25_36" data-dims="0.60,0.25,0.36" data-basetype="bloc_cell">Bloc beton cell.(60x25x36)</option>
+                </optgroup>
+                <optgroup label="Blocs Béton Cellulaire d'Assise">
+                    <option value="bloc_cell_assise_60_20_9" data-dims="0.60,0.20,0.09" data-basetype="bloc_cell_assise">Beton cell. Assise (60x20x9)</option>
+                    <option value="bloc_cell_assise_60_20_14" data-dims="0.60,0.20,0.14" data-basetype="bloc_cell_assise">Beton cell. Assise (60x20x14)</option>
+                    <option value="bloc_cell_assise_60_20_19" data-dims="0.60,0.20,0.19" data-basetype="bloc_cell_assise">Beton cell. Assise (60x20x19)</option>
+                    <option value="bloc_cell_assise_60_25_9" data-dims="0.60,0.25,0.09" data-basetype="bloc_cell_assise">Beton cell. Assise (60x25x9)</option>
+                    <option value="bloc_cell_assise_60_25_14" data-dims="0.60,0.25,0.14" data-basetype="bloc_cell_assise">Beton cell. Assise (60x25x14)</option>
+                    <option value="bloc_cell_assise_60_25_19" data-dims="0.60,0.25,0.19" data-basetype="bloc_cell_assise">Beton cell. Assise (60x25x19)</option>
+                </optgroup>
+                <optgroup label="Blocs Terre Cuite">
+                    <option value="bloc_terre_cuite_50_25_10" data-dims="0.50,0.25,0.10" data-basetype="bloc_terre_cuite">Terre cuite (50x25x10)</option>
+                    <option value="bloc_terre_cuite_50_25_14" data-dims="0.50,0.25,0.14" data-basetype="bloc_terre_cuite">Terre cuite (50x25x14)</option>
+                    <option value="bloc_terre_cuite_50_25_19" data-dims="0.50,0.25,0.19" data-basetype="bloc_terre_cuite">Terre cuite (50x25x19)</option>
                 </optgroup>
                 <optgroup label="Linteaux">
-                    <option value="linteau_l120_14" data-dims="1.20,0.19,0.14">Linteau L120 (120x19x14)</option>
-                    <option value="linteau_l140_14" data-dims="1.40,0.19,0.14">Linteau L140 (140x19x14)</option>
-                    <option value="linteau_l160_14" data-dims="1.60,0.19,0.14">Linteau L160 (160x19x14)</option>
-                    <option value="linteau_l180_14" data-dims="1.80,0.19,0.14">Linteau L180 (180x19x14)</option>
-                    <option value="linteau_l200_14" data-dims="2.00,0.19,0.14">Linteau L200 (200x19x14)</option>
+                    <option value="linteau_beton_120" data-dims="1.20,0.19,0.14" data-basetype="linteau">Linteau Beton L120 (120x19x14 cm)</option>
+                    <option value="linteau_beton_140" data-dims="1.40,0.19,0.14" data-basetype="linteau">Linteau Beton L140 (140x19x14 cm)</option>
+                    <option value="linteau_beton_160" data-dims="1.60,0.19,0.14" data-basetype="linteau">Linteau Beton L160 (160x19x14 cm)</option>
+                    <option value="linteau_beton_180" data-dims="1.80,0.19,0.14" data-basetype="linteau">Linteau Beton L180 (180x19x14 cm)</option>
+                    <option value="linteau_beton_200" data-dims="2.00,0.19,0.14" data-basetype="linteau">Linteau Beton L200 (200x19x14 cm)</option>
                 </optgroup>
                 <optgroup label="Isolants">
-                    <option value="isolant_pur5" data-dims="1.20,0.60,0.05">Isolant PUR5 (120x60x5)</option>
-                    <option value="isolant_pur6" data-dims="1.20,0.60,0.06">Isolant PUR6 (120x60x6)</option>
-                    <option value="isolant_pur7" data-dims="1.20,0.60,0.07">Isolant PUR7 (120x60x7)</option>
+                    <option value="isolant_pur5" data-dims="1.20,0.60,0.05" data-basetype="isolant">Isolant PUR5 (120x60x5 cm)</option>
+                    <option value="isolant_pur6" data-dims="1.20,0.60,0.06" data-basetype="isolant">Isolant PUR6 (120x60x6 cm)</option>
+                    <option value="isolant_pur7" data-dims="1.20,0.60,0.07" data-basetype="isolant">Isolant PUR7 (120x60x7 cm)</option>
                 </optgroup>
                 <optgroup label="Autres">
-                    <option value="vide" data-dims="0.40,0.19,0.01" data-depth-range="0.01,0.05">Vide (40x19x1-5)</option>
-                    <option value="profil" data-dims="2.50,0.065,0.065">Profil (250x6.5x6.5)</option>
-                </optgroup>
-                <optgroup label="Personnalisé">
-                    <option value="custom">Élément Personnalisé</option>
+                    <option value="vide_reglable" data-dims="0.40,0.19,0.05" data-basetype="vide">Vide (40x19xProf.Réglable)</option>
+                    <option value="profil_250" data-dims="0.05,2.50,0.065" data-basetype="profil">Profil (5x6.5x250 cm)</option>
+                    <option value="custom" data-dims="0.2,0.1,0.1" data-basetype="custom">Personnalisé</option>
                 </optgroup>
             </select>
             <div id="brick-cut-container" style="display: none; align-items: center; margin-left: 10px;">
@@ -140,18 +162,27 @@
             </div>
             <span class="toolbar-separator"></span> 
             <span style="margin-left: 5px;">Vues:</span>
-            <button id="view-3d" title="Vue 3D Perspective">3D</button>
-            <button id="view-top" title="Vue de Dessus">Dessus</button>
-            <button id="view-front" title="Vue de Face">Face</button>
-            <button id="view-back" title="Vue Arrière">Arrière</button>
-            <button id="view-left" title="Vue Gauche">Gauche</button>
-            <button id="view-right" title="Vue Droite">Droite</button>
+            <button id="view-3d" title="Vue 3D (V)">
+                <img src="https://julienbro.github.io/MurSimulateur3d/icones/vue_3d.png" alt="Vue 3D">
+            </button>
+            <button id="view-top" title="Vue de Dessus (T)">
+                <img src="https://julienbro.github.io/MurSimulateur3d/icones/vue_dessus.png" alt="Vue de Dessus">
+            </button>
+            <button id="view-front" title="Vue de Face (F)">
+                <img src="https://julienbro.github.io/MurSimulateur3d/icones/vue_face.png" alt="Vue de Face">
+            </button>
+            <button id="view-back" title="Vue Arrière (B)">
+                <img src="https://julienbro.github.io/MurSimulateur3d/icones/vue_arriere.png" alt="Vue Arrière">
+            </button>
+            <button id="view-left" title="Vue de Gauche (L)">
+                <img src="https://julienbro.github.io/MurSimulateur3d/icones/vue_gauche.png" alt="Vue de Gauche">
+            </button>
+            <button id="view-right" title="Vue de Droite (G)">
+                <img src="https://julienbro.github.io/MurSimulateur3d/icones/vue_droite.png" alt="Vue de Droite">
+            </button>
             <div class="toolbar-export-button-container">
                 <button id="export-print-button" title="Exporter/Imprimer PDF"><i class="fas fa-print"></i> Exporter/Imprimer</button>
             </div>
-            <button id="paint-tool" title="Colorier (P)">
-                <i class="fas fa-fill-drip"></i> Colorier
-            </button>
             </div>
         <div id="help-bar">
             Bienvenue ! Utilisez la barre d'outils pour commencer.
@@ -187,6 +218,11 @@
                         <i class="fas fa-trash"></i>
                         <span>Suppr.</span>
                     </button>
+                    <div class="toolbar-separator"></div>
+                    <button id="edit-selection" class="tool-button" title="Modifier Sélection (E)">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <div class="toolbar-separator"></div>
                 </div>
 
                 <!-- --- TEXTURE PALETTE --- -->

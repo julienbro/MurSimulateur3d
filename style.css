@@ -407,7 +407,7 @@ main {
 }
 .color-palette {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(40px, 1fr)); 
+    grid-template-columns: repeat(4, 1fr); /* Changed from auto-fit to 4 per row */
     gap: 5px; 
 }
 .color-swatch {
@@ -440,14 +440,14 @@ main {
 /* --- TEXTURE PALETTE --- */
 #texture-palette-container {
     margin-top: 15px;
-    width: calc(100% - 10px); 
+    width: calc(100% - 10px);
     padding: 0 5px;
     box-sizing: border-box;
 }
 .texture-palette {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(40px, 1fr)); 
-    gap: 5px; 
+    grid-template-columns: repeat(4, 1fr); /* Changed from auto-fit to 4 per row */
+    gap: 5px;
 }
 .texture-swatch {
     width: 100%; 
@@ -521,16 +521,16 @@ main {
 
 
 #custom-texture-palette-container {
-    margin-top: 5px; /* Reduced margin as input is above */
-    width: calc(100% - 10px); 
+    margin-top: 10px; /* Added margin for spacing */
+    width: calc(100% - 10px);
     padding: 0 5px;
     box-sizing: border-box;
 }
 
 .custom-texture-palette { /* Similar to .texture-palette */
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(40px, 1fr)); 
-    gap: 5px; 
+    grid-template-columns: repeat(4, 1fr); /* Changed to 4 per row */
+    gap: 5px;
 }
 
 .custom-texture-swatch { /* Similar to .texture-swatch */
@@ -723,4 +723,11 @@ main {
 #toolbar #paint-tool:hover:not(:disabled) {
     background-color: #DADADA;
     border-color: #A0A0A0;
+}
+
+#toolbar button img {
+    width: 24px;
+    height: 24px;
+    vertical-align: middle;
+    display: block; /* Ensures proper alignment within the button */
 }
