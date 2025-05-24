@@ -25,8 +25,6 @@ export const domElements = {
     customTextureInput: null,
     customTextureFileNameDisplay: null,
     customTexturePaletteContainer: null,
-    jointDistanceInput: null,
-    blockJointDistanceInput: null,
     heightTooltip: null,
     toolButtons: {
         select: null, add: null, move: null, duplicate: null, rotate: null, delete: null
@@ -46,7 +44,6 @@ export const domElements = {
     saveFileBtn: null,
     exportPdfBtn: null,
     exportPrintButton: null,
-    editSelectionBtn: null,
     styleWhiteBtn: null,
     styleColorBtn: null,
     toggleShadowsBtn: null,
@@ -61,13 +58,17 @@ export const domElements = {
     operatingModeInput: null,
     projectNotesInput: null,
     dpadControlsContainer: null,
-    // Add any other elements that were directly selected in script.js
+    horizontalStepContainer: null, // New
+    horizontalStepInput: null,   // New
+    verticalStepContainer: null, // Existing, ensure it's here
+    verticalStepInput: null,     // Existing, ensure it's here
+    // Removed seatingLevelSelector
 };
 
 export function cacheDomElements() {
     domElements.canvasContainer = document.getElementById('threejs-canvas');
     domElements.viewportContainer = document.getElementById('viewport-container');
-    domElements.elementTypeSelector = document.getElementById('element-type-selector');
+    domElements.elementTypeSelector = document.getElementById('element-type-selector'); // Now in toolbar
     domElements.brickCutContainer = document.getElementById('brick-cut-container');
     domElements.brickCutSelector = document.getElementById('brick-cut-selector');
     domElements.brickCustomCutLengthContainer = document.getElementById('brick-custom-cut-length-container');
@@ -89,8 +90,6 @@ export function cacheDomElements() {
     domElements.customTextureInput = document.getElementById('custom-texture-file-input');
     domElements.customTextureFileNameDisplay = document.getElementById('custom-texture-file-name-display');
     domElements.customTexturePaletteContainer = document.getElementById('custom-texture-palette-container');
-    domElements.jointDistanceInput = document.getElementById('joint-distance');
-    domElements.blockJointDistanceInput = document.getElementById('block-joint-distance');
     domElements.heightTooltip = document.getElementById('height-tooltip');
 
     domElements.toolButtons.select = document.getElementById('select-tool');
@@ -129,7 +128,6 @@ export function cacheDomElements() {
     domElements.saveFileBtn = document.getElementById('save-file');
     domElements.exportPdfBtn = document.getElementById('export-pdf');
     domElements.exportPrintButton = document.getElementById('export-print-button');
-    domElements.editSelectionBtn = document.getElementById('edit-selection');
     domElements.styleWhiteBtn = document.getElementById('style-white');
     domElements.styleColorBtn = document.getElementById('style-color');
     domElements.toggleShadowsBtn = document.getElementById('toggle-shadows');
@@ -144,6 +142,13 @@ export function cacheDomElements() {
     domElements.designerNameInput = document.getElementById('designer-name');
     domElements.operatingModeInput = document.getElementById('operating-mode');
     domElements.projectNotesInput = document.getElementById('project-notes');
+
+    // Step inputs
+    domElements.horizontalStepContainer = document.getElementById('horizontal-step-container'); // New
+    domElements.horizontalStepInput = document.getElementById('horizontal-step-input');       // New
+    domElements.verticalStepContainer = document.getElementById('vertical-step-container');
+    domElements.verticalStepInput = document.getElementById('vertical-step-input');
+    // Removed seatingLevelSelector caching
 }
 
 export function updateCursorStyle(currentTool, currentActiveColor, currentActiveTextureUrl) {

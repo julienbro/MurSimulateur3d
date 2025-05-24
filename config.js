@@ -45,3 +45,56 @@ export const texturePaletteURLs = [
     'https://julienbro.github.io/MurSimulateur3d/textures/bois_pin_1.png',
     'https://julienbro.github.io/MurSimulateur3d/textures/fer_rouille_1.png'
 ];
+
+// Configuration des éléments disponibles
+export const elementTypes = {
+    briques: [
+        { key: 'brique_m50', name: 'Brique M50 (19x5x9 cm)', dims: [0.19, 0.05, 0.09] },
+        { key: 'brique_m57', name: 'Brique M57 (19x5.7x9 cm)', dims: [0.19, 0.057, 0.09] },
+        { key: 'brique_m65', name: 'Brique M65 (19x6.5x9 cm)', dims: [0.19, 0.065, 0.09] },
+        { key: 'brique_m90', name: 'Brique M90 (19x9x9 cm)', dims: [0.19, 0.09, 0.09] },
+        { key: 'brique_wf', name: 'Brique WF (21x5x10 cm)', dims: [0.21, 0.05, 0.10] },
+        { key: 'brique_wfd', name: 'Brique WFD (21x6.5x10 cm)', dims: [0.21, 0.065, 0.10] }
+    ],
+    blocs: [
+        { key: 'bloc_b9', name: 'Bloc creux B9 (39x19x9 cm)', dims: [0.39, 0.19, 0.09] },
+        { key: 'bloc_b14', name: 'Bloc creux B14 (39x19x14 cm)', dims: [0.39, 0.19, 0.14] },
+        { key: 'bloc_b19', name: 'Bloc creux B19 (39x19x19 cm)', dims: [0.39, 0.19, 0.19] },
+        { key: 'bloc_b29', name: 'Bloc creux B29 (39x19x29 cm)', dims: [0.39, 0.19, 0.29] },
+        { key: 'bloc_cell_60x25x5', name: 'Bloc béton cell.(60x25x5)', dims: [0.60, 0.25, 0.05] },
+        { key: 'bloc_cell_60x25x7', name: 'Bloc béton cell.(60x25x7)', dims: [0.60, 0.25, 0.07] },
+        { key: 'bloc_cell_60x25x10', name: 'Bloc béton cell.(60x25x10)', dims: [0.60, 0.25, 0.10] },
+        { key: 'bloc_cell_60x25x15', name: 'Bloc béton cell.(60x25x15)', dims: [0.60, 0.25, 0.15] },
+        { key: 'bloc_cell_60x25x17_5', name: 'Bloc béton cell.(60x25x17.5)', dims: [0.60, 0.25, 0.175] },
+        { key: 'bloc_cell_60x25x20', name: 'Bloc béton cell.(60x25x20)', dims: [0.60, 0.25, 0.20] },
+        { key: 'bloc_cell_60x25x24', name: 'Bloc béton cell.(60x25x24)', dims: [0.60, 0.25, 0.24] },
+        { key: 'bloc_cell_60x25x30', name: 'Bloc béton cell.(60x25x30)', dims: [0.60, 0.25, 0.30] },
+        { key: 'bloc_cell_60x25x36', name: 'Bloc béton cell.(60x25x36)', dims: [0.60, 0.25, 0.36] },
+        { key: 'beton_cell_assise_60x20x9', name: 'Béton cell. Assise (60x20x9)', dims: [0.60, 0.20, 0.09] },
+        { key: 'beton_cell_assise_60x20x14', name: 'Béton cell. Assise (60x20x14)', dims: [0.60, 0.20, 0.14] },
+        { key: 'beton_cell_assise_60x20x19', name: 'Béton cell. Assise (60x20x19)', dims: [0.60, 0.20, 0.19] },
+        { key: 'beton_cell_assise_60x25x9', name: 'Béton cell. Assise (60x25x9)', dims: [0.60, 0.25, 0.09] },
+        { key: 'beton_cell_assise_60x25x14', name: 'Béton cell. Assise (60x25x14)', dims: [0.60, 0.25, 0.14] },
+        { key: 'beton_cell_assise_60x25x19', name: 'Béton cell. Assise (60x25x19)', dims: [0.60, 0.25, 0.19] },
+        { key: 'terre_cuite_50x25x10', name: 'Terre cuite (50x25x10)', dims: [0.50, 0.25, 0.10] },
+        { key: 'terre_cuite_50x25x14', name: 'Terre cuite (50x25x14)', dims: [0.50, 0.25, 0.14] },
+        { key: 'terre_cuite_50x25x19', name: 'Terre cuite (50x25x19)', dims: [0.50, 0.25, 0.19] }
+    ],
+    linteaux: [
+        { key: 'linteau_l120', name: 'Linteau Béton L120 (120x19x14 cm)', dims: [1.20, 0.19, 0.14] },
+        { key: 'linteau_l140', name: 'Linteau Béton L140 (140x19x14 cm)', dims: [1.40, 0.19, 0.14] },
+        { key: 'linteau_l160', name: 'Linteau Béton L160 (160x19x14 cm)', dims: [1.60, 0.19, 0.14] },
+        { key: 'linteau_l180', name: 'Linteau Béton L180 (180x19x14 cm)', dims: [1.80, 0.19, 0.14] },
+        { key: 'linteau_l200', name: 'Linteau Béton L200 (200x19x14 cm)', dims: [2.00, 0.19, 0.14] }
+    ],
+    isolants: [
+        { key: 'isolant_pur5', name: 'Isolant PUR5 (120x60x5 cm)', dims: [1.20, 0.60, 0.05] },
+        { key: 'isolant_pur6', name: 'Isolant PUR6 (120x60x6 cm)', dims: [1.20, 0.60, 0.06] },
+        { key: 'isolant_pur7', name: 'Isolant PUR7 (120x60x7 cm)', dims: [1.20, 0.60, 0.07] }
+    ],
+    autres: [
+        { key: 'vide', name: 'Vide (40x19x1-5 cm)', dims: [0.40, 0.19, 0.01] },
+        { key: 'profil', name: 'Profil (5x6.5x250 cm)', dims: [0.05, 0.065, 2.50] },
+        { key: 'custom', name: 'Personnalisé', dims: [0.2, 0.1, 0.1] }
+    ]
+};

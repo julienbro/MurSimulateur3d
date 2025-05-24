@@ -79,14 +79,94 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentSeatingIndex = 0;
     let seatingLevels = { 0: { y: 0, name: "Assise 0 (Niveau 0.00m)" } };
 
-    // --- HELPER FUNCTION ---
+    // --- HELPER FUNCTIONS ---
     function getSanitizedJointValue(inputId) {
-        const inputElement = document.getElementById(inputId);
-        const jointCmStr = (inputElement.value || "0").replace(',', '.');
-        const jointCm = parseFloat(jointCmStr);
-        return isNaN(jointCm) ? 0 : jointCm / 100; // Convert to meters
+        const input = document.getElementById(inputId);
+        if (!input) return 0;
+        const value = parseFloat((input.value || "0").replace(',', '.'));
+        return isNaN(value) ? 0 : value / 100; // Convert cm to meters
     }
 
+    function setupDpadControlsInteractions() {
+        const dpadContainer = domElements.dpadControlsContainer;
+        if (dpadContainer) {
+            // Use passive listeners for better performance
+            ['touchmove', 'touchend', 'touchcancel', 'pointerup'].forEach(evt =>
+                dpadContainer.addEventListener(evt, function(e) {
+                    e.stopPropagation();
+                }, { passive: true })
+            );
+            
+            ['touchstart', 'pointerdown'].forEach(evt =>
+                dpadContainer.addEventListener(evt, function(e) {
+                    e.stopPropagation();
+                }, { passive: true })
+            );
+
+            // Handle button-specific events
+            Array.from(dpadContainer.querySelectorAll('button')).forEach(btn => {
+                btn.addEventListener('touchstart', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }, { passive: false });
+                
+                ['touchmove', 'touchend', 'touchcancel', 'pointerup'].forEach(evt =>
+                    btn.addEventListener(evt, function(e) {
+                        e.stopPropagation();
+                    }, { passive: true })
+                );
+            });
+        }
+    }
+
+    function updateSeatingSelector() {
+        if (!domElements.seatingLevelSelector) {
+            console.warn('Element #seating-level-selector non trouvé.');
+            return;
+        }
+        // console.log('updateSeatingSelector called'); // Can be removed or kept for debugging
+        domElements.seatingLevelSelector.innerHTML = ''; // Clear existing options
+
+        for (const id in seatingLevels) {
+            const option = document.createElement('option');
+            option.value = id;
+            option.textContent = seatingLevels[id].name;
+            domElements.seatingLevelSelector.appendChild(option);
+        }
+        domElements.seatingLevelSelector.value = currentSeatingIndex;
+    }
+
+    function handleSeatingLevelChange(event) {
+        const newIndex = parseInt(event.target.value);
+        if (!isNaN(newIndex) && seatingLevels[newIndex]) {
+            currentSeatingIndex = newIndex;
+            console.log(`Niveau d'assise changé à: ${currentSeatingIndex} (${seatingLevels[currentSeatingIndex].name})`);
+
+            if (currentTool === 'add') {
+                const wasGhostFixed = isGhostFixed;
+                removeGhostElement();
+                createGhostElement();
+                if (ghostElement && wasGhostFixed) {
+                    // If ghost was fixed, try to re-fix it at the new level,
+                    // This might need more sophisticated logic to place it correctly relative to mouse or last known good position.
+                    // For now, we just make it visible and not fixed.
+                    ghostElement.visible = true;
+                    isGhostFixed = false; 
+                    controls.enabled = false;
+                    updateHelpBar(currentTool, isGhostFixed, selectedObject, currentActiveColor, currentActiveTextureUrl);
+                    // Optionally, trigger a ghost update based on current mouse position
+                    // if (mousePointer.x !== undefined && mousePointer.y !== undefined) {
+                    //     raycaster.setFromCamera(mousePointer, camera);
+                    //     updateGhostOnIntersection(raycaster, true);
+                    // }
+                }
+            }
+        }
+    }
+
+    function updateElementCounter() {
+        updateElementCounterUI(objects);
+    }
 
     // --- INITIALIZATION ---
     function initThreeJS() {
@@ -147,13 +227,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         window.addEventListener('resize', onWindowResize, false);
         // Mouse events
-        domElements.viewportContainer.addEventListener('pointerdown', onViewportPointerDown, false); 
-        domElements.viewportContainer.addEventListener('pointermove', onViewportPointerMove, false);
+        domElements.viewportContainer.addEventListener('pointerdown', onViewportPointerDown, { passive: true });
+        domElements.viewportContainer.addEventListener('pointermove', onViewportPointerMove, { passive: true });
         // Touch events
-        domElements.viewportContainer.addEventListener('touchstart', onViewportTouchStart, { passive: false });
-        domElements.viewportContainer.addEventListener('touchmove', onViewportTouchMove, { passive: false });
-        domElements.viewportContainer.addEventListener('touchend', onViewportTouchEnd, { passive: false });
-        domElements.viewportContainer.addEventListener('touchcancel', onViewportTouchEnd, { passive: false }); // Handle cancel as end
+        domElements.viewportContainer.addEventListener('touchstart', onViewportTouchStart, { passive: true });
+        domElements.viewportContainer.addEventListener('touchmove', onViewportTouchMove, { passive: true });
+        domElements.viewportContainer.addEventListener('touchend', onViewportTouchEnd, { passive: true });
+        domElements.viewportContainer.addEventListener('touchcancel', onViewportTouchEnd, { passive: true }); // Handle cancel as end
 
 
         document.addEventListener('keydown', onDocumentKeyDown, false);
@@ -258,39 +338,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        function updateGhostPositionFromJointInput(props, jointInputId) {
-            if (currentTool === 'add' && ghostElement && props.baseType === ghostElement.userData.baseType) {
-                const jointHeightMeters = getSanitizedJointValue(jointInputId);
-                const seatingIdxForGhost = props.seatingIndex !== undefined ? props.seatingIndex : currentSeatingIndex;
-                const currentLevelYVal = seatingLevels[seatingIdxForGhost] ? seatingLevels[seatingIdxForGhost].y : 0;
-                
-                let targetBottomY = currentLevelYVal;
-                if (!ghostElement.userData.snappedToObjectId && (props.baseType === 'brique' || props.baseType === 'bloc')) {
-                    targetBottomY += jointHeightMeters;
-                }
-                ghostElement.position.y = snapToGrid(targetBottomY) + props.height / 2;
-
-                if (isGhostFixed) {
-                    const tooltipText = `Haut. ${props.baseType === 'brique' ? 'Brique' : 'Bloc'}: ${(props.height * 100).toFixed(1)} cm, Joint: ${(jointHeightMeters * 100).toFixed(1)} cm, Niveau: ${(ghostElement.position.y + props.height / 2).toFixed(2)} m`;
-                    uiShowAndPositionTooltip(ghostElement, tooltipText, camera, renderer);
-                } else {
-                    uiHideHeightTooltip();
-                }
-            }
-        }
-
-        domElements.jointDistanceInput.addEventListener('input', () => {
-            if (ghostElement && ghostElement.userData.baseType === 'brique') {
-                updateGhostPositionFromJointInput(ghostElement.userData, 'joint-distance');
-            }
-        });
-        domElements.blockJointDistanceInput.addEventListener('input', () => {
-             if (ghostElement && ghostElement.userData.baseType === 'bloc') {
-                updateGhostPositionFromJointInput(ghostElement.userData, 'block-joint-distance');
-            }
-        });
-
-
         Object.keys(domElements.toolButtons).forEach(toolName => {
             if(domElements.toolButtons[toolName]) { // Check if button exists
                 domElements.toolButtons[toolName].addEventListener('click', () => setCurrentTool(toolName));
@@ -319,6 +366,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if(domElements.toggleShadowsBtn) domElements.toggleShadowsBtn.addEventListener('click', toggleAllShadows);
         if(domElements.aboutAppBtn) domElements.aboutAppBtn.addEventListener('click', () => alert('MurSimulate3D\nVersion 1.0.2\nDéveloppé par J.BROHEZ avec Three.js.\nCopyright © 2025 J.BROHEZ\n\nDimensions des éléments: Longueur x Hauteur x Profondeur (Épaisseur du mur)'));
         if(domElements.helpGuideBtn) domElements.helpGuideBtn.addEventListener('click', () => alert('Aide :\n- Barre d\'outils : Sélectionner un outil puis interagir.\n- Ajout : Cliquer sur la grille/objet pour fixer la position initiale du fantôme, ajuster avec le DPad, confirmer avec OK.\n- DPad : Flèches pour déplacer, ↺/↻ pour rotation, ⇞/⇟ pour monter/descendre. Maintenir Maj pour un pas plus grand.\n- Sélection : Cliquer sur un objet pour le sélectionner. Si une couleur est active (palette), elle sera appliquée.\n- Navigation : Clic gauche/droit + glisser = Orbite | Clic milieu + glisser = Pan | Molette = Zoom.\n- Raccourcis : S (Select), A (Add), M (Move), Maj+D (Duplicate), R (Rotate), Suppr (Delete), Entrée (Confirm DPad), Ctrl+Z (Annuler), Ctrl+Y (Rétablir).\n Ctrl+S (Sauvegarder), Ctrl+O (Ouvrir).\n- Barres latérales : Cliquer sur < ou > pour les replier/déplier.'));
+    
+        if (domElements.seatingLevelSelector) {
+            domElements.seatingLevelSelector.addEventListener('change', handleSeatingLevelChange);
+        }
     }
     
     // function updateCursorStyle() { ... } // Moved to uiUtils.js
@@ -366,8 +417,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (controls) controls.update(); 
     }
 
-    // function updateActiveToolButton() { ... } // Moved to uiUtils.js
-
     // --- PALETTE CALLBACKS ---
     function handleColorSelect(colorHex, swatchElement) {
         if (activeSwatchElement === swatchElement) {
@@ -414,9 +463,6 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log("Custom texture added and selected:", textureUrl);
     }
 
-
-    // function createColorPalette() { ... } // Moved to uiUtils.js
-    // function createTexturePalette() { ... } // Moved to uiUtils.js
 
     // --- HELPER FUNCTIONS ---
     function getElementProperties() {
@@ -499,27 +545,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const geometry = new THREE.BoxGeometry(props.width, props.height, props.depth);
         const material = new THREE.MeshStandardMaterial({ color: 0x03A9F4, opacity: 0.6, transparent: true, roughness: 0.8, metalness: 0.1 });
         ghostElement = new THREE.Mesh(geometry, material);
-        ghostElement.userData = { ...props, isGhost: true }; 
+        ghostElement.userData = { ...props, isGhost: true };
 
-        let jointHeightMeters = 0;
-        if (props.baseType === 'brique') {
-            jointHeightMeters = getSanitizedJointValue('joint-distance');
-        } else if (props.baseType === 'bloc') {
-            jointHeightMeters = getSanitizedJointValue('block-joint-distance');
-        }
-        
-        const currentLevelY = seatingLevels[currentSeatingIndex] ? seatingLevels[currentSeatingIndex].y : 0;
-        
-        let targetBottomY = currentLevelY;
-        if (props.baseType === 'brique' || props.baseType === 'bloc') { 
-            targetBottomY += jointHeightMeters;
-        }
-        const initialGhostCenterY = snapToGrid(targetBottomY) + props.height / 2;
-        ghostElement.position.set(0, initialGhostCenterY, 0);
+        // Set the initial position 1 cm above the ground
+        const initialGhostBottomY = 0.01; // 1 cm = 0.01 meters
+        ghostElement.position.set(0, initialGhostBottomY + props.height / 2, 0);
 
         ghostElement.visible = (currentTool === 'add' && !isGhostFixed);
         scene.add(ghostElement);
-        if (!isGhostFixed) uiHideHeightTooltip(); 
+        if (!isGhostFixed) uiHideHeightTooltip();
     }
 
     function removeGhostElement() {
@@ -533,7 +567,7 @@ document.addEventListener('DOMContentLoaded', () => {
         uiHideHeightTooltip(); 
     }
 
-    function addElementAtPosition(position, rotationY, propsFromGhost, elementId = null, originalColorOverride = null) {
+    function addElementAtPosition(position, rotationY, rotationX, rotationZ, propsFromGhost, elementId = null, originalColorOverride = null) {
         const geometry = new THREE.BoxGeometry(propsFromGhost.width, propsFromGhost.height, propsFromGhost.depth);
         const baseColorHex = originalColorOverride !== null ? originalColorOverride : (elementColors[propsFromGhost.baseType] || elementColors.default);
         const material = new THREE.MeshStandardMaterial({
@@ -547,9 +581,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const element = new THREE.Mesh(geometry, material);
         element.castShadow = shadowsEnabled && propsFromGhost.baseType !== 'vide';
         element.receiveShadow = shadowsEnabled && propsFromGhost.baseType !== 'vide';
-        element.position.copy(position); 
+        element.position.copy(position);
         element.rotation.y = rotationY;
-        element.name = propsFromGhost.name; 
+        element.rotation.x = rotationX;
+        element.rotation.z = rotationZ;
+        element.name = propsFromGhost.name;
         element.userData = {
             ...propsFromGhost, 
             isGhost: false,
@@ -560,7 +596,7 @@ document.addEventListener('DOMContentLoaded', () => {
             widthMultiplier: propsFromGhost.widthMultiplier, 
             originalName: propsFromGhost.originalName,
             customCutWidthValue: propsFromGhost.customCutWidthValue,
-            appliedTextureUrl: propsFromGhost.appliedTextureUrl || null 
+            appliedTextureUrl: propsFromGhost.appliedTextureUrl || null
         };
         
         const edges = new THREE.EdgesGeometry(element.geometry);
@@ -576,7 +612,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function confirmPlacement() {
         if (currentTool === 'add' && ghostElement && ghostElement.visible && isGhostFixed) {
-            const newElement = addElementAtPosition(ghostElement.position.clone(), ghostElement.rotation.y, ghostElement.userData);
+            const newElement = addElementAtPosition(ghostElement.position.clone(), ghostElement.rotation.y, ghostElement.rotation.x, ghostElement.rotation.z, ghostElement.userData);
             if (newElement) {
                 if (ghostElement.userData.appliedTextureUrl) {
                     applyTextureToObject(newElement, ghostElement.userData.appliedTextureUrl, false); 
@@ -607,106 +643,88 @@ document.addEventListener('DOMContentLoaded', () => {
     function snapToGrid(value) { return Math.round(value / snapGridSize) * snapGridSize; }
 
     function getSnappedPosition(worldPosition, elementProps) {
-        let jointHeightMeters = 0;
-        if (elementProps.baseType === 'brique') {
-            jointHeightMeters = getSanitizedJointValue('joint-distance');
-        } else if (elementProps.baseType === 'bloc') {
-            jointHeightMeters = getSanitizedJointValue('block-joint-distance');
-        }
-        
         const snappedX = snapToGrid(worldPosition.x);
         const snappedZ = snapToGrid(worldPosition.z);
 
-        const seatingIdxForGhost = elementProps.seatingIndex !== undefined ? elementProps.seatingIndex : currentSeatingIndex;
-        const currentSeatingLevelY = seatingLevels[seatingIdxForGhost] ? seatingLevels[seatingIdxForGhost].y : 0;
+        // For initial placement on the ground plane (worldPosition.y is 0),
+        // the bottom of the element should be 1cm (0.01m) above y=0.
+        // The position of a mesh is its center.
+        const groundOffset = 0.01; // 1 cm
+        const centerY = groundOffset + elementProps.height / 2;
 
-        let targetBottomY = currentSeatingLevelY;
-        if ((elementProps.baseType === 'brique' || elementProps.baseType === 'bloc') && !elementProps.snappedToObjectId) { 
-            targetBottomY += jointHeightMeters;
-        }
-        
-        const snappedBottomY = snapToGrid(targetBottomY); 
-        const snappedCenterY = snappedBottomY + elementProps.height / 2; 
-
-        return new THREE.Vector3(snappedX, snappedCenterY, snappedZ);
+        return new THREE.Vector3(snappedX, centerY, snappedZ);
     }
     
     function moveGhostOrSelected(direction, eventParam) { 
         const target = (currentTool === 'add' && ghostElement && isGhostFixed) ? ghostElement : 
-                               ((currentTool === 'move' || currentTool === 'rotate') && selectedObject) ? selectedObject : null;
+                       ((currentTool === 'move' || currentTool === 'rotate') && selectedObject) ? selectedObject : null;
         if (!target) {
             uiHideHeightTooltip();
             return;
         }
+
+        // If moving ghost vertically and it was snapped to an object's surface, detach it.
+        if (target === ghostElement && target.userData.snappedToObjectId && (direction === 'up' || direction === 'down')) {
+            delete target.userData.snappedToObjectId;
+            // Revert to default ghost color if it was changed by snapping to an object
+            if (target.material.color.getHex() !== 0x03A9F4) { 
+                target.material.color.setHex(0x03A9F4); 
+                if (target.material.needsUpdate !== undefined) target.material.needsUpdate = true;
+            }
+        }
+
         if (selectedObject && !target.userData.undoInitialTransform && (currentTool === 'move' || currentTool === 'rotate')) {
             target.userData.undoInitialTransform = { position: target.position.clone(), rotation: target.rotation.clone() };
         }
 
         const currentEvent = eventParam || window.event; 
         const useShift = currentEvent ? currentEvent.shiftKey : false;
-        const moveAmount = snapGridSize * (useShift ? 10 : 5); 
-        let heightAdjustAmount = snapGridSize * (useShift ? 5 : 2); 
-        const baseHeightAdjust = 0.01; // Smallest increment for up/down movement to avoid jitter
+        
+        // Get horizontal step value from input, convert cm to meters
+        const horizontalStepInput = domElements.horizontalStepInput; // Use cached element
+        const horizontalMoveAmount = (parseFloat(horizontalStepInput?.value || "5") / 100) * (useShift ? 2 : 1); // Shift doubles the custom step
 
-        let jointHeightMeters = 0;
-        let currentJointCm = 0;
-
-        if (target.userData.baseType === 'brique') {
-            jointHeightMeters = getSanitizedJointValue('joint-distance');
-            currentJointCm = parseFloat((domElements.jointDistanceInput.value || "0").replace(',', '.'));
-        } else if (target.userData.baseType === 'bloc') {
-            jointHeightMeters = getSanitizedJointValue('block-joint-distance');
-            currentJointCm = parseFloat((domElements.blockJointDistanceInput.value || "0").replace(',', '.'));
-        }
-
-
-        if ((target.userData.baseType === 'brique' || target.userData.baseType === 'bloc') && (direction === 'up' || direction === 'down')) {
-            heightAdjustAmount = target.userData.height + jointHeightMeters;
-        }
-
+        // Get vertical step value from input, convert cm to meters
+        const verticalStepInput = domElements.verticalStepInput; // Use cached element
+        const verticalAdjustAmount = (parseFloat(verticalStepInput?.value || "1") / 100) * (useShift ? 5 : 1); // Shift multiplies custom vertical step
 
         switch (direction) {
             case 'forward':
-            case 'backward':
-            case 'left':
-            case 'right':
-                if (direction === 'forward') target.position.z -= moveAmount;
-                if (direction === 'backward') target.position.z += moveAmount;
-                if (direction === 'left') target.position.x -= moveAmount;
-                if (direction === 'right') target.position.x += moveAmount;
-                if (target === ghostElement) uiHideHeightTooltip(); 
+                target.position.z -= horizontalMoveAmount;
                 break;
-            case 'up': 
+            case 'backward':
+                target.position.z += horizontalMoveAmount;
+                break;
+            case 'left':
+                target.position.x -= horizontalMoveAmount;
+                break;
+            case 'right':
+                target.position.x += horizontalMoveAmount;
+                break;
+            case 'up':
+                target.position.y += verticalAdjustAmount;
+                break;
             case 'down':
-                if (target.userData.snappedToObjectId) delete target.userData.snappedToObjectId;
-                target.position.y += (direction === 'up' ? heightAdjustAmount : -heightAdjustAmount);
-                
-                const targetSeatingIndex = target.userData.seatingIndex !== undefined ? target.userData.seatingIndex : currentSeatingIndex;
-                const targetSeatingLevelY = seatingLevels[targetSeatingIndex] ? seatingLevels[targetSeatingIndex].y : 0;
-                let basePosY = targetSeatingLevelY + target.userData.height / 2; 
-
-                if ((target.userData.baseType === 'brique' || target.userData.baseType === 'bloc') && targetSeatingLevelY < snapGridSize && !target.userData.snappedToObjectId) {
-                    basePosY += jointHeightMeters;
-                }
-
-                if (direction === 'down') {
-                    if (target.position.y < basePosY && Math.abs(target.position.y - basePosY) > snapGridSize / 2) {
-                        target.position.y = basePosY;
-                    }
-                }
-                updateTargetSeatingAfterVerticalMove(target); 
-
-                if (target === ghostElement && (target.userData.baseType === 'brique' || target.userData.baseType === 'bloc')) {
-                    const tooltipText = `Haut. ${target.userData.baseType === 'brique' ? 'Brique' : 'Bloc'}: ${(target.userData.height * 100).toFixed(1)} cm, Joint: ${(currentJointCm).toFixed(1)} cm, Niveau: ${(target.position.y + target.userData.height / 2).toFixed(2)} m`;
-                    uiShowAndPositionTooltip(target, tooltipText, camera, renderer);
-                } else {
-                    uiHideHeightTooltip();
-                }
+                target.position.y -= verticalAdjustAmount;
                 break;
         }
+
         target.position.x = snapToGrid(target.position.x);
         target.position.z = snapToGrid(target.position.z);
+        // For vertical, snapping might be different or based on specific logic (e.g., seating levels, joint heights)
+        // For now, let's keep its snapping simple or rely on updateTargetSeatingAfterVerticalMove if applicable
         target.position.y = parseFloat(target.position.y.toFixed(5)); 
+        
+        // If moving ghost, update its seating index if it's close to a seating level
+        if (target === ghostElement && isGhostFixed && (direction === 'up' || direction === 'down')) {
+            updateTargetSeatingAfterVerticalMove(target);
+        }
+        
+        if (target === ghostElement && isGhostFixed) {
+            showTooltipForFixedGhost();
+        } else {
+            uiHideHeightTooltip();
+        }
         updateHelpBar(currentTool, isGhostFixed, selectedObject, currentActiveColor, currentActiveTextureUrl);
     }
 
@@ -734,7 +752,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     closestSeatingId = parseInt(id);
                 }
             }
-            if (minDiff < snapGridSize * 2) { 
+            // Stricter condition for snapping to a seating level
+            if (minDiff < snapGridSize / 2) { 
                  ghostElement.userData.seatingIndex = closestSeatingId;
                  const newSeatingY = seatingLevels[closestSeatingId].y;
                  let targetBottomForSnap = newSeatingY;
@@ -748,16 +767,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function rotateGhostOrSelected(direction, eventParam) { 
         const target = (currentTool === 'add' && ghostElement && isGhostFixed) ? ghostElement : 
-                               ((currentTool === 'rotate' || currentTool === 'move') && selectedObject) ? selectedObject : null;
+                       ((currentTool === 'rotate' || currentTool === 'move') && selectedObject) ? selectedObject : null;
         if (!target) return;
         if (selectedObject && !target.userData.undoInitialTransform && (currentTool === 'move' || currentTool === 'rotate')) {
             target.userData.undoInitialTransform = { position: target.position.clone(), rotation: target.rotation.clone() };
         }
         const currentEvent = eventParam || window.event;
         const useShift = currentEvent ? currentEvent.shiftKey : false;
-        const rotAmount = Math.PI / (useShift ? 18 : 36); 
-        target.rotation.y += (direction === 'left' ? rotAmount : -rotAmount);
-        if (target === ghostElement) uiHideHeightTooltip(); 
+
+    function rotateXGhostOrSelected(direction, eventParam) {
+        const target = (currentTool === 'add' && ghostElement && isGhostFixed) ? ghostElement :
+            ((currentTool === 'rotate' || currentTool === 'move') && selectedObject) ? selectedObject : null;
+        if (!target) return;
+        if (selectedObject && !target.userData.undoInitialTransform && (currentTool === 'move' || currentTool === 'rotate')) {
+            target.userData.undoInitialTransform = { position: target.position.clone(), rotation: target.rotation.clone() };
+        }
+        const currentEvent = eventParam || window.event;
+        const useShift = currentEvent ? currentEvent.shiftKey : false;
+        const rotAmount = Math.PI / (useShift ? 18 : 36);
+        target.rotation.x += (direction === 'left' ? rotAmount : -rotAmount);
+        
+        // Update tooltip if it's a fixed ghost element
+        if (target === ghostElement && isGhostFixed) {
+            showTooltipForFixedGhost();
+        }
     }
 
     function selectObject(object) {
@@ -913,20 +946,25 @@ document.addEventListener('DOMContentLoaded', () => {
         if (ghostElement && isGhostFixed && (ghostElement.userData.baseType === 'brique' || ghostElement.userData.baseType === 'bloc')) {
             let tooltipText = ""; 
             const elementHeight = ghostElement.userData.height; 
-            const jointInputId = ghostElement.userData.baseType === 'brique' ? 'joint-distance' : 'block-joint-distance';
-            const currentJointCm = parseFloat((document.getElementById(jointInputId).value || "0").replace(',', '.'));
+            
+            // Get rotation angles in degrees
+            const rotationX = (ghostElement.rotation.x * 180 / Math.PI).toFixed(1);
+            const rotationY = (ghostElement.rotation.y * 180 / Math.PI).toFixed(1);
+            const rotationZ = (ghostElement.rotation.z * 180 / Math.PI).toFixed(1);
             
             if (typeof elementHeight === 'number' && !isNaN(elementHeight)) {
                 const topFaceYAbsolute = ghostElement.position.y + elementHeight / 2; 
-                const currentSeatingLevelYForTooltip = seatingLevels[ghostElement.userData.seatingIndex !== undefined ? ghostElement.userData.seatingIndex : currentSeatingIndex] ? seatingLevels[ghostElement.userData.seatingIndex !== undefined ? ghostElement.userData.seatingIndex : currentSeatingIndex].y : 0;
+                const topFaceYAbsoluteCm = (topFaceYAbsolute * 100).toFixed(1); // Convertir en cm
+                const bottomFaceYAbsolute = ghostElement.position.y - elementHeight / 2;
+                const bottomFaceYAbsoluteCm = (bottomFaceYAbsolute * 100).toFixed(1); // Convertir en cm
                 
                 if (ghostElement.userData.snappedToObjectId) { 
-                    tooltipText = `Haut. ${ghostElement.userData.baseType === 'brique' ? 'Brique' : 'Bloc'}: ${(elementHeight * 100).toFixed(1)} cm`;
+                    tooltipText = `Haut. ${ghostElement.userData.baseType === 'brique' ? 'Brique' : 'Bloc'}: ${(elementHeight * 100).toFixed(1)} cm\nNiveau sup.: ${topFaceYAbsoluteCm} cm\nAngles X:${rotationX}° Y:${rotationY}° Z:${rotationZ}°`;
                 } else {
-                    tooltipText = `Haut. ${ghostElement.userData.baseType === 'brique' ? 'Brique' : 'Bloc'}: ${(elementHeight * 100).toFixed(1)} cm, Joint: ${currentJointCm.toFixed(1)} cm, Niveau: ${topFaceYAbsolute.toFixed(2)} m`;
+                    tooltipText = `Haut. ${ghostElement.userData.baseType === 'brique' ? 'Brique' : 'Bloc'}: ${(elementHeight * 100).toFixed(1)} cm\nNiveau sup.: ${topFaceYAbsoluteCm} cm, Niveau inf.: ${bottomFaceYAbsoluteCm} cm\nAngles X:${rotationX}° Y:${rotationY}° Z:${rotationZ}°`;
                 }
             } else {
-                tooltipText = "Erreur calcul hauteur"; 
+                tooltipText = `Erreur calcul hauteur\nAngles X:${rotationX}° Y:${rotationY}° Z:${rotationZ}°`; 
             }
             uiShowAndPositionTooltip(ghostElement, tooltipText, camera, renderer);
         }
@@ -1056,6 +1094,50 @@ document.addEventListener('DOMContentLoaded', () => {
                         showTooltipForFixedGhost();
                         updateHelpBar(currentTool, isGhostFixed, selectedObject, currentActiveColor, currentActiveTextureUrl);
                     }
+            }
+
+            if (currentTool === 'add' && ghostElement && !isGhostFixed && !controls.enabled) {
+                const rect = domElements.viewportContainer.getBoundingClientRect();
+                mousePointer.x = ((touch.clientX - rect.left) / rect.width) * 2 - 1;
+                mousePointer.y = -((touch.clientY - rect.top) / rect.height) * 2 + 1;
+                raycaster.setFromCamera(mousePointer, camera);
+                updateGhostOnIntersection(raycaster);
+                if (ghostElement) ghostElement.visible = true;
+            } else if (isDraggingWithTouch) {
+                controls.enabled = true;
+            }
+        } else { 
+            controls.enabled = true;
+        }
+    }
+
+    function onViewportTouchEnd(event) {
+        event.preventDefault();
+        const touchDuration = Date.now() - touchStartTime;
+
+        if (event.changedTouches.length === 1) {
+            const touch = event.changedTouches[0];
+
+            if (currentTool === 'add') {
+                if (!isDraggingWithTouch && touchDuration < TAP_DURATION_THRESHOLD) { // TAP
+                    if (!ghostElement) {
+                        createGhostElement();
+                    }
+                    if (ghostElement) {
+                        const rect = domElements.viewportContainer.getBoundingClientRect();
+                        mousePointer.x = ((touch.clientX - rect.left) / rect.width) * 2 - 1;
+                        mousePointer.y = -((touch.clientY - rect.top) / rect.height) * 2 + 1;
+                        raycaster.setFromCamera(mousePointer, camera);
+                        
+                        updateGhostOnIntersection(raycaster, true); // Position it, bypassing isGhostFixed check for this call
+                        
+                        isGhostFixed = true; // Now, mark as fixed for D-Pad
+                        ghostElement.visible = true;
+
+                        controls.enabled = true; controls.enableRotate = true; controls.enablePan = true;
+                        showTooltipForFixedGhost();
+                        updateHelpBar(currentTool, isGhostFixed, selectedObject, currentActiveColor, currentActiveTextureUrl);
+                    }
                 } else if (isDraggingWithTouch && ghostElement) { // DRAGGED ghost to position
                     // Ghost was already positioned by onViewportTouchMove which calls updateGhostOnIntersection
                     // with isGhostFixed = false. So, just mark it as fixed here.
@@ -1140,14 +1222,18 @@ document.addEventListener('DOMContentLoaded', () => {
             case 'l': case 'arrowright': moveGhostOrSelected('right', event); break;
             case 'q': rotateGhostOrSelected('left', event); break;
             case 'e': rotateGhostOrSelected('right', event); break;
+            case 'u': rotateYGhostOrSelected('left', event); break;
+            case 'i': rotateYGhostOrSelected('right', event); break;
+            case 'k': rotateZGhostOrSelected('left', event); break;
+            case 'm': rotateZGhostOrSelected('right', event); break;
+            case 'o': rotateXGhostOrSelected('left', event); break;
+            case 'p': rotateXGhostOrSelected('right', event); break;
             case 'pageup': moveGhostOrSelected('up', event); break;
             case 'pagedown': moveGhostOrSelected('down', event); break;
-            case 'o': if (isCtrlOrMeta) { event.preventDefault(); handleOpenFile(); } else { dpadAction = false; } break;
             default: dpadAction = false; break;
         }
         if (dpadAction) event.preventDefault(); 
     }
-
     function pushActionToUndoStack(action) {
         undoStack.push(action); redoStack.length = 0; 
         updateUndoRedoButtons(); // This will become updateUndoRedoButtonsUI
@@ -1158,7 +1244,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function getObjectById(id) { return objects.find(obj => obj.userData.id === id); }
     function cloneObjectDataForUndo(object) {
         if (!object || !object.userData) return null;
-        return { id: object.userData.id, type: object.userData.type, baseType: object.userData.baseType, name: object.userData.name, originalName: object.userData.originalName, width: object.userData.width, height: object.userData.height, depth: object.userData.depth, originalColor: object.userData.originalColor, seatingIndex: object.userData.seatingIndex, position: object.position.clone(), rotationY: object.rotation.y, cutLength: object.userData.cutLength, widthMultiplier: object.userData.widthMultiplier, customCutWidthValue: object.userData.customCutWidthValue, appliedTextureUrl: object.userData.appliedTextureUrl }; 
+        return { id: object.userData.id, type: object.userData.type, baseType: object.userData.baseType, name: object.userData.name, originalName: object.userData.originalName, width: object.userData.width, height: object.userData.height, depth: object.userData.depth, originalColor: object.userData.originalColor, seatingIndex: object.userData.seatingIndex, position: object.position.clone(), rotationY: object.rotation.y, rotationX: object.rotation.x, rotationZ: object.rotation.z, cutLength: object.userData.cutLength, widthMultiplier: object.userData.widthMultiplier, customCutWidthValue: object.userData.customCutWidthValue, appliedTextureUrl: object.userData.appliedTextureUrl };
     }
 
     function undoLastAction() {
@@ -1171,7 +1257,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 break;
             case 'delete': 
                 if (action.objectData) {
-                    const reAddedElement = addElementAtPosition(new THREE.Vector3(action.objectData.position.x, action.objectData.position.y, action.objectData.position.z), action.objectData.rotationY, action.objectData, action.objectData.id, action.objectData.originalColor);
+                    const reAddedElement = addElementAtPosition(new THREE.Vector3(action.objectData.position.x, action.objectData.position.y, action.objectData.position.z), action.objectData.rotationY, action.objectData.rotationX, action.objectData.rotationZ, action.objectData, action.objectData.id, action.objectData.originalColor);
                     if (reAddedElement && action.objectData.appliedTextureUrl) { 
                         applyTextureToObject(reAddedElement, action.objectData.appliedTextureUrl, false); 
                     }
@@ -1222,8 +1308,8 @@ document.addEventListener('DOMContentLoaded', () => {
         switch (action.type) {
             case 'add': 
                 if (action.redoData) {
-                     const reAddedElement = addElementAtPosition(new THREE.Vector3(action.redoData.position.x, action.redoData.position.y, action.redoData.position.z), action.redoData.rotationY, action.redoData, action.redoData.id, action.redoData.originalColor);
-                     if (reAddedElement && action.redoData.appliedTextureUrl) { 
+                     const reAddedElement = addElementAtPosition(new THREE.Vector3(action.redoData.position.x, action.redoData.position.y, action.redoData.position.z), action.redoData.rotationY, action.redoData.rotationX, action.redoData.rotationZ, action.redoData, action.redoData.id, action.redoData.originalColor);
+                     if (reAddedElement && action.redoData.appliedTextureUrl) {
                         applyTextureToObject(reAddedElement, action.redoData.appliedTextureUrl, false);
                      }
                 }
@@ -1336,11 +1422,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (selectedObject) deselectObject();
         undoStack.length = 0; redoStack.length = 0; 
         updateUndoRedoButtons(); // This will become updateUndoRedoButtonsUI
-        seatingLevels = { 0: { y: 0, name: "Assise 0 (Niveau 0.00m)" } }; currentSeatingIndex = 0; updateSeatingSelector();
+        seatingLevels = { 0: { y: 0, name: "Assise 0 (Niveau 0.00m)" } }; currentSeatingIndex = 0; 
+        updateSeatingSelector(); // Ensure selector is updated
         updateElementCounter(); // This will become updateElementCounterUI(objects)
         [domElements.projectTitleInput, domElements.designerNameInput, domElements.operatingModeInput, domElements.projectNotesInput].forEach(input => {
             if (input) input.value = ''; // Check if input exists
         });
+
         if (currentTool === 'add') { removeGhostElement(); createGhostElement(); }
         setCurrentTool('add'); 
         if (controls) { camera.position.copy(initialCameraPosition); controls.target.copy(initialCameraLookAt); controls.update(); }
@@ -1368,11 +1456,11 @@ document.addEventListener('DOMContentLoaded', () => {
         seatingLevels = (data.seatingLevels && Object.keys(data.seatingLevels).length > 0) ? data.seatingLevels : { 0: { y: 0, name: "Assise 0 (Niveau 0.00m)" } };
         currentSeatingIndex = data.currentSeatingIndex !== undefined && seatingLevels[data.currentSeatingIndex] ? data.currentSeatingIndex : 0;
         if (!seatingLevels[currentSeatingIndex] && Object.keys(seatingLevels).length > 0) currentSeatingIndex = parseInt(Object.keys(seatingLevels)[0]);
-        updateSeatingSelector(); 
+        updateSeatingSelector(); // Ensure selector is updated
         if (data.styleSettings) { useWhiteElements = data.styleSettings.useWhiteElements || false; shadowsEnabled = data.styleSettings.shadowsEnabled !== undefined ? data.styleSettings.shadowsEnabled : true; } else { useWhiteElements = false; shadowsEnabled = true; }
         renderer.shadowMap.enabled = shadowsEnabled; scene.traverse(c => { if (c.isLight) c.castShadow = shadowsEnabled; if (c.isMesh && c.material) c.material.needsUpdate = true; });
         if(domElements.toggleShadowsBtn) domElements.toggleShadowsBtn.textContent = shadowsEnabled ? "Désactiver Ombres" : "Activer Ombres";
-        if (data.objects) { data.objects.forEach(objData => { const props = { type: objData.type, baseType: objData.baseType, name: objData.name, originalName: objData.originalName, width: objData.width, height: objData.height, depth: objData.depth, seatingIndex: objData.seatingIndex, cutLength: objData.cutLength, widthMultiplier: objData.widthMultiplier, customCutWidthValue: objData.customCutWidthValue, appliedTextureUrl: objData.appliedTextureUrl }; const pos = new THREE.Vector3(objData.position.x, objData.position.y, objData.position.z); const rotY = objData.rotationY; const origSeatIdx = currentSeatingIndex; currentSeatingIndex = objData.seatingIndex !== undefined && seatingLevels[objData.seatingIndex] ? objData.seatingIndex : 0; if (!seatingLevels[currentSeatingIndex]) currentSeatingIndex = 0; const loadedEl = addElementAtPosition(pos, rotY, props, objData.id, objData.originalColor); if (loadedEl) { loadedEl.castShadow = shadowsEnabled && props.baseType !== 'vide'; loadedEl.receiveShadow = shadowsEnabled && props.baseType !== 'vide'; if (objData.appliedTextureUrl) { applyTextureToObject(loadedEl, objData.appliedTextureUrl, false); } else if (objData.originalColor !== (elementColors[objData.baseType] || elementColors.default) && !useWhiteElements ) { applyColorToObject(loadedEl, objData.originalColor, false); } } currentSeatingIndex = origSeatIdx; }); }
+        if (data.objects) { data.objects.forEach(objData => { const props = { type: objData.type, baseType: objData.baseType, name: objData.name, originalName: objData.originalName, width: objData.width, height: objData.height, depth: objData.depth, seatingIndex: objData.seatingIndex, cutLength: objData.cutLength, widthMultiplier: objData.widthMultiplier, customCutWidthValue: objData.customCutWidthValue, appliedTextureUrl: objData.appliedTextureUrl }; const pos = new THREE.Vector3(objData.position.x, objData.position.y, objData.position.z); const rotY = objData.rotationY; const origSeatIdx = currentSeatingIndex; currentSeatingIndex = objData.seatingIndex !== undefined && seatingLevels[objData.seatingIndex] ? objData.seatingIndex : 0; if (!seatingLevels[currentSeatingIndex] && Object.keys(seatingLevels).length > 0) currentSeatingIndex = 0; const loadedEl = addElementAtPosition(pos, rotY, props, objData.id, objData.originalColor); if (loadedEl) { loadedEl.castShadow = shadowsEnabled && props.baseType !== 'vide'; loadedEl.receiveShadow = shadowsEnabled && props.baseType !== 'vide'; if (objData.appliedTextureUrl) { applyTextureToObject(loadedEl, objData.appliedTextureUrl, false); } else if (objData.originalColor !== (elementColors[objData.baseType] || elementColors.default) && !useWhiteElements ) { applyColorToObject(loadedEl, objData.originalColor, false); } } currentSeatingIndex = origSeatIdx; }); }
         updateElementCounter(); // This will become updateElementCounterUI(objects)
         if (currentTool === 'add') { removeGhostElement(); createGhostElement(); } setCurrentTool('add'); 
         if (controls) { camera.position.copy(initialCameraPosition); controls.target.copy(initialCameraLookAt); controls.update(); }
@@ -1381,11 +1469,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const sceneData = { 
             metadata: { 
                 projectTitle: domElements.projectTitleInput ? domElements.projectTitleInput.value : '', 
+                
                 designerName: domElements.designerNameInput ? domElements.designerNameInput.value : '', 
                 operatingMode: domElements.operatingModeInput ? domElements.operatingModeInput.value : '',
-                projectNotes: domElements.projectNotesInput ? domElements.projectNotesInput.value : '' 
+                                              projectNotes: domElements.projectNotesInput ? domElements.projectNotesInput.value : '' 
             }, 
-            objects: objects.map(o => ({ id: o.userData.id, type: o.userData.type, baseType: o.userData.baseType, name: o.userData.name, originalName: o.userData.originalName, width: o.userData.width, height: o.userData.height, depth: o.userData.depth, position: { x: o.position.x, y: o.position.y, z: o.position.z }, rotationY: o.rotation.y, originalColor: o.userData.originalColor, seatingIndex: o.userData.seatingIndex, cutLength: o.userData.cutLength, widthMultiplier: o.userData.widthMultiplier, customCutWidthValue: o.userData.customCutWidthValue, appliedTextureUrl: o.userData.appliedTextureUrl })), 
+            objects: objects.map(o => ({ id: o.userData.id, type: o.userData.type, baseType: o.userData.baseType, name: o.userData.name, originalName: o.userData.originalName, width: o.userData.width, height: o.userData.height, depth: o.userData.depth, position: { x: o.position.x, y: o.position.y, z: o.position.z }, rotationY: o.rotation.y, rotationX: o.rotation.x, rotationZ: o.rotation.z, originalColor: o.userData.originalColor, seatingIndex: o.userData.seatingIndex, cutLength: o.userData.cutLength, widthMultiplier: o.userData.widthMultiplier, customCutWidthValue: o.userData.customCutWidthValue, appliedTextureUrl: o.userData.appliedTextureUrl })), 
             seatingLevels: seatingLevels, 
             currentSeatingIndex: currentSeatingIndex, 
             styleSettings: { useWhiteElements: useWhiteElements, shadowsEnabled: shadowsEnabled }
@@ -1689,11 +1778,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (selectedObject.userData.type === 'custom') { domElements.customNameInput.value = selectedObject.userData.name.replace(/ \((1\/1|3\/4|1\/2|1\/4|Ailette|Coupe 34|Coupe [0-9.]+cm)\)$/, ''); domElements.customWidthInput.value = selectedObject.userData.width; domElements.customHeightInput.value = selectedObject.userData.height; domElements.customDepthInput.value = selectedObject.userData.depth; } 
         else if (selectedObject.userData.type === 'vide') { domElements.videDepthInput.value = selectedObject.userData.depth * 100; }
         
-        const oldPos = selectedObject.position.clone(), oldRotY = selectedObject.rotation.y, oldSeatIdx = selectedObject.userData.seatingIndex, origColor = selectedObject.userData.originalColor, origTextureUrl = selectedObject.userData.appliedTextureUrl; 
+        const oldPos = selectedObject.position.clone(), oldRotY = selectedObject.rotation.y, oldRotX = selectedObject.rotation.x, oldRotZ = selectedObject.rotation.z, oldSeatIdx = selectedObject.userData.seatingIndex, origColor = selectedObject.userData.originalColor, origTextureUrl = selectedObject.userData.appliedTextureUrl; 
         const selId = selectedObject.userData.id; scene.remove(selectedObject); const idx = objects.findIndex(o => o.userData.id === selId); if (idx > -1) objects.splice(idx, 1); if (selectedObject.geometry) selectedObject.geometry.dispose(); if (selectedObject.material) selectedObject.material.dispose(); selectedObject.traverse(c => { if (c.isLineSegments && c.name === "elementEdges") { if (c.geometry) c.geometry.dispose(); if (c.material) c.material.dispose(); }}); selectedObject = null; 
         updateElementCounter(); // This will become updateElementCounterUI(objects)
         setCurrentTool('add'); 
-        if (ghostElement) { const newProps = getElementProperties(); ghostElement.geometry.dispose(); ghostElement.geometry = new THREE.BoxGeometry(newProps.width, newProps.height, newProps.depth); ghostElement.userData = {...newProps, isGhost: true, seatingIndex: oldSeatIdx, originalColor: origColor, appliedTextureUrl: origTextureUrl}; ghostElement.position.copy(oldPos); ghostElement.rotation.y = oldRotY; currentSeatingIndex = oldSeatIdx; const cLevelY = seatingLevels[oldSeatIdx] ? seatingLevels[oldSeatIdx].y : 0; let yAdjust = cLevelY + newProps.height / 2; if(newProps.baseType === 'brique') yAdjust += getSanitizedJointValue('joint-distance'); else if(newProps.baseType === 'bloc' || newProps.baseType === 'bloc_cell') yAdjust += getSanitizedJointValue('block-joint-distance'); ghostElement.position.y = snapToGrid(yAdjust); ghostElement.visible = true; isGhostFixed = true; controls.enabled = true; controls.enableRotate = true; }
+        if (ghostElement) { const newProps = getElementProperties(); ghostElement.geometry.dispose(); ghostElement.geometry = new THREE.BoxGeometry(newProps.width, newProps.height, newProps.depth); ghostElement.userData = {...newProps, isGhost: true, seatingIndex: oldSeatIdx, originalColor: origColor, appliedTextureUrl: origTextureUrl}; ghostElement.position.copy(oldPos); ghostElement.rotation.y = oldRotY; ghostElement.rotation.x = oldRotX; ghostElement.rotation.z = oldRotZ; currentSeatingIndex = oldSeatIdx; const cLevelY = seatingLevels[oldSeatIdx] ? seatingLevels[oldSeatIdx].y : 0; let yAdjust = cLevelY + newProps.height / 2; if(newProps.baseType === 'brique') yAdjust += getSanitizedJointValue('joint-distance'); else if(newProps.baseType === 'bloc' || newProps.baseType === 'bloc_cell') yAdjust += getSanitizedJointValue('block-joint-distance'); ghostElement.position.y = snapToGrid(yAdjust); ghostElement.visible = true; isGhostFixed = true; controls.enabled = true; controls.enableRotate = true; }
         updateHelpBar(currentTool, isGhostFixed, selectedObject, currentActiveColor, currentActiveTextureUrl); alert("Modifiez propriétés, ajustez avec le DPad, confirmez (OK/Entrée).");
     }
     function setElementStyle(isWhite) {
@@ -1736,122 +1825,84 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         renderer.render(scene, camera); 
     }
-    function updateSeatingSelector() { /* Placeholder - to be implemented or moved if complex state needed */ }
     initThreeJS(); console.log("MurSimulate3D initialisé.");
     
     function updateElementCounter() {
         updateElementCounterUI(objects);
     }
 
-    function setupDpadControlsInteractions() {
-        const dpadControls = domElements.dpadControlsContainer; // Use cached element
-        if (dpadControls) {
-            ['touchstart', 'touchmove', 'touchend', 'touchcancel', 'pointerdown', 'pointerup'].forEach(evt =>
-                dpadControls.addEventListener(evt, function(e) {
-                    e.stopPropagation();
-                    // e.preventDefault(); // Removing preventDefault from the container itself, only on buttons
-                }, { passive: true }) // Set container to passive true if not preventing default
-            );
-            // Prevent default and stop propagation on button children specifically
-            Array.from(dpadControls.querySelectorAll('button')).forEach(btn => {
-                ['touchstart', 'pointerdown'].forEach(evt => // Only for start events to prevent double actions if click is also handled
-                    btn.addEventListener(evt, function(e) {
-                        e.stopPropagation();
-                        e.preventDefault(); // Prevent default on buttons to stop unwanted browser actions like zoom/scroll on tap
-                    }, { passive: false })
-                );
-                // Allow touchend/pointerup to propagate if needed, or handle similarly if issues arise
-                 ['touchmove', 'touchend', 'touchcancel', 'pointerup'].forEach(evt =>
-                    btn.addEventListener(evt, function(e) {
-                        e.stopPropagation();
-                    }) // Removed preventDefault for these on buttons unless specific issues arise
-                );
-            });
-        }
-    }
-
     // --- DPAD TEST MOBILE ---
     function createTestMobileDpad() {
         if (document.getElementById('dpad-test-mobile')) return;
+        
+        // Use document fragment for better performance
+        const fragment = document.createDocumentFragment();
         const dpad = document.createElement('div');
         dpad.id = 'dpad-test-mobile';
 
-        // Ligne du haut : Monter, Haut, Rotation gauche
-        const rowUp = document.createElement('div');
-        rowUp.className = 'dpad-row';
-        const btnLevelUp = document.createElement('button');
-        btnLevelUp.innerHTML = '⇞';
-        btnLevelUp.title = 'Monter';
-        const btnUp = document.createElement('button');
-        btnUp.innerHTML = '▲';
-        btnUp.title = 'Haut';
-        const btnRotLeft = document.createElement('button');
-        btnRotLeft.innerHTML = '↺';
-        btnRotLeft.title = 'Rotation gauche';
-        rowUp.appendChild(btnLevelUp);
-        rowUp.appendChild(btnUp);
-        rowUp.appendChild(btnRotLeft);
+        // Create all rows and buttons efficiently
+        const rows = [
+            { className: 'dpad-row', buttons: [
+                { html: '⇞', title: 'Monter', handler: (e) => moveGhostOrSelected('up', e) },
+                { html: '▲', title: 'Haut', handler: (e) => moveGhostOrSelected('forward', e) },
+                { html: '↺', title: 'Annuler (Undo)', handler: () => undoLastAction() }
+            ]},
+            { className: 'dpad-row', buttons: [
+                { html: '◀', title: 'Gauche', handler: (e) => moveGhostOrSelected('left', e) },
+                { html: `<svg width="36" height="36" viewBox="0 0 36 36" style="vertical-align:middle;">
+                    <polyline points="10,19 16,25 26,13" style="fill:none;stroke:#2ecc40;stroke-width:5;stroke-linecap:round;stroke-linejoin:round"/>
+                </svg>`, title: 'Valider', handler: () => confirmPlacement() },
+                { html: '▶', title: 'Droite', handler: (e) => moveGhostOrSelected('right', e) }
+            ]},
+            { className: 'dpad-row', buttons: [
+                { html: '⇟', title: 'Descendre', handler: (e) => moveGhostOrSelected('down', e) },
+                { html: '▼', title: 'Bas', handler: (e) => moveGhostOrSelected('backward', e) },
+                { html: '↻', title: 'Rétablir (Redo)', handler: () => redoLastAction() }
+            ]},
+            { className: 'dpad-row', buttons: [
+                { html: `<i class="fas fa-sync-alt rot-icon"></i><span class="rot-label">X</span>`, title: 'Rotation Axe X', handler: (e) => rotateXGhostOrSelected('left', e) },
+                { html: `<i class="fas fa-sync-alt rot-icon"></i><span class="rot-label">Y</span>`, title: 'Rotation Axe Y', handler: (e) => rotateYGhostOrSelected('left', e) },
+                { html: `<i class="fas fa-sync-alt rot-icon"></i><span class="rot-label">Z</span>`, title: 'Rotation Axe Z', handler: (e) => rotateZGhostOrSelected('left', e) }
+            ]},
+            { className: 'dpad-row', buttons: [
+                { html: `<i class="fas fa-sync-alt rot-icon"></i><span class="rot-label">X-</span>`, title: 'Rotation Axe X Inverse', handler: (e) => rotateXGhostOrSelected('right', e) },
+                { html: `<i class="fas fa-sync-alt rot-icon"></i><span class="rot-label">Y-</span>`, title: 'Rotation Axe Y Inverse', handler: (e) => rotateYGhostOrSelected('right', e) },
+                { html: `<i class="fas fa-sync-alt rot-icon"></i><span class="rot-label">Z-</span>`, title: 'Rotation Axe Z Inverse', handler: (e) => rotateZGhostOrSelected('right', e) }
+            ]}
+        ];
 
-        // Ligne du milieu : Gauche, OK (Check stylé), Droite
-        const rowMid = document.createElement('div');
-        rowMid.className = 'dpad-row';
-        const btnLeft = document.createElement('button');
-        btnLeft.innerHTML = '◀';
-        btnLeft.title = 'Gauche';
-        const btnOk = document.createElement('button');
-        // Utilisation d'un SVG pour un check stylé
-        btnOk.innerHTML = `<svg width="36" height="36" viewBox="0 0 36 36" style="vertical-align:middle;">
-            <polyline points="10,19 16,25 26,13" style="fill:none;stroke:#2ecc40;stroke-width:5;stroke-linecap:round;stroke-linejoin:round"/>
-        </svg>`;
-        btnOk.title = 'Valider';
-        const btnRight = document.createElement('button');
-        btnRight.innerHTML = '▶';
-        btnRight.title = 'Droite';
-        rowMid.appendChild(btnLeft);
-        rowMid.appendChild(btnOk);
-        rowMid.appendChild(btnRight);
-
-        // Ligne du bas : Descendre, Bas, Rotation droite
-        const rowDown = document.createElement('div');
-        rowDown.className = 'dpad-row';
-        const btnLevelDown = document.createElement('button');
-        btnLevelDown.innerHTML = '⇟';
-        btnLevelDown.title = 'Descendre';
-        const btnDown = document.createElement('button');
-        btnDown.innerHTML = '▼';
-        btnDown.title = 'Bas';
-        const btnRotRight = document.createElement('button');
-        btnRotRight.innerHTML = '↻';
-        btnRotRight.title = 'Rotation droite';
-        rowDown.appendChild(btnLevelDown);
-        rowDown.appendChild(btnDown);
-        rowDown.appendChild(btnRotRight);
-
-        dpad.appendChild(rowUp);
-        dpad.appendChild(rowMid);
-        dpad.appendChild(rowDown);
-
-        [
-            [btnUp, () => moveGhostOrSelected('forward')],
-            [btnDown, () => moveGhostOrSelected('backward')],
-            [btnLeft, () => moveGhostOrSelected('left')],
-            [btnRight, () => moveGhostOrSelected('right')],
-            [btnOk, () => confirmPlacement()],
-            [btnLevelUp, () => moveGhostOrSelected('up')],
-            [btnLevelDown, () => moveGhostOrSelected('down')],
-            [btnRotLeft, () => rotateGhostOrSelected('left')],
-            [btnRotRight, () => rotateGhostOrSelected('right')]
-        ].forEach(([btn, handler]) => {
-            ['click', 'touchstart'].forEach(evt =>
-                btn.addEventListener(evt, function(e) {
-                    e.preventDefault();
+        rows.forEach(rowConfig => {
+            const row = document.createElement('div');
+            row.className = rowConfig.className;
+            
+            rowConfig.buttons.forEach(btnConfig => {
+                const btn = document.createElement('button');
+                btn.innerHTML = btnConfig.html;
+                btn.title = btnConfig.title;
+                
+                // Use click as primary event (more performant and passive-friendly)
+                btn.addEventListener('click', function(e) {
                     e.stopPropagation();
-                    handler();
-                }, { passive: false })
-            );
+                    btnConfig.handler(e); // Passer l'événement e
+                }, { passive: true });
+                
+                // Only add touchstart for touch devices where preventDefault is needed
+                if ('ontouchstart' in window) {
+                    btn.addEventListener('touchstart', function(e) {
+                        e.preventDefault(); // Empêcher le comportement par défaut (défilement/zoom)
+                        e.stopPropagation();
+                        btnConfig.handler(e); // Passer l'événement e
+                    }, { passive: false });
+                }
+                
+                row.appendChild(btn);
+            });
+            
+            dpad.appendChild(row);
         });
-
-        document.body.appendChild(dpad);
+        
+        fragment.appendChild(dpad);
+        document.body.appendChild(fragment);
     }
 
     createTestMobileDpad();

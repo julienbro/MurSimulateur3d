@@ -56,110 +56,113 @@
             </div>
         </nav>
         <div id="toolbar">
-            <select id="element-type-selector" style="margin-right: 15px;">
+            <select id="element-type-selector" title="Type d'élément">
                 <optgroup label="Briques">
-                    <option value="brique_m50" data-dims="0.19,0.05,0.09" data-basetype="brique">Brique M50 (19x5x9 cm)</option>
-                    <option value="brique_m57" data-dims="0.19,0.057,0.09" data-basetype="brique">Brique M57 (19x5.7x9 cm)</option>
-                    <option value="brique_m65" data-dims="0.19,0.065,0.09" data-basetype="brique">Brique M65 (19x6.5x9 cm)</option>
-                    <option value="brique_m90" data-dims="0.19,0.09,0.09" data-basetype="brique">Brique M90 (19x9x9 cm)</option>
-                    <option value="brique_wf" data-dims="0.21,0.05,0.10" data-basetype="brique">Brique WF (21x5x10 cm)</option>
-                    <option value="brique_wfd" data-dims="0.21,0.065,0.10" data-basetype="brique">Brique WFD (21x6.5x10 cm)</option>
+                    <option value="brique_m50" data-dims="0.19,0.05,0.09">Brique M50 (19x5x9 cm)</option>
+                    <option value="brique_m57" data-dims="0.19,0.057,0.09">Brique M57 (19x5.7x9 cm)</option>
+                    <option value="brique_m65" data-dims="0.19,0.065,0.09">Brique M65 (19x6.5x9 cm)</option>
+                    <option value="brique_m90" data-dims="0.19,0.09,0.09">Brique M90 (19x9x9 cm)</option>
+                    <option value="brique_wf" data-dims="0.21,0.05,0.10">Brique WF (21x5x10 cm)</option>
+                    <option value="brique_wfd" data-dims="0.21,0.065,0.10">Brique WFD (21x6.5x10 cm)</option>
                 </optgroup>
-                <optgroup label="Blocs Creux">
-                    <option value="bloc_creux_b9" data-dims="0.39,0.19,0.09" data-basetype="bloc">Bloc creux B9 (39x19x9 cm)</option>
-                    <option value="bloc_creux_b14" data-dims="0.39,0.19,0.14" data-basetype="bloc">Bloc creux B14 (39x19x14 cm)</option>
-                    <option value="bloc_creux_b19" data-dims="0.39,0.19,0.19" data-basetype="bloc">Bloc creux B19 (39x19x19 cm)</option>
-                    <option value="bloc_creux_b29" data-dims="0.39,0.19,0.29" data-basetype="bloc">Bloc creux B29 (39x19x29 cm)</option>
-                </optgroup>
-                <optgroup label="Blocs Béton Cellulaire">
-                    <option value="bloc_cell_60_25_5" data-dims="0.60,0.25,0.05" data-basetype="bloc_cell">Bloc beton cell.(60x25x5)</option>
-                    <option value="bloc_cell_60_25_7" data-dims="0.60,0.25,0.07" data-basetype="bloc_cell">Bloc beton cell.(60x25x7)</option>
-                    <option value="bloc_cell_60_25_10" data-dims="0.60,0.25,0.10" data-basetype="bloc_cell">Bloc beton cell.(60x25x10)</option>
-                    <option value="bloc_cell_60_25_15" data-dims="0.60,0.25,0.15" data-basetype="bloc_cell">Bloc beton cell.(60x25x15)</option>
-                    <option value="bloc_cell_60_25_17_5" data-dims="0.60,0.25,0.175" data-basetype="bloc_cell">Bloc beton cell.(60x25x17.5)</option>
-                    <option value="bloc_cell_60_25_20" data-dims="0.60,0.25,0.20" data-basetype="bloc_cell">Bloc beton cell.(60x25x20)</option>
-                    <option value="bloc_cell_60_25_24" data-dims="0.60,0.25,0.24" data-basetype="bloc_cell">Bloc beton cell.(60x25x24)</option>
-                    <option value="bloc_cell_60_25_30" data-dims="0.60,0.25,0.30" data-basetype="bloc_cell">Bloc beton cell.(60x25x30)</option>
-                    <option value="bloc_cell_60_25_36" data-dims="0.60,0.25,0.36" data-basetype="bloc_cell">Bloc beton cell.(60x25x36)</option>
-                </optgroup>
-                <optgroup label="Blocs Béton Cellulaire d'Assise">
-                    <option value="bloc_cell_assise_60_20_9" data-dims="0.60,0.20,0.09" data-basetype="bloc_cell_assise">Beton cell. Assise (60x20x9)</option>
-                    <option value="bloc_cell_assise_60_20_14" data-dims="0.60,0.20,0.14" data-basetype="bloc_cell_assise">Beton cell. Assise (60x20x14)</option>
-                    <option value="bloc_cell_assise_60_20_19" data-dims="0.60,0.20,0.19" data-basetype="bloc_cell_assise">Beton cell. Assise (60x20x19)</option>
-                    <option value="bloc_cell_assise_60_25_9" data-dims="0.60,0.25,0.09" data-basetype="bloc_cell_assise">Beton cell. Assise (60x25x9)</option>
-                    <option value="bloc_cell_assise_60_25_14" data-dims="0.60,0.25,0.14" data-basetype="bloc_cell_assise">Beton cell. Assise (60x25x14)</option>
-                    <option value="bloc_cell_assise_60_25_19" data-dims="0.60,0.25,0.19" data-basetype="bloc_cell_assise">Beton cell. Assise (60x25x19)</option>
-                </optgroup>
-                <optgroup label="Blocs Terre Cuite">
-                    <option value="bloc_terre_cuite_50_25_10" data-dims="0.50,0.25,0.10" data-basetype="bloc_terre_cuite">Terre cuite (50x25x10)</option>
-                    <option value="bloc_terre_cuite_50_25_14" data-dims="0.50,0.25,0.14" data-basetype="bloc_terre_cuite">Terre cuite (50x25x14)</option>
-                    <option value="bloc_terre_cuite_50_25_19" data-dims="0.50,0.25,0.19" data-basetype="bloc_terre_cuite">Terre cuite (50x25x19)</option>
+                <optgroup label="Blocs">
+                    <option value="bloc_b9" data-dims="0.39,0.19,0.09">Bloc creux B9 (39x19x9 cm)</option>
+                    <option value="bloc_b14" data-dims="0.39,0.19,0.14">Bloc creux B14 (39x19x14 cm)</option>
+                    <option value="bloc_b19" data-dims="0.39,0.19,0.19">Bloc creux B19 (39x19x19 cm)</option>
+                    <option value="bloc_b29" data-dims="0.39,0.19,0.29">Bloc creux B29 (39x19x29 cm)</option>
+                    <option value="bloc_cell_60x25x5" data-dims="0.60,0.25,0.05">Bloc béton cell.(60x25x5)</option>
+                    <option value="bloc_cell_60x25x7" data-dims="0.60,0.25,0.07">Bloc béton cell.(60x25x7)</option>
+                    <option value="bloc_cell_60x25x10" data-dims="0.60,0.25,0.10">Bloc béton cell.(60x25x10)</option>
+                    <option value="bloc_cell_60x25x15" data-dims="0.60,0.25,0.15">Bloc béton cell.(60x25x15)</option>
+                    <option value="bloc_cell_60x25x17_5" data-dims="0.60,0.25,0.175">Bloc béton cell.(60x25x17.5)</option>
+                    <option value="bloc_cell_60x25x20" data-dims="0.60,0.25,0.20">Bloc béton cell.(60x25x20)</option>
+                    <option value="bloc_cell_60x25x24" data-dims="0.60,0.25,0.24">Bloc béton cell.(60x25x24)</option>
+                    <option value="bloc_cell_60x25x30" data-dims="0.60,0.25,0.30">Bloc béton cell.(60x25x30)</option>
+                    <option value="bloc_cell_60x25x36" data-dims="0.60,0.25,0.36">Bloc béton cell.(60x25x36)</option>
+                    <option value="beton_cell_assise_60x20x9" data-dims="0.60,0.20,0.09">Béton cell. Assise (60x20x9)</option>
+                    <option value="beton_cell_assise_60x20x14" data-dims="0.60,0.20,0.14">Béton cell. Assise (60x20x14)</option>
+                    <option value="beton_cell_assise_60x20x19" data-dims="0.60,0.20,0.19">Béton cell. Assise (60x20x19)</option>
+                    <option value="beton_cell_assise_60x25x9" data-dims="0.60,0.25,0.09">Béton cell. Assise (60x25x9)</option>
+                    <option value="beton_cell_assise_60x25x14" data-dims="0.60,0.25,0.14">Béton cell. Assise (60x25x14)</option>
+                    <option value="beton_cell_assise_60x25x19" data-dims="0.60,0.25,0.19">Béton cell. Assise (60x25x19)</option>
+                    <option value="terre_cuite_50x25x10" data-dims="0.50,0.25,0.10">Terre cuite (50x25x10)</option>
+                    <option value="terre_cuite_50x25x14" data-dims="0.50,0.25,0.14">Terre cuite (50x25x14)</option>
+                    <option value="terre_cuite_50x25x19" data-dims="0.50,0.25,0.19">Terre cuite (50x25x19)</option>
                 </optgroup>
                 <optgroup label="Linteaux">
-                    <option value="linteau_beton_120" data-dims="1.20,0.19,0.14" data-basetype="linteau">Linteau Beton L120 (120x19x14 cm)</option>
-                    <option value="linteau_beton_140" data-dims="1.40,0.19,0.14" data-basetype="linteau">Linteau Beton L140 (140x19x14 cm)</option>
-                    <option value="linteau_beton_160" data-dims="1.60,0.19,0.14" data-basetype="linteau">Linteau Beton L160 (160x19x14 cm)</option>
-                    <option value="linteau_beton_180" data-dims="1.80,0.19,0.14" data-basetype="linteau">Linteau Beton L180 (180x19x14 cm)</option>
-                    <option value="linteau_beton_200" data-dims="2.00,0.19,0.14" data-basetype="linteau">Linteau Beton L200 (200x19x14 cm)</option>
+                    <option value="linteau_l120" data-dims="1.20,0.19,0.14">Linteau Béton L120 (120x19x14 cm)</option>
+                    <option value="linteau_l140" data-dims="1.40,0.19,0.14">Linteau Béton L140 (140x19x14 cm)</option>
+                    <option value="linteau_l160" data-dims="1.60,0.19,0.14">Linteau Béton L160 (160x19x14 cm)</option>
+                    <option value="linteau_l180" data-dims="1.80,0.19,0.14">Linteau Béton L180 (180x19x14 cm)</option>
+                    <option value="linteau_l200" data-dims="2.00,0.19,0.14">Linteau Béton L200 (200x19x14 cm)</option>
                 </optgroup>
                 <optgroup label="Isolants">
-                    <option value="isolant_pur5" data-dims="1.20,0.60,0.05" data-basetype="isolant">Isolant PUR5 (120x60x5 cm)</option>
-                    <option value="isolant_pur6" data-dims="1.20,0.60,0.06" data-basetype="isolant">Isolant PUR6 (120x60x6 cm)</option>
-                    <option value="isolant_pur7" data-dims="1.20,0.60,0.07" data-basetype="isolant">Isolant PUR7 (120x60x7 cm)</option>
+                    <option value="isolant_pur5" data-dims="1.20,0.60,0.05">Isolant PUR5 (120x60x5 cm)</option>
+                    <option value="isolant_pur6" data-dims="1.20,0.60,0.06">Isolant PUR6 (120x60x6 cm)</option>
+                    <option value="isolant_pur7" data-dims="1.20,0.60,0.07">Isolant PUR7 (120x60x7 cm)</option>
                 </optgroup>
                 <optgroup label="Autres">
-                    <option value="vide_reglable" data-dims="0.40,0.19,0.05" data-basetype="vide">Vide (40x19xProf.Réglable)</option>
-                    <option value="profil_250" data-dims="0.05,2.50,0.065" data-basetype="profil">Profil (5x6.5x250 cm)</option>
-                    <option value="custom" data-dims="0.2,0.1,0.1" data-basetype="custom">Personnalisé</option>
+                    <option value="vide" data-dims="0.40,0.19,0.01">Vide (40x19x1-5 cm)</option>
+                    <option value="profil" data-dims="0.05,0.065,2.50">Profil (5x6.5x250 cm)</option>
+                    <option value="custom" data-dims="0.2,0.1,0.1">Personnalisé</option>
                 </optgroup>
             </select>
-            <div id="brick-cut-container" style="display: none; align-items: center; margin-left: 10px;">
-                <label for="brick-cut-selector" style="margin-right:5px;">Coupe Brique:</label>
-                <select id="brick-cut-selector">
-                    <option value="1/1" data-multiplier="1.0">1/1 (Entière)</option>
+
+            <div id="brick-cut-container" style="display: none;">
+                <select id="brick-cut-selector" title="Coupe de brique">
+                    <option value="1/1" data-multiplier="1">1/1</option>
                     <option value="3/4" data-multiplier="0.75">3/4</option>
                     <option value="1/2" data-multiplier="0.5">1/2</option>
                     <option value="1/4" data-multiplier="0.25">1/4</option>
-                    <option value="custom_cut">Personnaliser...</option>
+                    <option value="custom_cut">Coupe perso</option>
                 </select>
             </div>
-            <div id="brick-custom-cut-length-container" style="display: none; align-items: center; margin-left: 5px;">
-                <label for="brick-custom-cut-length" style="margin-right:5px;">Long. (cm):</label>
-                <input type="number" id="brick-custom-cut-length" value="10" min="1" step="0.1" style="width: 60px;">
+
+            <div id="brick-custom-cut-length-container" style="display: none;">
+                <label for="brick-custom-cut-length">Long. (cm):</label>
+                <input type="number" id="brick-custom-cut-length" min="1" max="50" step="0.1" value="20" title="Longueur personnalisée de la brique en cm">
             </div>
-            <div id="block-cut-container" style="display: none; align-items: center; margin-left: 10px;">
-                <label for="block-cut-selector" style="margin-right:5px;">Coupe Bloc:</label>
-                <select id="block-cut-selector">
-                    <option value="1/1" data-width="0.39">1/1 (Entier - 39cm)</option>
-                    <option value="3/4" data-width="0.29">3/4 (29cm)</option>
-                    <option value="1/2" data-width="0.19">1/2 (19cm)</option>
-                    <option value="1/4" data-width="0.09">1/4 (9cm)</option>
-                    <option value="ailette" data-width="0.04">Ailette (4cm)</option>
-                    <option value="coupe34" data-width="0.34">Coupe 34 (34cm)</option>
-                    <option value="custom_cut">Personnaliser...</option> 
+
+            <div id="block-cut-container" style="display: none;">
+                <select id="block-cut-selector" title="Longueur de bloc">
+                    <option value="1/1" data-width="0.39">39cm</option>
+                    <option value="ailette" data-width="0.09">Ailette (9cm)</option>
+                    <option value="3/4" data-width="0.29">Coupe 3/4 (29cm)</option>
+                    <option value="custom_cut">Long. perso</option>
                 </select>
             </div>
-            <div id="block-custom-cut-length-container" style="display: none; align-items: center; margin-left: 5px;"> 
-                <label for="block-custom-cut-length" style="margin-right:5px;">Long. (cm):</label>
-                <input type="number" id="block-custom-cut-length" value="20" min="1" step="0.1" style="width: 60px;">
+
+            <div id="block-custom-cut-length-container" style="display: none;">
+                <label for="block-custom-cut-length">Long. (cm):</label>
+                <input type="number" id="block-custom-cut-length" min="1" max="100" step="0.1" value="39" title="Longueur personnalisée du bloc en cm">
             </div>
-            <div id="custom-dims-container" style="display: none; align-items: center;">
-                <input type="text" id="custom-name" placeholder="Nom" style="width:100px;">
-                <input type="number" id="custom-width" placeholder="L (m)" step="0.01" min="0.01">
-                <input type="number" id="custom-height" placeholder="H (m)" step="0.01" min="0.01">
-                <input type="number" id="custom-depth" placeholder="P (m)" step="0.01" min="0.01">
+
+            <div id="custom-dims-container" style="display: none;">
+                <input type="text" id="custom-name" placeholder="Nom" title="Nom de l'élément personnalisé">
+                <input type="number" id="custom-width" placeholder="L(m)" step="0.01" min="0.01" value="0.2" title="Largeur en mètres">
+                <input type="number" id="custom-height" placeholder="H(m)" step="0.01" min="0.01" value="0.1" title="Hauteur en mètres">
+                <input type="number" id="custom-depth" placeholder="P(m)" step="0.01" min="0.01" value="0.1" title="Profondeur en mètres">
             </div>
-            <div id="vide-depth-container" style="display: none; align-items: center;">
-                <label for="vide-depth" style="margin-right:5px;">Prof. Vide (cm):</label>
-                <input type="number" id="vide-depth" value="1" min="1" max="5" step="0.1">
+
+            <div id="vide-depth-container" style="display: none;">
+                <label for="vide-depth">Prof. (cm):</label>
+                <input type="number" id="vide-depth" min="1" max="50" step="0.1" value="10" title="Profondeur de l'élément vide en cm">
             </div>
-            <span class="toolbar-separator"></span>
-            <div id="joint-settings-toolbar" style="display: inline-flex; align-items: center;">
-                <label for="joint-distance" style="margin-left: 5px; margin-right: 5px;">Joint Briques (cm):</label>
-                <input type="number" id="joint-distance" value="1" min="0" step="0.1" style="width: 60px;">
-                <label for="block-joint-distance" style="margin-left: 10px; margin-right: 5px;">Joint Blocs (cm):</label>
-                <input type="number" id="block-joint-distance" value="1" min="0" step="0.1" style="width: 60px;">
+
+            <div class="toolbar-separator"></div>
+
+            <!-- Horizontal Step Input -->
+            <div id="horizontal-step-container" class="step-input-container">
+                <label for="horizontal-step-input">Pas Horizontal (cm):</label>
+                <input type="number" id="horizontal-step-input" value="1" min="0.1" step="0.1" title="Pas de déplacement horizontal en cm">
             </div>
+
+            <!-- Vertical Step Input -->
+            <div id="vertical-step-container" class="step-input-container">
+                <label for="vertical-step-input">Pas Vertical (cm):</label>
+                <input type="number" id="vertical-step-input" value="1" min="0.1" step="0.1" title="Pas de déplacement vertical en cm">
+            </div>
+            
             <span class="toolbar-separator"></span> 
             <span style="margin-left: 5px;">Vues:</span>
             <button id="view-3d" title="Vue 3D (V)">
@@ -190,59 +193,35 @@
     </header>
 
     <main>
-        <aside id="left-sidebar">
+        <aside id="left-sidebar" class="sidebar">
             <div class="sidebar-content">
-                <h3>Outils</h3>
+                <h3>Outils Principaux</h3>
                 <div class="tool-buttons-grid">
-                    <button id="select-tool" class="tool-button" title="Sélectionner (S)">
-                        <i class="fas fa-mouse-pointer"></i>
-                        <span>Sél.</span>
-                    </button>
-                    <button id="add-tool" class="tool-button" title="Ajouter (A)">
-                        <i class="fas fa-plus"></i>
-                        <span>Ajout</span>
-                    </button>
-                    <button id="move-tool" class="tool-button" title="Déplacer (M)">
-                        <i class="fas fa-arrows-alt"></i>
-                        <span>Dépl.</span>
-                    </button>
-                    <button id="duplicate-tool" class="tool-button" title="Dupliquer (Maj+D)">
-                        <i class="fas fa-clone"></i>
-                        <span>Dupl.</span>
-                    </button>
-                    <button id="rotate-tool" class="tool-button" title="Pivoter (R)">
-                        <i class="fas fa-sync-alt"></i>
-                        <span>Piv.</span>
-                    </button>
-                    <button id="delete-tool" class="tool-button" title="Supprimer (Suppr)">
-                        <i class="fas fa-trash"></i>
-                        <span>Suppr.</span>
-                    </button>
-                    <div class="toolbar-separator"></div>
-                    <button id="edit-selection" class="tool-button" title="Modifier Sélection (E)">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <div class="toolbar-separator"></div>
+                    <button id="select-tool" class="tool-button" title="Sélectionner/Peindre (S)"><i class="fas fa-mouse-pointer"></i><span>Sélection</span></button>
+                    <button id="add-tool" class="tool-button" title="Ajouter Élément (A)"><i class="fas fa-plus-square"></i><span>Ajouter</span></button>
+                    <button id="move-tool" class="tool-button" title="Déplacer Sélection (M)"><i class="fas fa-arrows-alt"></i><span>Déplacer</span></button>
+                    <button id="rotate-tool" class="tool-button" title="Pivoter Sélection (R)"><i class="fas fa-sync-alt"></i><span>Pivoter</span></button>
+                    <button id="duplicate-tool" class="tool-button" title="Dupliquer Sélection (Maj+D)"><i class="fas fa-clone"></i><span>Dupliquer</span></button>
+                    <button id="delete-tool" class="tool-button" title="Supprimer Sélection (Suppr)"><i class="fas fa-trash-alt"></i><span>Supprimer</span></button>
                 </div>
 
-                <!-- --- TEXTURE PALETTE --- -->
+                <h3>Couleurs</h3>
+                <div id="color-palette-container">
+                </div>
+
                 <h3>Textures</h3>
                 <div id="texture-palette-container">
-                    <!-- Les échantillons de texture seront ajoutés ici par JavaScript -->
                 </div>
 
-                <h3>Textures Personnalisées</h3>
                 <div class="custom-texture-input-container">
-                    <label for="custom-texture-file-input" class="custom-texture-label-button">Choisir un fichier...</label>
+                    <label for="custom-texture-file-input" class="custom-texture-label-button">
+                        <i class="fas fa-upload"></i> Charger Texture
+                    </label>
                     <input type="file" id="custom-texture-file-input" accept="image/*">
-                    <span id="custom-texture-file-name-display">Aucun fichier choisi</span>
-                </div>
-                <div id="custom-texture-palette-container">
-                    <!-- Les échantillons de textures personnalisées seront ajoutés ici -->
+                    <div id="custom-texture-file-name-display"></div>
                 </div>
 
-                <h3>Palette de Couleurs</h3>
-                <div id="color-palette-container">
+                <div id="custom-texture-palette-container">
                 </div>
             </div>
         </aside>
@@ -266,25 +245,33 @@
 
         <aside id="right-sidebar">
             <div class="sidebar-content">
-                <h3>Métadonnées</h3>
-                <label for="project-title">Titre de l'ouvrage:</label>
-                <input type="text" id="project-title" name="project-title">
-                <label for="designer-name">Dessinateur:</label>
-                <input type="text" id="designer-name" name="designer-name">
-                <label for="operating-mode">Mode opératoire:</label>
-                <textarea id="operating-mode" name="operating-mode" rows="3"></textarea>
+                <h3>Propriétés du Projet</h3>
+                <label for="project-title">Titre du projet :</label>
+                <input type="text" id="project-title" placeholder="Ex: Mur de façade">
+                
+                <label for="designer-name">Nom du dessinateur :</label>
+                <input type="text" id="designer-name" placeholder="Ex: Jean Dupont">
+                
+                <label for="operating-mode">Mode opératoire :</label>
+                <textarea id="operating-mode" rows="3" placeholder="Description de la procédure de construction..."></textarea>
+                
+                <label for="project-notes">Notes :</label>
+                <textarea id="project-notes" rows="3" placeholder="Notes supplémentaires..."></textarea>
 
-                <h3 id="element-counter-title">Métré des matériaux</h3>
+                <h3>Métré</h3>
                 <table id="element-counter">
                     <thead>
                         <tr>
+                            <th>Élément</th>
+                            <th>Quantité</th>
                         </tr>
                     </thead>
                     <tbody>
+                        <tr>
+                            <td colspan="2" style="text-align: center; font-style: italic; color: #555;">Aucun élément n'est placé.</td>
+                        </tr>
                     </tbody>
                 </table>
-                <h3 id="notes-title">Notes</h3>
-                <textarea id="project-notes" name="project-notes" rows="4" style="resize: vertical;"></textarea>
             </div>
         </aside>
     </main>

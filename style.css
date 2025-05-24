@@ -185,32 +185,6 @@ header {
 #toolbar input[type="number"] {
     width: 65px;
 }
-#toolbar #joint-settings-toolbar input[type="number"] { /* Specific width for joint inputs in toolbar */
-    width: 60px;
-    padding: 5px; /* Adjusted padding for toolbar inputs */
-}
-#toolbar #joint-settings-toolbar label { /* Style for labels in the joint settings toolbar div */
-    margin-left: 5px;
-    margin-right: 5px;
-    color: #424242;
-}
-
-#custom-dims-container input, 
-#vide-depth-container input, 
-#brick-custom-cut-length-container input,
-#block-custom-cut-length-container input {
-    margin-left: 5px;
-}
-#vide-depth-container label, 
-#brick-custom-cut-length-container label,
-#block-custom-cut-length-container label { 
-    margin-left: 8px;
-    color: #424242; 
-}
-#brick-cut-container label, #block-cut-container label { 
-    margin-left: 5px;
-    color: #424242; 
-}
 .toolbar-separator {
     border-left: 1px solid #BDBDBD; 
     height: 20px; 
@@ -398,6 +372,17 @@ main {
     background-color: #E57373; 
 }
 
+/* Styling for Seating Level Selector */
+#seating-level-selector {
+    /* width: calc(100% - 20px); Already set inline, but can be managed here */
+    /* padding: 6px; Already inherited or set by general select styles */
+    /* margin-bottom: 8px; Already set inline, but can be managed here */
+    /* border: 1px solid #BDBDBD; Already inherited */
+    /* border-radius: 3px; Already inherited */
+    /* box-sizing: border-box; Already inherited */
+    /* Specific styles if needed, e.g., font-weight */
+}
+
 /* --- COLOR PALETTE --- */
 #color-palette-container {
     margin-top: 15px;
@@ -439,121 +424,115 @@ main {
 
 /* --- TEXTURE PALETTE --- */
 #texture-palette-container {
-    margin-top: 15px;
+    margin-top: 10px;
     width: calc(100% - 10px);
     padding: 0 5px;
     box-sizing: border-box;
 }
 .texture-palette {
     display: grid;
-    grid-template-columns: repeat(4, 1fr); /* Changed from auto-fit to 4 per row */
+    grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
     gap: 5px;
 }
 .texture-swatch {
-    width: 100%; 
-    padding-bottom: 100%; /* Maintain aspect ratio */
-    position: relative;
-    border: 1px solid #B0B0B0;
-    border-radius: 3px;
+    width: 40px;
+    height: 40px;
+    border: 1px solid #ccc;
     cursor: pointer;
     background-size: cover;
     background-position: center;
-    transition: transform 0.1s ease, border-color 0.1s ease;
-    margin: 0; 
+    box-sizing: border-box;
+    transition: border-color 0.2s ease, transform 0.1s ease;
 }
 .texture-swatch:hover {
-    transform: scale(1.1);
-    border-color: #777;
+    border-color: #888;
+    transform: scale(1.05);
 }
 .texture-swatch.active-texture-swatch {
-    border: 2px solid #3498db; /* Same as color swatch active */
-    transform: scale(1.05);
+    border: 2px solid #007bff;
+    box-shadow: 0 0 5px rgba(0,123,255,0.5);
+    transform: scale(1.1);
 }
 
 /* --- CUSTOM TEXTURE PALETTE --- */
 .custom-texture-input-container {
-    width: calc(100% - 20px); /* Consistent with other sidebar inputs */
-    margin: 0 auto 10px auto;
     display: flex;
     flex-direction: column;
     align-items: center;
-}
-
-#custom-texture-file-input {
-    width: 0.1px;
-    height: 0.1px;
-    opacity: 0;
-    overflow: hidden;
-    position: absolute;
-    z-index: -1;
-}
-
-.custom-texture-label-button {
-    display: inline-block;
-    padding: 6px 12px;
-    background-color: #EFEFEF;
-    border: 1px solid #BDBDBD;
-    color: #424242;
-    font-size: 0.9em; /* Slightly smaller than main buttons */
-    cursor: pointer;
-    border-radius: 3px;
-    margin-bottom: 5px; /* Space between button and file name */
-    text-align: center;
-    width: 100%; /* Make label button take full width of its container */
-    box-sizing: border-box;
-}
-
-.custom-texture-label-button:hover {
-    background-color: #DADADA;
-    border-color: #A0A0A0;
-}
-
-#custom-texture-file-name-display {
-    display: block; /* Ensures it's on a new line */
-    font-size: 0.8em; /* Smaller font size */
-    color: #555555;
-    margin-top: 2px;
-    text-align: center;
-    width: 100%;
-    word-break: break-all; /* For long file names */
-    line-height: 1.2;
-}
-
-
-#custom-texture-palette-container {
-    margin-top: 10px; /* Added margin for spacing */
+    margin-top: 10px;
     width: calc(100% - 10px);
     padding: 0 5px;
     box-sizing: border-box;
 }
 
-.custom-texture-palette { /* Similar to .texture-palette */
+#custom-texture-file-input {
+    display: none;
+}
+
+.custom-texture-label-button {
+    display: inline-block;
+    padding: 6px 12px;
+    cursor: pointer;
+    background-color: #E0E0E0;
+    color: #424242;
+    border: 1px solid #B0B0B0;
+    border-radius: 3px;
+    text-align: center;
+    margin-bottom: 5px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.custom-texture-label-button:hover {
+    background-color: #D0D0D0;
+    border-color: #9E9E9E;
+}
+
+#custom-texture-file-name-display {
+    font-size: 0.8em;
+    color: #555;
+    margin-top: 2px;
+    text-align: center;
+    word-break: break-all;
+}
+
+#custom-texture-palette-container {
+    margin-top: 5px;
+    width: calc(100% - 10px);
+    padding: 0 5px;
+    box-sizing: border-box;
     display: grid;
-    grid-template-columns: repeat(4, 1fr); /* Changed to 4 per row */
+    grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+    gap: 5px;
+    min-height: 42px;
+}
+
+.custom-texture-palette {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
     gap: 5px;
 }
 
-.custom-texture-swatch { /* Similar to .texture-swatch */
-    width: 100%; 
-    padding-bottom: 100%; /* Maintain aspect ratio */
-    position: relative;
-    border: 1px solid #B0B0B0;
-    border-radius: 3px;
+.custom-texture-swatch {
+    width: 40px;
+    height: 40px;
+    border: 1px solid #ccc;
     cursor: pointer;
     background-size: cover;
     background-position: center;
-    transition: transform 0.1s ease, border-color 0.1s ease;
-    margin: 0; 
+    box-sizing: border-box;
+    transition: border-color 0.2s ease, transform 0.1s ease;
 }
 
 .custom-texture-swatch:hover {
-    transform: scale(1.1);
-    border-color: #777;
+    border-color: #888;
+    transform: scale(1.05);
 }
 
-.custom-texture-swatch.active-texture-swatch { /* Use same active class for consistency */
-    border: 2px solid #3498db;
-    transform: scale(1.05);
+.custom-texture-swatch.active-texture-swatch {
+    border: 2px solid #007bff;
+    box-shadow: 0 0 5px rgba(0,123,255,0.5);
+    transform: scale(1.1);
 }
 
 
@@ -661,11 +640,14 @@ main {
     -webkit-user-select: none;
     -webkit-tap-highlight-color: transparent;
 }
-#dpad-test-mobile button:active {
-    background: #217dbb;
+
+.rot-icon {
+    font-size: 0.7em;
+    margin-right: 4px; /* Added spacing between the icon and the label */
 }
-#dpad-test-mobile button:focus {
-    outline: 2px solid #81C784;
+
+.rot-label {
+    font-size: 0.5em;
 }
 
 /* --- ELEMENT COUNTER TABLE --- */
@@ -700,17 +682,18 @@ main {
 
 /* --- HEIGHT TOOLTIP --- */
 #height-tooltip {
-    display: none; 
-    position: absolute; 
-    background-color: rgba(0,0,0,0.75); 
-    color: white; 
-    padding: 5px 10px; 
-    border-radius: 4px; 
-    z-index: 1001; 
-    font-size: 0.9em; 
-    pointer-events: none; 
-    transform: translate(-50%, -120%); 
-    white-space: nowrap; 
+    position: absolute;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    pointer-events: none;
+    z-index: 1000;
+    display: none;
+    white-space: pre-line; /* Allow line breaks in tooltip text */
+    max-width: 300px; /* Prevent tooltip from being too wide */
+    word-wrap: break-word; /* Handle long text gracefully */
 }
 
 #toolbar #paint-tool {
@@ -731,3 +714,26 @@ main {
     vertical-align: middle;
     display: block; /* Ensures proper alignment within the button */
 }
+
+#toolbar .step-input-container { /* Generalize for both step containers */
+    display: inline-flex;
+    align-items: center;
+    margin-right: 10px; /* Add some margin between step inputs and other elements */
+}
+
+#toolbar .step-input-container label { /* Generalize for both step containers */
+    margin-right: 5px;
+    font-size: 0.9em;
+    color: #555;
+}
+
+#toolbar .step-input-container input[type="number"] { /* Generalize for both step containers */
+    width: 50px; /* Adjust width as needed */
+    padding: 4px;
+    margin-right: 0; /* Remove individual margin-right if container has it */
+}
+
+/* Specific ID styles if still needed, but above general class should cover it */
+/* #toolbar #vertical-step-container {…} */ /* Can be removed if covered by .step-input-container */
+/* #toolbar #vertical-step-container label {…} */ /* Can be removed if covered by .step-input-container label */
+/* #toolbar #vertical-step-input {…} */ /* Can be removed if covered by .step-input-container input */
