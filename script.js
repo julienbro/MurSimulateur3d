@@ -774,6 +774,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         const currentEvent = eventParam || window.event;
         const useShift = currentEvent ? currentEvent.shiftKey : false;
+        const rotAmount = Math.PI / (useShift ? 18 : 36);
+        target.rotation.y += (direction === 'left' ? rotAmount : -rotAmount);
+        
+        // Update tooltip if it's a fixed ghost element
+        if (target === ghostElement && isGhostFixed) {
+            showTooltipForFixedGhost();
+        }
+    }
 
     function rotateXGhostOrSelected(direction, eventParam) {
         const target = (currentTool === 'add' && ghostElement && isGhostFixed) ? ghostElement :
@@ -786,6 +794,42 @@ document.addEventListener('DOMContentLoaded', () => {
         const useShift = currentEvent ? currentEvent.shiftKey : false;
         const rotAmount = Math.PI / (useShift ? 18 : 36);
         target.rotation.x += (direction === 'left' ? rotAmount : -rotAmount);
+        
+        // Update tooltip if it's a fixed ghost element
+        if (target === ghostElement && isGhostFixed) {
+            showTooltipForFixedGhost();
+        }
+    }
+
+    function rotateYGhostOrSelected(direction, eventParam) {
+        const target = (currentTool === 'add' && ghostElement && isGhostFixed) ? ghostElement :
+            ((currentTool === 'rotate' || currentTool === 'move') && selectedObject) ? selectedObject : null;
+        if (!target) return;
+        if (selectedObject && !target.userData.undoInitialTransform && (currentTool === 'move' || currentTool === 'rotate')) {
+            target.userData.undoInitialTransform = { position: target.position.clone(), rotation: target.rotation.clone() };
+        }
+        const currentEvent = eventParam || window.event;
+        const useShift = currentEvent ? currentEvent.shiftKey : false;
+        const rotAmount = Math.PI / (useShift ? 18 : 36);
+        target.rotation.y += (direction === 'left' ? rotAmount : -rotAmount);
+        
+        // Update tooltip if it's a fixed ghost element
+        if (target === ghostElement && isGhostFixed) {
+            showTooltipForFixedGhost();
+        }
+    }
+
+    function rotateZGhostOrSelected(direction, eventParam) {
+        const target = (currentTool === 'add' && ghostElement && isGhostFixed) ? ghostElement :
+            ((currentTool === 'rotate' || currentTool === 'move') && selectedObject) ? selectedObject : null;
+        if (!target) return;
+        if (selectedObject && !target.userData.undoInitialTransform && (currentTool === 'move' || currentTool === 'rotate')) {
+            target.userData.undoInitialTransform = { position: target.position.clone(), rotation: target.rotation.clone() };
+        }
+        const currentEvent = eventParam || window.event;
+        const useShift = currentEvent ? currentEvent.shiftKey : false;
+        const rotAmount = Math.PI / (useShift ? 18 : 36);
+        target.rotation.z += (direction === 'left' ? rotAmount : -rotAmount);
         
         // Update tooltip if it's a fixed ghost element
         if (target === ghostElement && isGhostFixed) {
@@ -1050,50 +1094,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (Math.sqrt(deltaX * deltaX + deltaY * deltaY) > DRAG_MOVEMENT_THRESHOLD) {
                 isDraggingWithTouch = true;
-            }
-
-            if (currentTool === 'add' && ghostElement && !isGhostFixed && !controls.enabled) {
-                const rect = domElements.viewportContainer.getBoundingClientRect();
-                mousePointer.x = ((touch.clientX - rect.left) / rect.width) * 2 - 1;
-                mousePointer.y = -((touch.clientY - rect.top) / rect.height) * 2 + 1;
-                raycaster.setFromCamera(mousePointer, camera);
-                updateGhostOnIntersection(raycaster);
-                if (ghostElement) ghostElement.visible = true;
-            } else if (isDraggingWithTouch) {
-                controls.enabled = true;
-            }
-        } else { 
-            controls.enabled = true;
-        }
-    }
-
-    function onViewportTouchEnd(event) {
-        event.preventDefault();
-        const touchDuration = Date.now() - touchStartTime;
-
-        if (event.changedTouches.length === 1) {
-            const touch = event.changedTouches[0];
-
-            if (currentTool === 'add') {
-                if (!isDraggingWithTouch && touchDuration < TAP_DURATION_THRESHOLD) { // TAP
-                    if (!ghostElement) {
-                        createGhostElement();
-                    }
-                    if (ghostElement) {
-                        const rect = domElements.viewportContainer.getBoundingClientRect();
-                        mousePointer.x = ((touch.clientX - rect.left) / rect.width) * 2 - 1;
-                        mousePointer.y = -((touch.clientY - rect.top) / rect.height) * 2 + 1;
-                        raycaster.setFromCamera(mousePointer, camera);
-                        
-                        updateGhostOnIntersection(raycaster, true); // Position it, bypassing isGhostFixed check for this call
-                        
-                        isGhostFixed = true; // Now, mark as fixed for D-Pad
-                        ghostElement.visible = true;
-
-                        controls.enabled = true; controls.enableRotate = true; controls.enablePan = true;
-                        showTooltipForFixedGhost();
-                        updateHelpBar(currentTool, isGhostFixed, selectedObject, currentActiveColor, currentActiveTextureUrl);
-                    }
             }
 
             if (currentTool === 'add' && ghostElement && !isGhostFixed && !controls.enabled) {

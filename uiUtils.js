@@ -349,7 +349,7 @@ export function updateElementCounterUI(objects) {
                 }
             }
         }
-        counts[countsName] = (counts[countsName] || 0) + 1;
+        counts[countName] = (counts[countName] || 0) + 1;
     });
 
     domElements.elementCounterTableBody.innerHTML = '';
